@@ -1,0 +1,34 @@
+# ============================================================
+#  Single .gitignore for the OpenCode SOP.
+#
+#  It lives in the template root and is copied into every target
+#  project by copy-to-project.ps1, so a fresh project starts with
+#  the right rules without any manual step.
+#
+#  When it is copied into a project that already has a .gitignore,
+#  only the missing entries are appended. Existing rules are never
+#  removed or reordered.
+# ============================================================
+
+# --- dependencies -------------------------------------------
+node_modules/
+.opencode/node_modules/
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/bun.lock
+
+# --- generated, not source ----------------------------------
+# STACK.md is written by /stack from real detection, so it changes
+# on every machine. Commit it only if your team wants one shared
+# detection; most projects should not.
+.opencode/STACK.md
+
+# --- codebase graph output ----------------------------------
+graphify-out/
+.opencode/graphify-out/
+
+# --- editor / OS noise --------------------------------------
+.DS_Store
+Thumbs.db
+*.tmp
+*~
