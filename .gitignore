@@ -27,6 +27,12 @@ node_modules/
 graphify-out/
 .opencode/graphify-out/
 
+# --- tool runtime artifacts (generated, never commit) --------
+# Hallmark theme.mjs salt/log/shots and playwright-cli page snapshots are
+# written by verification runs. They are per-machine, not source.
+.hallmark/
+.playwright-cli/
+
 # --- editor / OS noise --------------------------------------
 .DS_Store
 Thumbs.db

@@ -48,7 +48,7 @@ output rather than opinions.
 | Output style | **i-have-adhd** | Answer-first output. |
 | Browser verify | **Playwright CLI** (Microsoft) | Interaction and screenshots without a human, and far cheaper in context than a browser MCP. |
 | Perf/a11y verify | **Chrome DevTools MCP** (Google) | LCP, CLS, console, a11y tree. |
-| Library docs | **`ctx_fetch_and_index` + Tavily** | No docs MCP. Project `docs/` first, then official library docs fetched on demand. |
+| Library docs | **`ctx_index` + Tavily** | No docs MCP. Project `docs/` first, then official library docs fetched on demand. |
 
 Rejected, with reasons: `oil-ui` (content in Mandarin), `superdesign` (needs an
 account), `wghobson/agents` (heavy duplicate of the local agents), `mcp-chrome`
@@ -94,10 +94,13 @@ The global plugin is installed by `graphify install` (the CLI's own doing), not
 by this template. The template only ships the project-scoped one.
 
 **Pick the agent, the SOP does not pick itself.** opencode's default agent is
-`build`, not `develop`. In every new session either type `@develop` or press Tab
-and select one of `develop` / `ui-designer` / `reviewer` / `planner`. Commands
-`/stack`, `/new-feature`, `/ship` already route to `develop` or `ui-designer`;
-an un-routed session is just `build` with the SOP in context, nothing more.
+`build`, not `develop`. Only `develop` is a **primary** agent, so it is the only
+project agent Tab cycles to; type `@develop` or press Tab to switch to it. The
+other three (`ui-designer`, `planner`, `reviewer`) are **subagents** — they run
+when a command routes to them or when `develop` delegates, not via Tab. Commands
+`/stack`, `/new-feature`, `/ship` route to `develop`; `/build-ui` and `/ui-audit`
+route to the `ui-designer` subagent. An un-routed session is just `build` with the
+SOP in context, nothing more.
 
 | Layer | Lives in | Carried by `copy-to-project.ps1`? | Installed by |
 |---|---|---|---|
@@ -391,7 +394,7 @@ commands already cover its skills, so the plugin was redundant overhead.
 ### Step 5b — Point context-mode at a real shell (Windows, required)
 
 On Windows, context-mode picks `pwsh` first. The `pwsh.exe` that ships as a
-Microsoft Store alias is a 0-byte stub, so every `ctx_batch_execute` call fails
+Microsoft Store alias is a 0-byte stub, so every `ctx_batch` call fails
 with `Executable not found in $PATH: "pwsh"` even though PowerShell 7 is
 installed. Pin it explicitly:
 
@@ -585,7 +588,7 @@ Library documentation is **not** an MCP. When an API needs checking, the agent
 fetches the official docs page into the knowledge base:
 
 ```
-ctx_fetch_and_index(<official docs URL>, source: "docs-<lib>")
+ctx_index(url: "<official docs URL>", source: "docs-<lib>")
 ctx_search(queries: [...], source: "docs-<lib>")
 ```
 
@@ -670,7 +673,7 @@ Full text: `.opencode/sops/DESIGN.md`, `.opencode/sops/QUALITY_GATE.md`.
 | Fresh PC: `check-setup` red on MCP / SHELL / opencode.json | Expected before the global layer. Run `check-setup.ps1 -FirstRun`, then `bootstrap-windows.ps1` |
 | Skill named in the SOP does not exist | It must sit in the project at `.opencode/skills/<name>/SKILL.md`. Run `install-skills.ps1 -List` to see what is vendored |
 | `rtk` not found | Put `rtk.exe` on PATH, reopen terminal, or run `bootstrap-windows.ps1` |
-| `ctx_batch_execute` fails: `Executable not found in $PATH: "pwsh"` | Step 5b: set `SHELL` to `powershell.exe`, restart opencode |
+| `ctx_batch` fails: `Executable not found in $PATH: "pwsh"` | Step 5b: set `SHELL` to `powershell.exe`, restart opencode |
 | `rtk find` says `does not support compound predicates` | Drop `-not` / `-exec`; scope the path instead |
 | `rtk find` prints `0 for '*'` | Wrong cwd or empty folder. Retry with an absolute path; `0` is not proof a file is missing |
 | `rtk ls` fails: `Binary 'ls' not found` | `rtk ls` needs Git's `usr\bin` on PATH. Use `rtk find <path> -maxdepth 1` — always works |
@@ -678,7 +681,7 @@ Full text: `.opencode/sops/DESIGN.md`, `.opencode/sops/QUALITY_GATE.md`.
 | `rtk grep <pattern> <dir>` says `Is a directory` | GNU grep is not recursive. Use `rtk rg <pattern> <dir>` |
 | `rtk tree` says `Too many parameters` | `rtk tree` proxies the Windows `tree.exe`. Use `rtk find <path> -maxdepth 2` |
 | `rtk find .` floods with `node_modules` | Scope the path: `rtk find src -name *.md`, or add `-maxdepth 2` |
-| Agent does not follow the SOP | opencode's default agent is `build`, not `develop`. Type `@develop` or press Tab and select |
+| Agent does not follow the SOP | opencode's default agent is `build`, not `develop`. Type `@develop` (the only primary project agent; Tab switches to it) |
 | `rtk find -name '*.md'` finds nothing | Remove the quotes: `-name *.md` |
 | `rtk json pyproject.toml` says `is not a JSON file` | Use `rtk read pyproject.toml` |
 | MCP tools missing in opencode | Run `npx -y chrome-devtools-mcp@latest --help`; check opencode log |

@@ -1,173 +1,226 @@
-# OpenCode Project Template
+# OpenCode SOP Template
+
+![opencode 2.x](https://img.shields.io/badge/opencode-2.x-3b82f6)
+![platform](https://img.shields.io/badge/platform-Windows%20PowerShell%205.1-012456)
+![license](https://img.shields.io/badge/license-see%20Credits-lightgrey)
 
 A portable `.opencode/` folder plus one `AGENTS.md`. Copy both into a project and
-the agent knows how to build web apps without producing AI slop.
+the agent knows how to build web apps **without producing AI slop** — it reads the
+project docs first, detects the real stack, follows a phased procedure, and proves
+its work with a linter, screenshots, and hard quality gates.
 
-Built for **opencode 2.x**, works with any agent that reads `AGENTS.md` + `SKILL.md`.
-The SOP text is portable; the install scripts are Windows PowerShell 5.1 only.
+Built for **opencode 2.x**; works with any agent that reads `AGENTS.md` + `SKILL.md`.
+The SOP text is portable; the install scripts are **Windows PowerShell 5.1** only.
 
-> **This file is the short version.** It covers what you need to get started and
-> where things live. The full setup guide, every step, every MCP decision and
-> the troubleshooting tables are in **`SETUP.md`**, next to this file. The two
-> are deliberately different: this one answers "what is this and how do I run
-> it", that one answers "how does every piece work and why".
+> **This file is the short version.** It answers *what this is and how to run it*.
+> The full guide — every step, every MCP decision, the troubleshooting tables and
+> the design rationale — is in **[`SETUP.md`](SETUP.md)**.
+
+---
+
+## Contents
+
+- [Features](#features)
+- [Quick start](#quick-start)
+- [What gets installed](#what-gets-installed)
+- [Repository layout](#repository-layout)
+- [What is inside](#what-is-inside)
+- [How it works](#how-it-works)
+- [Verify](#verify)
+- [Requirements](#requirements)
+- [Good to know](#good-to-know)
+- [Credits and licenses](#credits-and-licenses)
+
+---
+
+## Features
+
+- **Docs-first, detect-second.** The project documents in `docs/` are the source
+  of truth; the stack is detected from real manifests, never assumed.
+- **Phased procedure (0a → 7).** Requirements → detect → understand → spec → plan
+  → build → mechanical verify → visual verify → review. Each phase has an exit
+  condition.
+- **Evidence, not adjectives.** Done means `sloplint` clean, screenshots at
+  320 / 768 / 1280 / 1440, and LCP < 2.5 s / CLS < 0.1 — not "looks good".
+- **Anti-slop design floor.** A deterministic linter (`sloplint`) plus a 151-rule
+  design rulebook and a concrete ban catalogue.
+- **Small context, on demand.** `AGENTS.md` is a thin router; detailed SOPs and
+  skills load only when their trigger fires — no dumping every rule up front.
+- **Specialised subagents.** `develop`, `ui-designer`, `reviewer`, `planner` —
+  each with the right permissions (reviewers cannot edit).
+- **Two-layer install.** The SOP is copied per project; machine tools, plugins
+  and MCP servers are installed once per PC.
 
 ---
 
 ## Quick start
 
-Double-click `Setup.bat`. One menu does everything: install the machine
-layer, copy the SOP into a project, check what is missing, or open the project
-in opencode.
+Double-click **`Setup.bat`**. One menu does everything: install the machine layer,
+copy the SOP into a project, check what is missing, or open the project in opencode.
 
 ```powershell
-Setup.bat                            # interactive menu
+Setup.bat                          # interactive menu
 Setup.bat setup "C:\dev\my-app"    # full setup, no prompts
-Setup.bat machine                   # machine layer only
-Setup.bat copy "C:\dev\my-app"     # copy the SOP into a project
-Setup.bat status                    # check what is present
+Setup.bat machine                  # machine layer only
+Setup.bat copy  "C:\dev\my-app"    # copy the SOP into a project
+Setup.bat status                   # check what is present
 ```
 
-The menu is a console UI, so it works over RDP and in terminals without a
-desktop. When a desktop is available it opens a folder picker for the
-destination.
+The menu is a console UI, so it works over RDP and in terminals without a desktop.
+When a desktop is available it opens a folder picker for the destination.
 
 The two halves can also run separately:
 
 ```powershell
-# machine layer only (once per PC)
+# Machine layer only (once per PC)
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\.opencode\scripts\bootstrap-windows.ps1"
 
-# project copy only
+# Project copy only
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\.opencode\scripts\copy-to-project.ps1" -Destination "C:\path\to\new-project"
 ```
 
-Replace `PROJECT_NAME` in `AGENTS.md` before the first real task.
+Finally, replace `PROJECT_NAME` in `AGENTS.md` before the first real task.
 
 ---
 
-## Layout after copying
+## What gets installed
 
-```
-my-app/
-+-- docs/          your documents (PRD, STACK, features, ADR)
-+-- src/ ...
-+-- AGENTS.md      <- the only setup file at the root
-+-- .gitignore     <- copied from the template, covers the generated files
-+-- .opencode/     <- everything else
-```
+Two layers, split so each fact lives in exactly one place.
 
-The template root itself:
+| Layer | What it contains | Installed by |
+|---|---|---|
+| **Per project** | the SOP: `sops/`, `agents/`, `commands/`, `skills/`, `instructions/`, `plugins/graphify-auto-update.js`, `AGENTS.md`, `.gitignore` | `copy-to-project.ps1` |
+| **Per machine** (`~/.config/opencode`) | MCP servers (`chrome-devtools`, optional `tavily`), package plugins (`context-mode`), the global `AGENTS.md`, the `SHELL` env var, CLI tools (`opencode`, `rtk`, `graphify`, `playwright-cli`) | `bootstrap-windows.ps1` |
+
+MCP servers and package plugins are deliberately **not** copied into projects: one
+machine-wide definition serves every project. To add an MCP server, edit the global
+config, not the template.
+
+---
+
+## Repository layout
 
 ```
 opencode-template/
-+-- Setup.bat          <- the one door; stays here, never copied
-+-- AGENTS.md          <- the routing table that gets copied
-+-- .gitignore         <- single source of truth, copied into projects
-+-- README.md          <- this file
-+-- .opencode/         <- the SOP: sops, agents, commands, skills, scripts
+├── Setup.bat          <- the one door; stays here, never copied
+├── AGENTS.md          <- the routing table that gets copied
+├── .gitignore         <- single source of truth, copied into projects
+├── README.md          <- this file
+├── SETUP.md           <- the full setup guide
+└── .opencode/         <- the SOP: sops, agents, commands, skills, scripts
+```
+
+A project after copying:
+
+```
+my-app/
+├── docs/              your documents (PRD, STACK, features, ADR)
+├── src/ ...           code
+├── AGENTS.md          the only setup file at the root
+├── .gitignore         copied from the template, covers generated files
+└── .opencode/         everything else
 ```
 
 ---
 
-## What is in here
+## What is inside
 
 | Path | What it is |
 |---|---|
-| `Setup.bat` | One-door setup menu (lives in the template, not copied into projects) |
-| `AGENTS.md` (project root) | Routing table and hard rules. opencode reads it automatically. |
-| `.gitignore` | Single source of truth for what must never be committed. Copied into every project. |
+| `Setup.bat` | One-door setup menu (stays in the template, not copied) |
+| `AGENTS.md` | Routing table and hard rules; opencode reads it automatically |
+| `.gitignore` | Single source of truth for what must never be committed |
 | `.opencode/sops/` | Five procedures + `stacks/` (one file per stack) + `context/TROUBLESHOOTING.md` |
-| `.opencode/agents/` | `develop`, `ui-designer`, `reviewer`, `planner` subagents |
+| `.opencode/agents/` | `develop` (primary) plus `ui-designer`, `planner`, `reviewer` (subagents) |
 | `.opencode/commands/` | `/stack`, `/new-feature`, `/ship`, `/build-ui`, `/ui-audit`, `/i-have-adhd` |
 | `.opencode/skills/hallmark` | Anti-slop design skill with a deterministic linter (`sloplint.mjs`) |
 | `.opencode/skills/refactoring-ui` | 151-rule design rulebook distilled from *Refactoring UI* |
 | `.opencode/skills/design-taste` | Ban catalogue, motion, interaction states, OKLCH colour |
-| `.opencode/skills/i-have-adhd` | Output shaping for a reader with ADHD |
+| `.opencode/skills/i-have-adhd` | Answer-first output shaping |
 | `.opencode/instructions/ALWAYS-ON.md` | Source for the global always-on file (`~/.config/opencode/AGENTS.md`) |
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
-| `.opencode/scripts/` | `bootstrap-windows.ps1`, `check-setup.ps1`, `check-template.ps1`, `copy-to-project.ps1`, `install-skills.ps1`, `lib-jsonc.ps1`, `setup-menu.ps1` |
+| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu` |
 
 ---
 
-## Two AGENTS.md files
+## How it works
 
-opencode loads both, in this order:
+### The procedure
 
-| File | Scope | Content |
+The agent follows `.opencode/sops/WEB_DEV.md`, phase by phase. Each phase has an
+exit condition; the agent may not skip an unmet exit.
+
+| Phase | Goal |
+|---|---|
+| 0a | Read the project documents in `docs/` and quote the requirement |
+| 0b | Detect the stack, write `.opencode/STACK.md`, load one stack file |
+| 1 | Understand the codebase (`graphify query`, read siblings and tests) |
+| 2–3 | Spec and plan (only for >1 file or >1 concern) |
+| 4 | Build — data/types → logic → UI shell → UI polish |
+| 5 | Mechanical verify — build, typecheck, lint, tests |
+| 6 | Visual verify — `sloplint --render`, screenshots, a11y, LCP/CLS |
+| 7 | Independent review and handoff |
+
+### Agents
+
+| Agent | Mode | Job |
 |---|---|---|
-| `~/.config/opencode/AGENTS.md` | every session, every project | machine-wide always-on rules: ADHD output style, `graphify update .` after edits, context-mode, `rtk` prefix, PowerShell without `&&` |
-| `<project>/AGENTS.md` | this project only | routing table, precedence, load order, hard rules, definition of done |
+| `develop` | primary | Implementation; owns the phases and the evidence |
+| `ui-designer` | subagent | Visual direction and the design system |
+| `planner` | subagent | Spec and tracer-bullet tickets (read-only) |
+| `reviewer` | subagent | Code and security review, high-confidence findings only (read-only) |
 
-They are combined, not overridden. The global file is a copy of
-`.opencode/instructions/ALWAYS-ON.md`; `bootstrap-windows.ps1` and
-`copy-to-project.ps1` both write it, and `check-setup.ps1` verifies it.
+### Commands
 
----
+Every command is a Markdown file in `.opencode/commands/`. Type `/` in opencode to
+pick one. Routing is fixed per command:
 
-## What runs where
+| Command | Runs as |
+|---|---|
+| `/stack` | `develop` (primary) |
+| `/new-feature` | `develop` (primary) |
+| `/ship` | `develop` (primary) |
+| `/build-ui` | `ui-designer` (subagent) |
+| `/ui-audit` | `ui-designer` (subagent) |
+| `/i-have-adhd` | output style (any agent) |
 
-Two layers, split so each piece of data lives in exactly one place - no
-definition is kept twice, which keeps the context small.
+`develop` owns the main flow (`/stack`, `/new-feature`, `/ship`); the UI commands
+(`/build-ui`, `/ui-audit`) route to the `ui-designer` subagent instead.
 
-- **Per project** - the SOP itself: `sops/`, `agents/`, `commands/`, `skills/`,
-  `instructions/`, `plugins/graphify-auto-update.js`, `AGENTS.md`, and the
-  `.gitignore`. Carried by `copy-to-project.ps1`.
-- **Per machine (global, `~/.config/opencode`)** - the MCP servers, the package
-  plugins, the global `AGENTS.md`, and the `SHELL` env var. Installed once by
-  `bootstrap-windows.ps1`.
+#### What each command does
 
-MCP servers and package plugins are deliberately **not** copied into the project:
-one machine-wide definition serves every project. To add an MCP server, edit the
-global config, not the template.
+- **`/stack`** — Detect the project stack, write `.opencode/STACK.md`, and report
+  which MCP servers and skills apply. *Use it* at the start of a session, when the
+  stack is unclear, or after switching projects.
+- **`/new-feature`** — Run the structured feature workflow: explore the codebase,
+  clarify with a short question list, design, implement, then review. *Use it*
+  instead of diving straight into code when a feature touches multiple files.
+- **`/ship`** — Take a feature all the way to done: detect stack, plan, build,
+  verify mechanically, verify visually with screenshots, then review. Ends with the
+  gate table (build, typecheck, lint, tests, sloplint, screenshots, a11y, LCP/CLS).
+- **`/build-ui`** — Build or redesign a page with the Hallmark anti-slop skill: pick
+  a direction, build the hero first, lint in a real browser, then expand. *Use it*
+  for new pages, landing pages, and redesigns that must not look AI-generated.
+- **`/ui-audit`** — Audit existing UI for slop, hierarchy, spacing, type, colour,
+  a11y, and performance, with real screenshots at four viewports; reports findings
+  ranked by severity. *Use it* when a UI looks off or before shipping a page.
+- **`/i-have-adhd`** — Switch the session to answer-first, low-noise output
+  (numbered steps, state restated, no preamble). Persists until "stop adhd mode".
 
-**Pick the agent, the SOP does not pick itself.** opencode's default agent is
-`build`, not `develop`. In every new session either type `@develop` or press Tab
-and select one of `develop` / `ui-designer` / `reviewer` / `planner`. Commands
-`/stack`, `/new-feature`, `/ship` already route to `develop` or `ui-designer`;
-an un-routed session is just `build` with the SOP in context, nothing more.
+> **Only `develop` is a primary agent**, so it is the only project agent the Tab
+> switcher cycles to (alongside opencode's built-in `build`). `ui-designer`,
+> `planner`, and `reviewer` are **subagents** — they run when a command routes to
+> them or when `develop` delegates, not via Tab. opencode's default agent is
+> `build`, not `develop`; start with `@develop` or press Tab to switch.
 
-| Layer | Lives in | Carried by `copy-to-project.ps1`? | Installed by |
-|---|---|---|---|
-| SOPs, agents, commands, skills, instructions | `.opencode/` | yes | copy |
-| `AGENTS.md` | project root | yes | copy |
-| `.gitignore` | project root | yes | copy (missing rules are appended) |
-| Local plugin `graphify-auto-update.js` | `.opencode/plugins/` | yes | copy |
-| Node, Git, Chrome, uv | machine | no | `bootstrap-windows.ps1` |
-| `opencode`, `rtk`, `graphify` | machine | no | `bootstrap-windows.ps1` |
-| Plugins: `context-mode` | `~/.config/opencode/` | **no (global by design)** | `bootstrap-windows.ps1` |
-| Plugin `graphify.js` (reminder hook) | `~/.config/opencode/plugins/` | **no (global by design)** | `graphify install` |
-| MCP: `chrome-devtools`, optional `tavily` | `~/.config/opencode/` | **no (global by design)** | `bootstrap-windows.ps1` |
-| CLI + skill: `playwright-cli` | machine + `~/.config/opencode/skills/` | **no (global by design)** | `bootstrap-windows.ps1` |
-| `SHELL` env var (context-mode) | user environment | no | `bootstrap-windows.ps1` |
-| Skills `design-taste`, `hallmark`, `i-have-adhd`, `refactoring-ui` | `<project>/.opencode/skills/` | yes | `copy-to-project.ps1` |
-| Skills `graphify`, `playwright-cli` (tool owned) | `~/.config/opencode/skills/` | **no (global by design)** | the tools themselves |
+### Quality gates
 
-The two graphify plugins are **not** duplicates and both must stay. The global
-one (`graphify.js`) prepends a reminder to the first shell command - query the
-graph instead of grepping. The project one (`graphify-auto-update.js`) runs
-`graphify update .` after edits. opencode discovers each `.opencode/plugins/`
-directory separately and the global plugin's id carries its own path, so there
-is no double-load and no id clash. Full explanation in
-`SETUP.md` -> **The two graphify plugins are not duplicates**.
-
----
-
-## Plugin API note (opencode 2.x)
-
-`.opencode/plugins/graphify-auto-update.js` targets the **opencode 2.x** plugin API:
-it default-exports `{ id, setup(ctx) }` and registers hooks through
-`ctx.tool.hook("execute.after", ...)` and `ctx.event.subscribe(...)`.
-
-It imports **no** opencode package on purpose - a plain file in
-`.opencode/plugins/` cannot resolve `@opencode/plugin`, so the definition is
-exported as a plain object. Do not add `import { Plugin } from "@opencode/plugin"`
-to a local plugin file; it will fail to load with
-`Plugin must export a default definition with an id and an effect or setup function`.
-
-The `.opencode/` folder has **no** `package.json` and **no** `node_modules`: the
-plugin needs no dependencies, so nothing has to be installed per project.
+`.opencode/sops/QUALITY_GATE.md` is the definition of done: requirement
+traceability, correctness, build/typecheck/lint/tests, design floor, visual
+evidence, a11y and performance, review, and handoff. Every gate passes or is
+**explicitly waived with a user-accepted reason** — a waived gate is never reported
+as passed.
 
 ---
 
@@ -184,39 +237,84 @@ opencode plugin list
 ```
 
 Expected: `graphify-auto-update` listed as `local` (a `-` in the ID column means the
-plugin failed to load - check the log with `opencode debug paths log`).
+plugin failed to load — check `opencode debug paths log`).
 
-Note: the first `opencode` call after a copy may print `No plugins found` because the
-config watcher has not scanned the new folder yet. Run the command a second time.
+> The first `opencode` call after a copy may print `No plugins found` because the
+> config watcher has not scanned the new folder yet. Run it a second time.
 
 ---
 
-## What to gitignore
+## Requirements
 
-The template ships one `.gitignore` in its root. `copy-to-project.ps1` copies it
-into the target project, so a fresh project starts with the right rules and no
-manual step. If the project already has a `.gitignore`, only the missing entries
-are appended - your rules are never removed or reordered.
+| Need | Notes |
+|---|---|
+| **opencode 2.x** | The plugin API target |
+| **Windows PowerShell 5.1** | The install scripts are Windows-only |
+| Node 18+, npm 9+, Git | Installed/checked by `bootstrap-windows.ps1` |
+| Chrome | Used by `chrome-devtools` MCP and `sloplint --render` |
+| `rtk`, `graphify`, `playwright-cli` | CLI tools installed by `bootstrap-windows.ps1` |
 
-Commit the whole `.opencode/` if the team should share the SOP. Never commit the
-detected stack, dependencies, or build output:
+The **SOP text is OS-agnostic**; only the install scripts assume Windows.
 
-```
-node_modules/
-.opencode/STACK.md
-.opencode/node_modules/
-graphify-out/
-```
+---
+
+## Good to know
+
+- **Two `AGENTS.md` files.** opencode loads `~/.config/opencode/AGENTS.md` (every
+  session, machine-wide) **and** `<project>/AGENTS.md` (this project). They are
+  combined, not overridden. The global file is a copy of
+  `.opencode/instructions/ALWAYS-ON.md`; the scripts write and verify it.
+- **Two graphify plugins, not duplicates.** The global `graphify.js` reminds the
+  agent to query the graph instead of grepping; the project
+  `graphify-auto-update.js` runs `graphify update .` after edits. They load from
+  different `.opencode/plugins/` directories, so there is no double-load.
+- **Local plugin API.** `.opencode/plugins/graphify-auto-update.js` default-exports
+  `{ id, setup(ctx) }` and imports **no** opencode package (a plain file in
+  `.opencode/plugins/` cannot resolve `@opencode/plugin`). Do not add
+  `import { Plugin } from "@opencode/plugin"` to a local plugin.
+- **What to commit.** Commit the whole `.opencode/` if the team shares the SOP.
+  Never commit the detected stack, dependencies, or build output:
+
+  ```
+  node_modules/
+  .opencode/STACK.md
+  .opencode/node_modules/
+  graphify-out/
+  ```
+
+  `copy-to-project.ps1` copies `.gitignore` into each project and only appends
+  missing entries — your rules are never removed or reordered.
 
 ---
 
 ## The rules that make it not-slop
 
-1. **`docs/` first, detect second.** Read the project documents, then detect the
-   stack. Never assume either.
-2. **One source of truth per fact.** If it is in `docs/`, do not duplicate it in
-   code comments. If it is in the SOP, do not repeat it in `AGENTS.md`.
-3. **Verify in a real browser.** A screenshot is evidence. A passing test is
-   evidence. "Looks right" is not.
-4. **No AI slop.** Gradients on flat surfaces, emoji as icons, rounded-everything,
-   five shadows, hero section on every page. The skills say what not to do.
+1. **`docs/` first, detect second.** Read the documents, then detect the stack.
+2. **One source of truth per fact.** No duplicated definitions across `docs/`,
+   the SOP, and `AGENTS.md`.
+3. **Verify in a real browser.** A screenshot and a passing test are evidence;
+   "looks right" is not.
+4. **No AI slop.** No gradients on flat surfaces, emoji as icons,
+   rounded-everything, five shadows, or a hero on every page.
+
+---
+
+## Credits and licenses
+
+This template vendors third-party skills and builds on several tools. Each keeps
+its own license; see the `LICENSE`/`NOTICE` files inside the relevant
+`.opencode/skills/<name>/` folder.
+
+| Project | Author | License |
+|---|---|---|
+| Hallmark | Nutlope / Together AI | MIT |
+| refactoring-ui skill | edisonmbli | see `.opencode/skills/refactoring-ui/` |
+| design-taste | h3nryprod01 | MIT AND Apache-2.0 |
+| i-have-adhd | ayghri | MIT |
+| context-mode | mksglu | MIT |
+| graphify | Graphify-Labs | see package |
+| Playwright CLI | Microsoft | Apache-2.0 |
+| Chrome DevTools MCP | Google | Apache-2.0 |
+
+For the full inventory, MCP rationale, and troubleshooting, see
+**[`SETUP.md`](SETUP.md)**.
