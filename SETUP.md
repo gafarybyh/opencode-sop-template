@@ -707,4 +707,3 @@ Full text: `.opencode/sops/DESIGN.md`, `.opencode/sops/QUALITY_GATE.md`.
 | graphify | Graphify-Labs | see package |
 | Playwright CLI | Microsoft | Apache-2.0 |
 | Chrome DevTools MCP | Google | Apache-2.0 |
-| Context7 | Upstash | MIT (not installed; see `.opencode/mcp/README.md`) |
