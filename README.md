@@ -308,8 +308,6 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 | Project | Author | License |
 |---|---|---|
 | Hallmark | Nutlope / Together AI | MIT |
-| refactoring-ui skill | edisonmbli | see `.opencode/skills/refactoring-ui/` |
-| design-taste | h3nryprod01 | MIT AND Apache-2.0 |
 | i-have-adhd | ayghri | MIT |
 | context-mode | mksglu | MIT |
 | graphify | Graphify-Labs | see package |
