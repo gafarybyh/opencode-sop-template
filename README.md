@@ -363,6 +363,7 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 | Hallmark | Nutlope / Together AI | MIT |
 | i-have-adhd | ayghri | MIT |
 | context-mode | mksglu | MIT |
+| RTK | rtk-ai | see package |
 | graphify | Graphify-Labs | see package |
 | Playwright CLI | Microsoft | Apache-2.0 |
 | Chrome DevTools MCP | Google | Apache-2.0 |
