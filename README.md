@@ -21,6 +21,7 @@ The SOP text is portable; the install scripts are **Windows PowerShell 5.1** onl
 ## Contents
 
 - [Features](#features)
+- [Token efficiency: context-mode and ALWAYS-ON](#token-efficiency-context-mode-and-always-on)
 - [Quick start](#quick-start)
 - [What gets installed](#what-gets-installed)
 - [Repository layout](#repository-layout)
@@ -50,6 +51,58 @@ The SOP text is portable; the install scripts are **Windows PowerShell 5.1** onl
   each with the right permissions (reviewers cannot edit).
 - **Two-layer install.** The SOP is copied per project; machine tools, plugins
   and MCP servers are installed once per PC.
+- **Token-minimal by design.** `context-mode` routes analysis through a sandbox so
+  the agent reads answers, not raw output, and `rtk` filters every shell command —
+  see [Token efficiency](#token-efficiency-context-mode-and-always-on).
+- **Low-noise output (`i-have-adhd`, always-on).** Answers lead with the next
+  action, multi-step work is numbered, state is restated each turn, and preamble /
+  closers are cut — less to read and fewer tokens. Switch off with "stop adhd mode".
+- **Always-on discipline.** A machine-wide `ALWAYS-ON.md` enforces context-mode,
+  `rtk`, quiet graph updates, and the low-noise output above in every session.
+
+---
+
+## Token efficiency: context-mode and ALWAYS-ON
+
+This template is built to **keep the context window small** — the model's attention
+is the scarcest resource, and a bloated context is how agents get expensive and
+sloppy. Two pieces do the work, and both are **mandatory**, not optional tips.
+
+### `context-mode` — read answers, not raw output
+
+`context-mode` is a plugin that runs work in a sandbox and returns only what you
+need, instead of dumping whole files and command output into the conversation.
+
+| Instead of | Use | Why |
+|---|---|---|
+| `Read` a whole file to analyse it | `ctx_execute(file: path)` | Only the derived answer enters context |
+| 20 separate shell calls | one `ctx_batch` | One round trip; output filtered to the `queries` keywords |
+| `curl`/`wget` a page | `ctx_index` then `ctx_search` | Fetch once, query many times |
+| Pasting a big report | write it to a file | Report the path + one line, not the body |
+
+### `rtk` — filter every shell command
+
+Every shell command is prefixed with `rtk`, a wrapper that filters command output
+by 60–90 % (and passes through when it has no filter). Same information, a fraction
+of the tokens.
+
+### `ALWAYS-ON.md` — the machine-wide floor
+
+`.opencode/instructions/ALWAYS-ON.md` is copied to `~/.config/opencode/AGENTS.md`
+so it loads in **every session, every project**. It enforces, without being asked:
+
+- **context-mode routing** — sandbox analysis, batched reads, indexed web fetches.
+- **`rtk` prefix** on every shell command.
+- **Quiet graph updates** — `graphify update .` runs automatically after edits, and
+  its output is never printed into chat.
+- **Low-noise output** — the `i-have-adhd` skill is always-on: answer-first, no
+  preamble, numbered steps, state restated. Switch off with "stop adhd mode".
+
+> **Why it matters.** A coding agent already holds a codebase in context. Every raw
+> file dump and unfiltered command competes with the code for the model's finite
+> attention. Filtering at the tool boundary is cheaper and more accurate than
+> summarising after the fact. Full rationale: `.opencode/mcp/README.md` and
+> `.opencode/sops/CONTEXT.md`.
 
 ---
 
@@ -308,8 +361,6 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 | Project | Author | License |
 |---|---|---|
 | Hallmark | Nutlope / Together AI | MIT |
-| refactoring-ui skill | edisonmbli | see `.opencode/skills/refactoring-ui/` |
-| design-taste | h3nryprod01 | MIT AND Apache-2.0 |
 | i-have-adhd | ayghri | MIT |
 | context-mode | mksglu | MIT |
 | graphify | Graphify-Labs | see package |
