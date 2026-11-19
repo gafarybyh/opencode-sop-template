@@ -83,6 +83,23 @@ it passed.
 - [ ] CLS < 0.1.
 - [ ] Images have `width`/`height` or a sized parent (no layout shift).
 
+## Gate 6b — Native UI (mobile, when UI changed)
+
+Applies to React Native / Expo and Flutter. The web gates above assume a browser
+and a DOM, so **G4 (`sloplint --render`), the G5 four-viewport screenshot, and the
+G6 LCP/CLS are `N/A`** for a native app — do not force them. Substitute:
+
+- [ ] Screenshot the running app on a device/emulator at phone and tablet widths; attach the files.
+- [ ] Touch targets >= 44pt (iOS) / >= 48dp (Android); no overlapping hit areas.
+- [ ] SafeArea respected around notches, status bar, and home indicator.
+- [ ] Light and dark themes both render correctly.
+- [ ] Empty, loading, and error states exist for any async surface.
+- [ ] App console: zero red errors (Metro / `flutter run` logs).
+- [ ] Contrast: body text >= 4.5:1, large text >= 3:1 (same rule as G6).
+
+Declined, or no device/emulator available: record `WAIVED G6b <reason>`. Never
+claim it passed.
+
 ## Gate 7 — Review (any change > 1 file)
 
 - [ ] The `reviewer` agent run; blockers addressed.

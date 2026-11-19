@@ -31,6 +31,8 @@ $required = @(
   '.opencode/sops/context/TROUBLESHOOTING.md',
   '.opencode/sops/stacks/nextjs.md','.opencode/sops/stacks/vue.md','.opencode/sops/stacks/svelte.md',
   '.opencode/sops/stacks/astro.md','.opencode/sops/stacks/vite.md','.opencode/sops/stacks/python.md',
+  '.opencode/sops/stacks/remix.md','.opencode/sops/stacks/angular.md','.opencode/sops/stacks/node-api.md',
+  '.opencode/sops/stacks/react-native.md','.opencode/sops/stacks/flutter.md',
   '.opencode/sops/stacks/go.md','.opencode/sops/stacks/rust.md','.opencode/sops/stacks/_template.md',
   '.opencode/agents/develop.md','.opencode/agents/ui-designer.md','.opencode/agents/reviewer.md','.opencode/agents/planner.md',
   '.opencode/commands/stack.md','.opencode/commands/new-feature.md','.opencode/commands/build-ui.md',

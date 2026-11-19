@@ -126,8 +126,9 @@ duplicate that is never used. If an older setup left copies in
 `copy-to-project.ps1` remove them.
 
 The agents and commands referenced across the SOPs are provided locally rather
-than by a plugin: `develop`, `planner`, `reviewer`, `ui-designer` (subagents) and
-`/new-feature`, `/build-ui`, `/ui-audit`, `/ship`, `/stack` (commands).
+than by a plugin: `develop` (primary), `planner`, `reviewer`, `ui-designer`
+(subagents), and `/new-feature`, `/build-ui`, `/ui-audit`, `/ship`, `/stack`
+(commands).
 
 If one of them is missing, `AGENTS.md` degraded-mode rules apply: substitute the
 local agent or `/command`, say it once, keep working.

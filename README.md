@@ -47,8 +47,9 @@ The SOP text is portable; the install scripts are **Windows PowerShell 5.1** onl
   design rulebook and a concrete ban catalogue.
 - **Small context, on demand.** `AGENTS.md` is a thin router; detailed SOPs and
   skills load only when their trigger fires — no dumping every rule up front.
-- **Specialised subagents.** `develop`, `ui-designer`, `reviewer`, `planner` —
-  each with the right permissions (reviewers cannot edit).
+- **One primary, three specialists.** `develop` is the primary implementer; it
+  delegates to the `ui-designer`, `reviewer`, and `planner` subagents — each with
+  the right permissions (reviewers cannot edit).
 - **Two-layer install.** The SOP is copied per project; machine tools, plugins
   and MCP servers are installed once per PC.
 - **Token-minimal by design.** `context-mode` routes analysis through a sandbox so
@@ -103,6 +104,11 @@ so it loads in **every session, every project**. It enforces, without being aske
 > attention. Filtering at the tool boundary is cheaper and more accurate than
 > summarising after the fact. Full rationale: `.opencode/mcp/README.md` and
 > `.opencode/sops/CONTEXT.md`.
+
+> **Editing it? Re-sync the machine copy.** The global file is a *copy* of
+> `.opencode/instructions/ALWAYS-ON.md`. After you change the source, run
+> `Setup.bat machine` (or `bootstrap-windows.ps1`) to refresh
+> `~/.config/opencode/AGENTS.md`. `check-setup.ps1` warns when the two drift apart.
 
 ---
 

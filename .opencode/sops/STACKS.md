@@ -22,6 +22,13 @@ Read these signals with `ctx_execute` / `rtk read`; never dump whole files.
 | `package.json` | JS/TS; read deps, devDeps, scripts |
 | lockfile (`pnpm-lock`, `yarn.lock`, `bun.lockb`) | package manager |
 | `next/nuxt/svelte/astro/vite.config.*` | framework |
+| `angular.json` | Angular |
+| `nest-cli.json` | NestJS (Node API) |
+| `react-router.config.*` / `remix.config.*` | Remix / React Router v7 |
+| deps in `package.json`: `express` / `fastify` / `@nestjs/core` / `hono` | Node API with no framework config |
+| deps in `package.json`: `react` + `react-dom`, no meta-framework config | React SPA (client-rendered); load `stacks/vite.md` as baseline |
+| `pubspec.yaml` | Flutter / Dart |
+| `app.json` / `app.config.*`, or deps `react-native` / `expo` | React Native / Expo |
 | `tsconfig.json` | TypeScript, `strict`, aliases |
 | `tailwind.config.*` or `@import "tailwindcss"` | Tailwind v3 vs v4 `@theme` |
 | `components.json` | shadcn/ui present |
@@ -40,8 +47,12 @@ ctx_batch(commands: [
   "rtk find . -maxdepth 2 -name go.mod",
   "rtk find . -maxdepth 2 -name Cargo.toml",
   "rtk find . -maxdepth 2 -name *.config.*",
+  "rtk find . -maxdepth 2 -name angular.json",
+  "rtk find . -maxdepth 2 -name nest-cli.json",
+  "rtk find . -maxdepth 2 -name pubspec.yaml",
+  "rtk find . -maxdepth 2 -name app.json",
   "rtk find . -maxdepth 1 -name *lock*"
-], queries: ["version","dependencies","script","name","private"])
+], queries: ["version","dependencies","script","name","express","fastify","nestjs","hono","react-native","expo","pubspec","flutter"])
 ```
 
 Windows rules: no quotes around globs, no `-not` / `-exec`, `rtk json` for JSON
@@ -63,8 +74,14 @@ Report differences; never overwrite either silently.
 | Svelte / SvelteKit | `stacks/svelte.md` | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
 | Astro | `stacks/astro.md` | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
 | Vite SPA | `stacks/vite.md` | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
+| React SPA (no meta-framework) | `stacks/vite.md` (baseline; adapt the build command) | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
+| React Native / Expo | `stacks/react-native.md` | none (device/emulator screenshots, not a browser) | design-taste; hallmark/refactoring-ui as principles only (sloplint render N/A) |
+| Flutter (Dart) | `stacks/flutter.md` | none (device/emulator screenshots, not a browser) | design-taste; hallmark/refactoring-ui as principles only (sloplint render N/A) |
+| Remix / React Router v7 | `stacks/remix.md` | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
+| Angular | `stacks/angular.md` | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
 | Plain HTML/CSS | this file + a framework row for design skills | `playwright-cli` CLI; chrome-devtools MCP | hallmark, refactoring-ui, design-taste |
 | FastAPI / Django / Flask | `stacks/python.md` | none | backend rules live in the stack file |
+| Express / Fastify / NestJS / Hono | `stacks/node-api.md` | none | backend rules live in the stack file |
 | Go | `stacks/go.md` | none | backend rules live in the stack file |
 | Rust | `stacks/rust.md` | none | backend rules live in the stack file |
 
@@ -81,3 +98,7 @@ Say so and stop:
 > and I will scaffold it.
 
 Do not guess a stack and start writing files.
+
+If a manifest exists but the stack is not in the table above (Laravel / PHP, Rails,
+Spring / .NET, Deno, Elixir), say it is outside this template's scope and stop. Do
+not improvise a stack file or force a web assumption onto it.

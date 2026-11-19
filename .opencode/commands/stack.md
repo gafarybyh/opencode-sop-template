@@ -8,24 +8,15 @@ Read `.opencode/sops/STACKS.md` and execute phase 0b only (stack detection).
 
 ## Procedure
 
-1. Detect with one batch call, not ten reads. Commands run from the session
-   cwd — if the session cwd is not the project root, use absolute paths or
-   `cd <project-root>` first:
+1. Detect with one batch call, using the exact command list and queries in
+   `.opencode/sops/STACKS.md` §1 — copy them verbatim; do not re-derive your own
+   (a private copy is how the list drifts out of date). Commands run from the
+   session cwd; if the session cwd is not the project root, use absolute paths or
+   `cd <project-root>` first.
 
-```js
-ctx_batch(commands: [
-  "rtk json package.json",
-  "rtk find . -maxdepth 2 -name pyproject.toml",
-  "rtk find . -maxdepth 2 -name go.mod",
-  "rtk find . -maxdepth 2 -name Cargo.toml",
-  "rtk find . -maxdepth 2 -name *.config.*",
-  "rtk find . -maxdepth 1 -name *lock*"
-], queries: ["version","dependencies","script","name","private"])
-```
-
-A command that fails is information, not an error: `rtk json package.json` fails when
-the file is absent, and `rtk find` prints `0 for <pattern>` when nothing
-matches. Never re-run a failing label with different flags to "fix" it.
+   A command that fails is information, not an error: `rtk json package.json` fails
+   when the file is absent, and `rtk find` prints `0 for <pattern>` when nothing
+   matches. Never re-run a failing command with different flags to "fix" it.
 
 2. Fill `.opencode/STACK.md` from `.opencode/sops/stacks/_template.md`. Create
    the folder if needed. Overwrite an existing file only when the user asks for a
@@ -53,6 +44,12 @@ Stop and say exactly:
 > will scaffold it.
 
 Do not guess. Do not scaffold uninvited.
+
+## If the stack is out of scope
+
+If a manifest exists but the stack is not in the supported table, stop and say it
+is outside this template's web scope — see `.opencode/sops/STACKS.md` §3 for the
+exact wording. Do not improvise a stack file or force a web assumption onto it.
 
 ## If detection is partial
 

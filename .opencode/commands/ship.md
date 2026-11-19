@@ -56,6 +56,10 @@ Then the `playwright-cli` CLI: resize 320 / 768 / 1280 / 1440 and screenshot eac
 Then `chrome-devtools` MCP against the production/preview server: console
 errors, 404s, a11y critical, LCP, CLS.
 
+**Native stack (React Native / Expo, Flutter):** the browser path above does not
+apply. Run `.opencode/sops/QUALITY_GATE.md` **Gate 6b** instead — device/emulator
+screenshots at phone and tablet, touch targets, SafeArea, light/dark themes.
+
 Attach the screenshot paths. State each number. Do not say "looks good".
 
 ## 6. Review
@@ -87,3 +91,6 @@ Include the gate table with real values:
 | screenshots | 320 / 768 / 1280 / 1440 attached |
 | a11y | 0 critical |
 | LCP / CLS | x.x s / 0.0x |
+
+Native (RN/Flutter): `sloplint`, the four-viewport row, and `LCP / CLS` are `N/A`;
+report Gate 6b instead (device screenshots, touch targets, SafeArea, themes).
