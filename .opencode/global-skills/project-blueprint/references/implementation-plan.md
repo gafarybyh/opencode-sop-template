@@ -1,11 +1,11 @@
-# Implementation Plan — MASTER INDEX (thin)
+# Implementation Plan - MASTER INDEX (thin)
 
 This is an INDEX, not a plan body. It answers "where are we and what is next" at a
-glance. It stays <= 1 page and must NOT contain task details — those live in the
+glance. It stays <= 1 page and must NOT contain task details - those live in the
 feature files and task files. If it grows, move detail down, never up.
 
-The plan carries the five components a rigorous plan needs — objectives, scope &
-deliverables, roles (RACI), timeline & milestones, and resources/risks/dependencies —
+The plan carries the five components a rigorous plan needs - objectives, scope &
+deliverables, roles (RACI), timeline & milestones, and resources/risks/dependencies -
 plus gates, cadence, and change control. Keep the narrative short: the task plan,
 RACI, and risk log do most of the work.
 
@@ -13,14 +13,14 @@ Write to `docs/IMPLEMENTATION_PLAN.md`.
 
 ---
 
-# <Project> — Implementation Plan
+# <Project> - Implementation Plan
 
 ## 0. Header
 | Field | Value |
 |---|---|
 | Owner | <name> |
 | Status | draft / active / done |
-| Last updated | <date> · Version <v0.1> |
+| Last updated | <date> - Version <v0.1> |
 | Go-live | <date> |
 
 ## 1. Objectives & success measures
@@ -28,7 +28,7 @@ Write to `docs/IMPLEMENTATION_PLAN.md`.
 - Benefits tracking: <who measures what, when, and in which forum> (metrics live in [PRD.md](PRD.md)).
 
 ## 2. Scope & deliverables
-- In scope: <...> · Out of scope: <...>
+- In scope: <...> - Out of scope: <...>
 - Key deliverables: <the things a stakeholder can inspect at the end>
 
 ## 3. Phases & milestones
@@ -40,16 +40,26 @@ Write to `docs/IMPLEMENTATION_PLAN.md`.
 Status rolls up from each feature file's frontmatter; do not hand-maintain it here.
 | # | Feature | Spec file | Status | Depends on |
 |---|---|---|---|---|
-| 01 | <auth> | [implementations/01-auth.md](implementations/01-auth.md) | todo | — |
+| 01 | <auth> | [implementations/01-auth.md](implementations/01-auth.md) | todo | - |
 | 02 | <billing> | [implementations/02-billing.md](implementations/02-billing.md) | todo | 01 |
 
 ## 5. Dependencies & critical path
 - <feature B> blocked by <feature A> / <decision> / <external>.
 - Critical path: <the chain of features/tasks that sets the earliest possible go-live>.
+- **Dependency graph (derived view):** **Mermaid** `flowchart LR` mirroring Sec. 4 and the bullets above - the feature table owns the facts; update both in the same change. Highlight the critical path.
+
+```mermaid
+flowchart LR
+  01[01 Auth] --> 02[02 Billing]
+  02 --> 03[03 Reporting]
+  01 --> 04[04 Settings]
+  classDef crit fill:#ffe0b2,stroke:#e65100,stroke-width:2px;
+  class 01,02,03 crit
+```
 
 ## 6. Risk register
-Execution risks only — schedule, resourcing, dependencies, delivery. Product/business
-risks live in [PRD.md](PRD.md) §9; technical risks in [TRD.md](TRD.md) §12. Roll up
+Execution risks only - schedule, resourcing, dependencies, delivery. Product/business
+risks live in [PRD.md](PRD.md) Sec. 9; technical risks in [TRD.md](TRD.md) Sec. 12. Roll up
 their status here, do not restate them.
 | Risk | Likelihood | Impact | Mitigation | Trigger / contingency | Owner |
 |---|---|---|---|---|---|
@@ -61,7 +71,7 @@ their status here, do not restate them.
 | <area> | <who does it> | <who owns the outcome> | <...> | <...> |
 
 ## 8. Resources, timeline & go-live
-- Team: <...> · Key dates: <...> · Go-live: <date>
+- Team: <...> - Key dates: <...> - Go-live: <date>
 - Capacity assumptions: <people x days, known constraints>
 
 ## 9. Gates (entry / exit / go-live / handoff)
@@ -83,4 +93,4 @@ owner. A task status or a ticked checklist is not a substitute for accepted evid
 - <Acceptance for the whole project. Feature/task DoD live in their own files.>
 
 ## 13. Links
-- Specs: [PRD.md](PRD.md) · [TRD.md](TRD.md) · [APP_FLOW.md](APP_FLOW.md) · [DESIGN_BRIEF.md](DESIGN_BRIEF.md) · [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md)
+- Specs: [PRD.md](PRD.md) - [TRD.md](TRD.md) - [APP_FLOW.md](APP_FLOW.md) - [DESIGN_BRIEF.md](DESIGN_BRIEF.md) - [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md)

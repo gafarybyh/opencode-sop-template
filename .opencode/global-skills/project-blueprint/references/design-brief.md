@@ -9,7 +9,7 @@ not a design system, and not a rulebook.
 - **PRD** = what/why and the user stories. The DESIGN_BRIEF translates that into
   design intent; it does not restate requirements.
 - **APP_FLOW** = behaviour and steps. The DESIGN_BRIEF covers look, feel, and
-  visual intent — not the flow.
+  visual intent - not the flow.
 - **Design system / design law (if the project has one)** = the locked tokens,
   components, and rules the UI build must obey. The BRIEF is an input to design; it
   does not replace or generate that system.
@@ -24,7 +24,7 @@ Write to `docs/DESIGN_BRIEF.md`.
 
 ---
 
-# <Project / Feature> — Design Brief
+# <Project / Feature> - Design Brief
 
 ## 0. Header
 | Field | Value |
@@ -34,28 +34,28 @@ Write to `docs/DESIGN_BRIEF.md`.
 | Designer | <name or TBD> |
 | Approver (decision-maker) | <name> |
 | Status | draft / in review / approved |
-| Last updated | <date> · Version <v0.1> |
-| Related | [PRD.md](PRD.md) · [APP_FLOW.md](APP_FLOW.md) |
+| Last updated | <date> - Version <v0.1> |
+| Related | [PRD.md](PRD.md) - [APP_FLOW.md](APP_FLOW.md) |
 
 ## 1. Background & context
 <The situation and why this project exists now, in a few lines. Link the PRD.>
 
 ## 2. Problem statement
-<The user challenge the design must solve. No solution language — describe the
+<The user challenge the design must solve. No solution language - describe the
 problem, not a chosen answer.>
 
 ## 3. Objective & success metric
 - Objective (one): <the single decision/outcome this design drives>
-- Measure: <how success is proven — e.g. "+15% signup completion (from 42%)">
+- Measure: <how success is proven - e.g. "+15% signup completion (from 42%)">
 - (If the PRD already defines metrics, link them instead of restating.)
 
 ## 4. Target audience
-- **<Persona>** — <demographics, psychographics, what they need, context of use:
+- **<Persona>** - <demographics, psychographics, what they need, context of use:
   device, environment, ability, language>. Link PRD personas rather than copy them.
 
 ## 5. Scope & constraints
 - In scope: <screens / surfaces / deliverables>
-- Out of scope (explicit): <what is deliberately excluded — naming it prevents more
+- Out of scope (explicit): <what is deliberately excluded - naming it prevents more
   arguments than naming what is included>
 - Constraints:
   - Technical: <e.g. must work on iOS 15+, 3G, 320px width>
@@ -74,12 +74,12 @@ problem, not a chosen answer.>
 
 ## 8. Design direction & references
 - Mood / tone: <3-5 concrete adjectives>
-- References (2-3): <link or name — and what to take from each (palette balance,
+- References (2-3): <link or name - and what to take from each (palette balance,
   type voice, layout idea), never copy wholesale>
 - Anti-references (optional): <what to avoid, and why>
 
 ## 9. Deliverables & formats
-- <Screens, components, design tokens, prototype, spec handoff — with format and
+- <Screens, components, design tokens, prototype, spec handoff - with format and
   spec (e.g. Figma file, token JSON, redlines)>
 
 ## 10. Technology & platform constraints (optional)
@@ -100,7 +100,7 @@ problem, not a chosen answer.>
 
 ## 13. Budget & timeline
 - Budget / effort: <range or TBD>
-- Milestones: <concept — date · review — date · final — date>
+- Milestones: <concept - date - review - date - final - date>
 
 ## 14. Open questions
 | # | Question | Owner | Needed by |
@@ -108,4 +108,4 @@ problem, not a chosen answer.>
 | Q1 | <...> | <name> | <date> |
 
 ## 15. Links
-- Upstream: [PRD.md](PRD.md) · Flow: [APP_FLOW.md](APP_FLOW.md) · Existing design system / design law (if any)
+- Upstream: [PRD.md](PRD.md) - Flow: [APP_FLOW.md](APP_FLOW.md) - Existing design system / design law (if any)

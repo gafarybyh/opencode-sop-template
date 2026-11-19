@@ -21,7 +21,7 @@ Write to `docs/APP_FLOW.md` (or `docs/flows/<area>.md`).
 
 ---
 
-# <Project / Feature> — App Flow
+# <Project / Feature> - App Flow
 
 ## 0. Header
 | Field | Value |
@@ -31,7 +31,7 @@ Write to `docs/APP_FLOW.md` (or `docs/flows/<area>.md`).
 | Persona | <who> |
 | Covers (PRD) | US1, US3 |
 | Status | draft / in review / approved |
-| Last updated | <date> · Version <v0.1> |
+| Last updated | <date> - Version <v0.1> |
 
 > Type: a **task flow** is linear (one path, no branching). A **user flow** adds
 > decision points, alternate entry points, and error states. A **wireflow** adds a
@@ -56,21 +56,21 @@ Write to `docs/APP_FLOW.md` (or `docs/flows/<area>.md`).
 > assuming one starting context.
 
 ## 4. Notation legend
-Use four node types; a **screen is not a node** — one screen can hold an entry
+Use four node types; a **screen is not a node** - one screen can hold an entry
 point, several actions, and a decision.
-- **Entry** — where a path starts.
-- **Action** — what the user does (tap, submit, choose).
-- **Decision** — a branch on a condition.
-- **End-state** — success, failure, or exit.
+- **Entry** - where a path starts.
+- **Action** - what the user does (tap, submit, choose).
+- **Decision** - a branch on a condition.
+- **End-state** - success, failure, or exit.
 
 ## 5. Primary flow (happy path)
 The shortest successful route from entry to goal. If it needs more than ~12 steps,
-the task is too big — split the flow.
+the task is too big - split the flow.
 | # | Screen / state | User action | Advances via (hotspot) | Data shown / entered |
 |---|---|---|---|---|
 | 1 | <screen> | <action> | <button / link / swipe> | <fields, values> |
 | 2 | <screen> | <action> | <...> | <...> |
-| 3 | <end-state> | — | — | <confirmation> |
+| 3 | <end-state> | - | - | <confirmation> |
 
 ## 6. Decision points
 - At step <n>, if <condition> -> <path A>; else -> <path B>.
@@ -95,11 +95,21 @@ A flow that shows only the happy path hides its risks. Cover the edges:
 ## 9. Data per step (what the user sees / enters)
 | Step | Reads (source) | Writes / submits | Notes |
 |---|---|---|---|
-| 1 | <field — from BACKEND_SCHEMA> | <field> | <validation> |
+| 1 | <field - from BACKEND_SCHEMA> | <field> | <validation> |
 
 ## 10. Diagram
-- Flowchart or wireflow (screen + hotspot). <link or ASCII sketch>
-- For a wireflow: one wireframe per screen, arrows for hotspots and the data passed.
+Draw the flow with **Mermaid** `flowchart TD` (stable type; renders natively on GitHub/VS Code). This is a **derived view** of the tables above - they own the facts; update the diagram in the same change, and if they differ the tables win.
+
+```mermaid
+flowchart TD
+  A([Entry point]) --> B[Screen / action]
+  B --> C{Decision?}
+  C -->|yes| D[Next step]
+  C -->|no| E[Error / alternate path]
+  D --> F([Success end state])
+```
+
+- For a **wireflow** (wireframe per screen + hotspots) use images/links, one per screen - not Mermaid.
 
 ## 11. Accessibility & edge considerations
 - Keyboard / screen-reader path through each step: <...>
@@ -112,4 +122,4 @@ A flow that shows only the happy path hides its risks. Cover the edges:
 | Q1 | <...> | <name> | <date> |
 
 ## 13. Links
-- Upstream: [PRD.md](PRD.md) · [TRD.md](TRD.md) · Design: [DESIGN_BRIEF.md](DESIGN_BRIEF.md) · Data: [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md)
+- Upstream: [PRD.md](PRD.md) - [TRD.md](TRD.md) - Design: [DESIGN_BRIEF.md](DESIGN_BRIEF.md) - Data: [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md)

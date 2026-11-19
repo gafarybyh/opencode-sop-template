@@ -22,7 +22,7 @@ verify: <command that proves done>
 
 ---
 
-# TNN — <Task title>
+# TNN - <Task title>
 
 ## 1. Goal
 <The one thing this task achieves.>
@@ -40,7 +40,7 @@ verify: <command that proves done>
 - modify: <paths>
 
 ## 5. Acceptance / Done when
-Conditions that can fail — a tester accepts or rejects without asking the author.
+Conditions that can fail - a tester accepts or rejects without asking the author.
 - [ ] <falsifiable condition>
 - [ ] Verify passes: `<command>` -> expected <result>
 
@@ -56,4 +56,6 @@ Conditions that can fail — a tester accepts or rejects without asking the auth
 - <...>
 
 ## 9. Links
-- Feature: [../../NN-<feature>.md](../../NN-<feature>.md)
+- Feature (two levels up): [../../NN-<feature>.md](../../NN-<feature>.md)
+- Root docs sit three levels up from here: `../../../PRD.md`, `../../../TRD.md`,
+  `../../../APP_FLOW.md`, `../../../DESIGN_BRIEF.md`, `../../../BACKEND_SCHEMA.md`.

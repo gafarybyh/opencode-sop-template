@@ -1,6 +1,6 @@
 # Technical Requirements Document (TRD)
 
-Owns how the system is built: the technical obligations the solution must meet —
+Owns how the system is built: the technical obligations the solution must meet -
 functional and non-functional requirements, architecture, data design, interfaces,
 security, observability, and rollout. Derives from the PRD; feeds the schema and
 the implementation plan.
@@ -22,7 +22,7 @@ Write to `docs/TRD.md`.
 
 ---
 
-# <Project / Feature> — Technical Requirements
+# <Project / Feature> - Technical Requirements
 
 ## 0. Header
 | Field | Value |
@@ -68,8 +68,16 @@ Decompose the PRD's user stories into buildable, testable technical requirements
 > Every NFR carries a number and, where relevant, the measurement point.
 
 ## 5. System architecture
-- **Pattern & why:** <monolith / modular / services / serverless — and why it fits the constraints>
-- **Diagram:** <C4 context + container, or a link>
+- **Pattern & why:** <monolith / modular / services / serverless - and why it fits the constraints>
+- **Diagram (derived view):** **Mermaid** `flowchart LR` - components and the request path; mirrors the component table below, which is authoritative. Update both in the same change. Avoid Mermaid C4 / `architecture-beta` (experimental, often fails to render).
+
+```mermaid
+flowchart LR
+  U[Client / browser] -->|HTTPS| W[Web / API app]
+  W -->|SQL| DB[(PostgreSQL)]
+  W -->|cache| C[(Cache)]
+  W -->|jobs| Q[[Job queue]]
+```
 - **Components & responsibilities:**
   | Component | Responsibility | Technology |
   |---|---|---|
@@ -79,11 +87,11 @@ Decompose the PRD's user stories into buildable, testable technical requirements
 ## 6. Tech stack & constraints
 - Language / framework / database / hosting: <...>
 - Constraints: <platform, budget, existing systems, team skills, licensing>
-- Key decisions & rejected alternatives: <option chosen — why; what was rejected and why>
+- Key decisions & rejected alternatives: <option chosen - why; what was rejected and why>
 
 ## 7. Data design (high level)
 Detailed tables and types live in `BACKEND_SCHEMA.md`; this section states the shape.
-- Storage choices & rationale: <relational / document / cache / object store — and why>
+- Storage choices & rationale: <relational / document / cache / object store - and why>
 - Main entities & ownership: <who owns which data>
 - Consistency & transactions: <where strong vs eventual consistency is required>
 - Retention & archival: <how long, where, deletion policy>
@@ -94,7 +102,7 @@ Detailed tables and types live in `BACKEND_SCHEMA.md`; this section states the s
 |---|---|---|---|---|
 | <endpoint / event> | <type> | <auth> | <e.g. 100 rpm/key> | <...> |
 
-- API contract: <link to OpenAPI/Swagger or schema — finalized before review>
+- API contract: <link to OpenAPI/Swagger or schema - finalized before review>
 - External dependencies: <third-party APIs, SLAs, failure behaviour>
 
 ## 9. Security & compliance
@@ -137,4 +145,4 @@ Detailed tables and types live in `BACKEND_SCHEMA.md`; this section states the s
 - [ ] Rollout and rollback exercised in staging.
 
 ## 15. Links
-- Upstream: [PRD.md](PRD.md) · Data model: [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md) · Flow: [APP_FLOW.md](APP_FLOW.md) · Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+- Upstream: [PRD.md](PRD.md) - Data model: [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md) - Flow: [APP_FLOW.md](APP_FLOW.md) - Plan: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)

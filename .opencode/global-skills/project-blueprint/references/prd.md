@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-Owns the problem, the users, what is built, and how success is measured — the
+Owns the problem, the users, what is built, and how success is measured - the
 "what and why". Every other document derives from this one. Keep it
 outcome-focused; leave technical decisions to the TRD.
 
@@ -14,7 +14,7 @@ Write to `docs/PRD.md`.
 
 ---
 
-# <Project / Feature> — Product Requirements
+# <Project / Feature> - Product Requirements
 
 ## 0. Header
 | Field | Value |
@@ -52,11 +52,11 @@ Write to `docs/PRD.md`.
 > metric; "+15% checkout completion (from 42%) within 30 days" is.
 
 ## 4. Non-goals / out of scope
-- <explicitly excluded — this prevents scope creep>
+- <explicitly excluded - this prevents scope creep>
 - <adjacent problem we are deliberately not solving now>
 
 ## 5. Users & personas
-- **<Persona>** — <need, context, what they care about>.
+- **<Persona>** - <need, context, what they care about>.
 
 ## 6. User stories & acceptance criteria
 Each story carries an ID, a priority, and testable acceptance. Requirement detail
@@ -89,7 +89,7 @@ State the expectation; the TRD turns it into a number.
 > Product and business risks here; technical risks belong in the TRD.
 
 ## 10. Milestones / phasing
-- <milestone / phase> — <date or exit condition>
+- <milestone / phase> - <date or exit condition>
 
 ## 11. Open questions
 | # | Question | Owner | Needed by |
@@ -102,5 +102,5 @@ State the expectation; the TRD turns it into a number.
 
 ## 13. Links
 - Technical: [TRD.md](TRD.md)
-- Flow: [APP_FLOW.md](APP_FLOW.md) · Design: [DESIGN_BRIEF.md](DESIGN_BRIEF.md) · Data: [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md)
+- Flow: [APP_FLOW.md](APP_FLOW.md) - Design: [DESIGN_BRIEF.md](DESIGN_BRIEF.md) - Data: [BACKEND_SCHEMA.md](BACKEND_SCHEMA.md)
 - Execution: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
