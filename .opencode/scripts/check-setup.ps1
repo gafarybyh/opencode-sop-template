@@ -265,6 +265,13 @@ foreach ($v in $vendoredSkills) {
     Warn "duplicate global skill '$v': it is also in .opencode/skills/. Global copies are never used; run bootstrap-windows.ps1 to remove them."
   }
 }
+
+# The project-blueprint skill is global (installed by bootstrap-windows.ps1 from
+# .opencode/global-skills/), not project-local. Warn if it is not installed yet.
+$bpGlobal = Join-Path $userHome ".config\opencode\skills\project-blueprint\SKILL.md"
+if (Test-Path $bpGlobal) { Ok 'project-blueprint global skill installed' }
+else { Warn "project-blueprint global skill missing. Run bootstrap-windows.ps1 to install it from .opencode/global-skills/." }
+
 Ok "root: $(($((Get-ChildItem $root -Force)).Name) -join ', ')"
 
 Write-Host "`n=== SOP files ===" -ForegroundColor Cyan
@@ -288,6 +295,7 @@ $required = @(
   '.opencode/skills/i-have-adhd/SKILL.md',
   '.opencode/mcp/README.md','.opencode/mcp/INSTALL.md','.opencode/mcp/opencode-snippet.jsonc'
 )
+if ($isTemplate) { $required += '.opencode/global-skills/project-blueprint/SKILL.md' }
 foreach ($f in $required) {
   $p = Join-Path $root ($f -replace '/','\')
   if (Test-Path $p) { Ok $f } else { Bad "missing: $f" }

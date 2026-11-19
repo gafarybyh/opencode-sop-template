@@ -149,7 +149,7 @@ Two layers, split so each fact lives in exactly one place.
 | Layer | What it contains | Installed by |
 |---|---|---|
 | **Per project** | the SOP: `sops/`, `agents/`, `commands/`, `skills/`, `instructions/`, `plugins/graphify-auto-update.js`, `AGENTS.md`, `.gitignore` | `copy-to-project.ps1` |
-| **Per machine** (`~/.config/opencode`) | MCP servers (`chrome-devtools`, optional `tavily`), package plugins (`context-mode`), the global `AGENTS.md`, the `SHELL` env var, CLI tools (`opencode`, `rtk`, `graphify`, `playwright-cli`) | `bootstrap-windows.ps1` |
+| **Per machine** (`~/.config/opencode`) | MCP servers (`chrome-devtools`, optional `tavily`), package plugins (`context-mode`), the global `AGENTS.md`, the `SHELL` env var, CLI tools (`opencode`, `rtk`, `graphify`, `playwright-cli`), the global `project-blueprint` skill (from `.opencode/global-skills/`) | `bootstrap-windows.ps1` |
 
 MCP servers and package plugins are deliberately **not** copied into projects: one
 machine-wide definition serves every project. To add an MCP server, edit the global
@@ -166,7 +166,7 @@ opencode-template/
 ├── .gitignore         <- single source of truth, copied into projects
 ├── README.md          <- this file
 ├── SETUP.md           <- the full setup guide
-└── .opencode/         <- the SOP: sops, agents, commands, skills, scripts
+└── .opencode/         <- the SOP: sops, agents, commands, skills, global-skills, scripts
 ```
 
 A project after copying:
@@ -196,6 +196,7 @@ my-app/
 | `.opencode/skills/refactoring-ui` | 151-rule design rulebook distilled from *Refactoring UI* |
 | `.opencode/skills/design-taste` | Ban catalogue, motion, interaction states, OKLCH colour |
 | `.opencode/skills/i-have-adhd` | Answer-first output shaping |
+| `.opencode/global-skills/project-blueprint/` | Global `project-blueprint` skill: generates the 6 planning docs (PRD, TRD, App Flow, Design Brief, Backend Schema, Implementation Plan) under `docs/`. Installed by `bootstrap-windows.ps1`, never copied to a project |
 | `.opencode/instructions/ALWAYS-ON.md` | Source for the global always-on file (`~/.config/opencode/AGENTS.md`) |
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |

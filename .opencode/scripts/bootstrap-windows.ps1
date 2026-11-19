@@ -672,7 +672,7 @@ Step 'Skills'
 if ($SkipSkills) {
   Warn 'skipped (-SkipSkills)'
 } else {
-  Write-Host '       skills are project-local; nothing to install globally' -ForegroundColor DarkGray
+  Write-Host '       vendored skills stay project-local; installing template global skills' -ForegroundColor DarkGray
   $globalSkillDir = Join-Path $userHome '.config\opencode\skills'
   if (Test-Path $globalSkillDir) {
     $vendored = @('design-taste', 'hallmark', 'i-have-adhd', 'refactoring-ui')
@@ -694,6 +694,27 @@ if ($SkipSkills) {
     }
   } else {
     Ok 'no global skills folder to clean'
+  }
+
+  # Install the template's global skills into ~/.config/opencode/skills/.
+  # These are reusable across every project and carry no project-relative paths,
+  # so they belong in the global layer. The source lives in
+  # .opencode/global-skills/ and is never copied into a project.
+  $globalSkillsSrc = Join-Path (Split-Path -Parent $PSScriptRoot) 'global-skills'
+  if (Test-Path $globalSkillsSrc) {
+    foreach ($skill in Get-ChildItem $globalSkillsSrc -Directory) {
+      $dest = Join-Path $globalSkillDir $skill.Name
+      if ($DryRun) {
+        Write-Host "       DRY: install global skill $($skill.Name) -> $dest" -ForegroundColor DarkGray
+      } else {
+        if (-not (Test-Path $globalSkillDir)) { New-Item -ItemType Directory -Path $globalSkillDir -Force | Out-Null }
+        if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+        Copy-Item $skill.FullName $dest -Recurse -Force
+        Ok "global skill installed: $($skill.Name)"
+      }
+    }
+  } else {
+    Write-Host '       no .opencode/global-skills/ to install' -ForegroundColor DarkGray
   }
 }
 

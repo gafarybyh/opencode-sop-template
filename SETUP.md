@@ -27,6 +27,52 @@ my-app/
 
 ---
 
+## Quick start — the flow at a glance
+
+Two layers: the **machine layer** (once per PC, in `~/.config/opencode`) and the
+**project layer** (the SOP, in `<project>/.opencode`). The `project-blueprint`
+skill lives in the machine layer and is **never** copied into a project.
+
+```powershell
+Setup.bat machine               # once per PC: tools, MCP, global AGENTS.md, project-blueprint skill
+Setup.bat setup "C:\dev\app"    # per project: machine layer + copy the SOP
+```
+
+### New project (greenfield)
+1. `Setup.bat setup "C:\dev\my-app"` — machine layer + copy the SOP into the folder.
+2. Replace `PROJECT_NAME` in `AGENTS.md`.
+3. (Recommended) In opencode: `/project-blueprint` — writes the six planning docs
+   under `docs/`.
+4. `@develop`, then `/new-feature` or `/build-ui`. New code is scaffolded with the
+   stack's official CLI (see the stack file's **Scaffold** section).
+
+### Existing project (already has code)
+1. `Setup.bat copy "C:\dev\existing-app"` — copies the SOP only, does not touch
+   `src/`. If `.opencode/` already exists, re-run with `-Force`.
+2. **Before `-Force`:** back up or merge your own `AGENTS.md` (it is overwritten);
+   `.gitignore` is appended, not replaced.
+3. Replace `PROJECT_NAME` in `AGENTS.md`.
+4. Detect the stack (Phase 0b writes `.opencode/STACK.md`); nothing is scaffolded
+   into an unknown folder.
+5. `/project-blueprint` **inherits** existing `docs/` and conventions — it reads and
+   extends, it does not overwrite silently.
+6. `@develop`, then `/new-feature`.
+
+### Cheat-sheet
+| Goal | Command |
+|---|---|
+| Machine layer, once per PC | `Setup.bat machine` |
+| New project (machine + SOP) | `Setup.bat setup "C:\dev\app"` |
+| Copy the SOP only | `Setup.bat copy "C:\dev\app"` |
+| Check everything is present | `Setup.bat status` |
+| Generate the six planning docs | `/project-blueprint` (in opencode) |
+| Start work under the SOP | `@develop`, then `/new-feature` |
+
+The full step-by-step (tools, MCP, plugins, verification) is in the numbered steps
+below. The daily procedure (Phase 0a–7) is in `.opencode/sops/DEVELOPMENT.md`.
+
+---
+
 ## What is in here
 
 The file list lives in **`README.md`** -> *What is in here*. In short:
@@ -116,6 +162,7 @@ SOP in context, nothing more.
 | `SHELL` env var (context-mode) | user environment | no | `bootstrap-windows.ps1` |
 | Skills `design-taste`, `hallmark`, `i-have-adhd`, `refactoring-ui` | `<project>/.opencode/skills/` | yes | `copy-to-project.ps1` |
 | Skills `graphify`, `playwright-cli` (tool owned) | `~/.config/opencode/skills/` | **no (global by design)** | the tools themselves |
+| Skill `project-blueprint` (template-owned, global) | `~/.config/opencode/skills/` | **no (global by design)** | `bootstrap-windows.ps1` (from `.opencode/global-skills/`) |
 
 The vendored skills stay project-local on purpose. Every agent and command
 references them by a project relative path, for example
@@ -124,6 +171,14 @@ directly. A global copy cannot satisfy a relative path, so it would be a
 duplicate that is never used. If an older setup left copies in
 `~/.config/opencode/skills/`, `bootstrap-windows.ps1` and
 `copy-to-project.ps1` remove them.
+
+The `project-blueprint` skill (the six-document planning generator) is the one
+template-owned skill that is **global**, not project-local. It carries no
+project-relative paths, so a single global copy serves every project. Its source
+lives in `.opencode/global-skills/project-blueprint/`; `bootstrap-windows.ps1`
+installs it into `~/.config/opencode/skills/`, and `copy-to-project.ps1`
+deliberately excludes `global-skills/` so it never lands in a project. You then call
+it with `/project-blueprint` in any project; it writes its output under `docs/`.
 
 The agents and commands referenced across the SOPs are provided locally rather
 than by a plugin: `develop` (primary), `planner`, `reviewer`, `ui-designer`

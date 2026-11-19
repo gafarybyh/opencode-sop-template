@@ -20,9 +20,12 @@
 #   - Per project (this copy): SOPs, agents, commands, skills, instructions, plugins.
 #   - Per machine (bootstrap-windows.ps1, global ~/.config/opencode): MCP servers
 #     (chrome-devtools, optional tavily), the playwright-cli CLI + skill, the
-#     package plugin (context-mode), and the SHELL env var.
+#     package plugin (context-mode), the project-blueprint skill (installed from
+#     .opencode/global-skills/), and the SHELL env var.
 #   MCP + package plugins are NOT copied into the project on purpose: one definition
 #   per machine keeps the context small and avoids maintaining the same data twice.
+#   .opencode/global-skills/ holds skills that bootstrap-windows.ps1 installs into
+#   ~/.config/opencode/skills/ (global); it is excluded from this copy on purpose.
 
 param(
   [Parameter(Mandatory = $true)]
@@ -62,7 +65,7 @@ Write-Host "copying .opencode/ ..."
 New-Item -ItemType Directory -Path $agentsDst -Force | Out-Null
 
 if ($Force -and (Test-Path $agentsDst)) {
-  foreach ($owned in @('sops','agents','commands','skills','instructions','mcp','scripts','plugins','reference')) {
+  foreach ($owned in @('sops','agents','commands','skills','instructions','mcp','scripts','plugins','reference','global-skills')) {
     $p = Join-Path $agentsDst $owned
     if (Test-Path $p) { Remove-Item -LiteralPath $p -Recurse -Force }
   }
@@ -73,7 +76,7 @@ if ($Force -and (Test-Path $agentsDst)) {
 
 
 $dirs = Get-ChildItem $agentsDir -Directory |
-  Where-Object { $_.Name -ne 'node_modules' -and $_.Name -ne 'reference' }
+  Where-Object { $_.Name -ne 'node_modules' -and $_.Name -ne 'reference' -and $_.Name -ne 'global-skills' }
 foreach ($d in $dirs) {
   Copy-Item -Path $d.FullName -Destination (Join-Path $agentsDst $d.Name) -Recurse -Force
   Write-Host "  .opencode/$($d.Name)"

@@ -44,7 +44,8 @@ $required = @(
   '.opencode/skills/refactoring-ui/SKILL.md','.opencode/skills/design-taste/SKILL.md',
   '.opencode/skills/i-have-adhd/SKILL.md',
   '.opencode/instructions/ALWAYS-ON.md',
-  '.opencode/plugins/graphify-auto-update.js'
+  '.opencode/plugins/graphify-auto-update.js',
+  '.opencode/global-skills/project-blueprint/SKILL.md'
 )
 foreach ($f in $required) {
   $p = Join-Path $root ($f -replace '/','\')
@@ -133,6 +134,7 @@ if ($SkipCopy) {
       }
       if (Test-Path (Join-Path $tmpProj '.opencode\skills\vibe')) { Bad 'copy contains vibe' } else { Ok 'copy excludes vibe' }
       if (Test-Path (Join-Path $tmpProj '.opencode\reference')) { Bad 'copy contains reference' } else { Ok 'copy excludes reference' }
+      if (Test-Path (Join-Path $tmpProj '.opencode\global-skills')) { Bad 'copy contains global-skills' } else { Ok 'copy excludes global-skills' }
     }
   } finally {
     if (-not $KeepTemp -and (Test-Path $tmpProj)) { Remove-Item -LiteralPath $tmpProj -Recurse -Force }

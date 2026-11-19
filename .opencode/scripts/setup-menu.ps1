@@ -67,15 +67,29 @@ function MachineState {
   $s['mcp']     = $raw -match 'chrome-devtools'
   $s['plugin']  = $raw -match 'context-mode'
   $s['agents']  = Test-Path (Join-Path $cfg 'AGENTS.md')
-  # Only tool-owned skills live globally (graphify, playwright-cli). The
-  # vendored template skills are project-local on purpose.
-  $s['skills']  = $true
+  # Allowed global skills: the tool-owned ones (graphify, playwright-cli) plus the
+  # template's global skill(s) shipped in .opencode/global-skills/. The vendored
+  # template skills are project-local on purpose; a stray global copy is flagged.
   $globalSkillDir = Join-Path $cfg 'skills'
+  $allowedGlobal = @('graphify','playwright-cli')
+  # Template-owned global skills (source: .opencode/global-skills/). Fall back to
+  # the known name when running outside the template.
+  $globalSkillsSrc = Join-Path (Split-Path -Parent $PSScriptRoot) 'global-skills'
+  $templateGlobal = @()
+  if (Test-Path $globalSkillsSrc) {
+    $templateGlobal = @(Get-ChildItem $globalSkillsSrc -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)
+  }
+  if ($templateGlobal.Count -eq 0) { $templateGlobal = @('project-blueprint') }
+  $allowedGlobal += $templateGlobal
+  # Per template global skill: is it installed in the machine layer?
+  $s['globalSkills'] = @(foreach ($n in $templateGlobal) {
+    [pscustomobject]@{ Name = $n; Installed = (Test-Path (Join-Path $globalSkillDir "$n\SKILL.md")) }
+  })
+  # Stray global skills: any global folder that is not in the allowed set.
+  $s['straySkills'] = @()
   if (Test-Path $globalSkillDir) {
-    $toolOwned = @('graphify','playwright-cli')
-    $found = @(Get-ChildItem $globalSkillDir -Directory -ErrorAction SilentlyContinue |
-                Where-Object { $toolOwned -notcontains $_.Name })
-    $s['skills'] = ($found.Count -eq 0)
+    $s['straySkills'] = @(Get-ChildItem $globalSkillDir -Directory -ErrorAction SilentlyContinue |
+                          Where-Object { $allowedGlobal -notcontains $_.Name } | Select-Object -ExpandProperty Name)
   }
   return $s
 }
@@ -84,21 +98,36 @@ function ShowState {
   $st = MachineState
   Write-Host ''
   Write-Host '  Machine layer (per PC)' -ForegroundColor White
-  $pairs = @(
-    @('node',        'Node.js'),
-    @('opencode',    'opencode'),
-    @('rtk',         'rtk'),
-    @('graphify',    'graphify'),
-    @('playwright',  'playwright-cli'),
-    @('mcp',         'MCP chrome-devtools'),
-    @('plugin',      'plugin context-mode'),
-    @('agents',      'global AGENTS.md'),
-    @('skills',      'global skills clean')
-  )
-  foreach ($p in $pairs) {
-    $v = $st[$p[0]]
-    if ($v) { Write-Host "    [OK]   $($p[1])" -ForegroundColor Green }
-    else    { Write-Host "    [--]   $($p[1])" -ForegroundColor DarkGray }
+  $row = {
+    param($ok, $label)
+    if ($ok) { Write-Host "    [OK]   $label" -ForegroundColor Green }
+    else     { Write-Host "    [--]   $label" -ForegroundColor DarkGray }
+  }
+
+  Write-Host '   CLI tools' -ForegroundColor Cyan
+  & $row $st['node']       'Node.js'
+  & $row $st['opencode']   'opencode'
+  & $row $st['rtk']        'rtk'
+  & $row $st['graphify']   'graphify'
+  & $row $st['playwright'] 'playwright-cli'
+
+  Write-Host '   MCP servers' -ForegroundColor Cyan
+  & $row $st['mcp']        'chrome-devtools'
+
+  Write-Host '   Plugins' -ForegroundColor Cyan
+  & $row $st['plugin']     'context-mode'
+
+  Write-Host '   Global files' -ForegroundColor Cyan
+  & $row $st['agents']     'AGENTS.md (always-on rules)'
+
+  Write-Host '   Global skills' -ForegroundColor Cyan
+  foreach ($gs in $st['globalSkills']) {
+    if ($gs.Installed) { Write-Host "    [OK]   $($gs.Name)" -ForegroundColor Green }
+    else { Write-Host "    [--]   $($gs.Name) (not installed)" -ForegroundColor DarkGray }
+  }
+  # Surface a line only when there is actually a stray global skill.
+  if ($st['straySkills'].Count -gt 0) {
+    Write-Host "    [!!]   unexpected: $($st['straySkills'] -join ', ')" -ForegroundColor Yellow
   }
   Write-Host ''
   if (-not $target) {
@@ -135,7 +164,7 @@ function ChooseTarget {
     try {
       Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
       $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
-      $dlg.Description = 'Pilih folder project (bisa bikin baru)'
+      $dlg.Description = 'Choose a project folder (you can create a new one)'
       $dlg.ShowNewFolderButton = $true
       if ($target -and (Test-Path $target)) { $dlg.SelectedPath = $target }
       if ($dlg.ShowDialog() -eq 'OK') { $pick = $dlg.SelectedPath }
@@ -147,9 +176,9 @@ function ChooseTarget {
 
   if (-not $pick) {
     if ($canPick) {
-      $answer = Read-Host '  Folder project (Kosongkan untuk memakai picker lagi)'
+      $answer = Read-Host '  Project folder (leave empty to use the picker again)'
     } else {
-      $answer = Read-Host '  Folder project'
+      $answer = Read-Host '  Project folder'
     }
     if ($answer) { $pick = $answer.Trim() }
   }
@@ -239,22 +268,22 @@ function ActionOpen {
 function Menu {
   Banner
   ShowState
-  Write-Host '  1. Setup lengkap          (machine layer + salin SOP ke project)'
-  Write-Host '  2. Machine layer saja     (sekali per PC)'
-  Write-Host '  3. Salin SOP ke project   (tanpa machine layer)'
-  Write-Host '  4. Cek status             (apa yang sudah / belum ada)'
-  Write-Host '  5. Sinkronkan ulang       (rules global + config)'
-  Write-Host '  6. Buka project di opencode'
-  Write-Host '  7. Preview                (dry-run setup lengkap)'
-  Write-Host '  0. Keluar'
+  Write-Host '  1. Full setup              (machine layer + copy SOP into a project)'
+  Write-Host '  2. Machine layer only      (once per PC)'
+  Write-Host '  3. Copy SOP into project   (without the machine layer)'
+  Write-Host '  4. Check status            (what is present / missing)'
+  Write-Host '  5. Re-sync                 (global rules + config)'
+  Write-Host '  6. Open project in opencode'
+  Write-Host '  7. Preview                 (dry-run of the full setup)'
+  Write-Host '  0. Exit'
   Write-Host ''
 
-  $choice = Read-Host '  Pilih'
+  $choice = Read-Host '  Choose'
   switch ($choice.Trim()) {
     '1' {
       if (-not $target) {
         $target = ChooseTarget
-        if (-not $target) { Write-Host '  dibatalkan' -ForegroundColor Yellow; return }
+        if (-not $target) { Write-Host '  cancelled' -ForegroundColor Yellow; return }
       }
       ActionSetup | Out-Null
     }
@@ -262,7 +291,7 @@ function Menu {
     '3' {
       if (-not $target) {
         $target = ChooseTarget
-        if (-not $target) { Write-Host '  dibatalkan' -ForegroundColor Yellow; return }
+        if (-not $target) { Write-Host '  cancelled' -ForegroundColor Yellow; return }
       }
       ActionCopy | Out-Null
     }
@@ -271,14 +300,14 @@ function Menu {
     '6' {
       if (-not $target) {
         $target = ChooseTarget
-        if (-not $target) { Write-Host '  dibatalkan' -ForegroundColor Yellow; return }
+        if (-not $target) { Write-Host '  cancelled' -ForegroundColor Yellow; return }
       }
       ActionOpen | Out-Null
     }
     '7' {
       if (-not $target) {
         $target = ChooseTarget
-        if (-not $target) { Write-Host '  dibatalkan' -ForegroundColor Yellow; return }
+        if (-not $target) { Write-Host '  cancelled' -ForegroundColor Yellow; return }
       }
       $saveDry = $DryRun
       $DryRun = $true
@@ -286,7 +315,7 @@ function Menu {
       $DryRun = $saveDry
     }
     '0' { $script:done = $true }
-    default { Write-Host '  pilihan tidak dikenal' -ForegroundColor Yellow }
+    default { Write-Host '  unknown choice' -ForegroundColor Yellow }
   }
 }
 
