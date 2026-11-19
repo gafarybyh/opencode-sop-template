@@ -10,6 +10,11 @@
 SDK / Xcode); if it is absent, record `N/A build: <reason>` — a gap, not a pass.
 Pure-Dart (non-Flutter) packages: `rtk dart analyze` / `rtk dart test`.
 
+## Scaffold
+
+`rtk flutter create <name>` -> `lib/` (`main.dart`), `test/`, `android/`, `ios/`.
+Screens live in `lib/` by feature; do not add a second entry point.
+
 ## Visual gate (phase 6) — web-only checks do NOT apply
 
 This is a native app: **`sloplint --render`, the four-viewport screenshot, and

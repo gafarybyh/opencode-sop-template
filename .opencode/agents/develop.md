@@ -24,7 +24,7 @@ Read in this order when starting work:
    rule below it.
 3. `.opencode/STACK.md` — if it does not exist, create it (`.opencode/sops/STACKS.md`
    phase 0b), then load **one** `.opencode/sops/stacks/*.md`.
-4. `.opencode/sops/WEB_DEV.md` — the phase procedure you must follow.
+4. `.opencode/sops/DEVELOPMENT.md` — the phase procedure you must follow.
 5. `.opencode/sops/CONTEXT.md` — before the first shell or context-mode call.
    Add `.opencode/sops/context/TROUBLESHOOTING.md` only when a tool errors.
 6. `.opencode/sops/QUALITY_GATE.md` — before claiming done.

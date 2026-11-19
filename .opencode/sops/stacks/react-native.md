@@ -10,6 +10,12 @@ Expo uses `rtk npx jest-expo`. Bare RN (no Expo) builds via `eas build` or nativ
 tooling — record `N/A build: <reason>` if the toolchain is absent. A missing tool
 is a gap, not a pass: record `N/A <check>: <reason>`.
 
+## Scaffold
+
+Expo: `rtk npx create-expo-app@latest` -> `app/` (Expo Router) or `App.tsx`.
+Bare RN: `rtk npx @react-native-community/cli init` -> `App.tsx`, `android/`, `ios/`.
+Do not mix Expo Router with a manual navigator tree.
+
 ## Visual gate (phase 6) — web-only checks do NOT apply
 
 This is a native app, not a web page: **`sloplint --render`, the four-viewport

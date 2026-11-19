@@ -9,8 +9,8 @@ cannot resolve; then report the exact gate and what is needed.
 
 ## 1. Ground
 
-- Read `AGENTS.md`, `.opencode/sops/WEB_DEV.md`, `.opencode/sops/QUALITY_GATE.md`.
-- **Read the project documents first** (`.opencode/sops/WEB_DEV.md` Phase 0a): discover what
+- Read `AGENTS.md`, `.opencode/sops/DEVELOPMENT.md`, `.opencode/sops/QUALITY_GATE.md`.
+- **Read the project documents first** (`.opencode/sops/DEVELOPMENT.md` Phase 0a): discover what
   is in `docs/`, read the files relevant to this task, and quote the requirement
   you are implementing.
 - `.opencode/STACK.md` — create it if missing (`.opencode/sops/STACKS.md` phase 0b),
@@ -26,7 +26,7 @@ cannot resolve; then report the exact gate and what is needed.
 
 ## 3. Build
 
-Follow `.opencode/sops/WEB_DEV.md` phase 4. UI work loads `.opencode/skills/hallmark` (new page) or
+Follow `.opencode/sops/DEVELOPMENT.md` phase 4. UI work loads `.opencode/skills/hallmark` (new page) or
 `.opencode/skills/refactoring-ui` (existing UI). No comments unless asked.
 
 ## 4. Verify mechanically

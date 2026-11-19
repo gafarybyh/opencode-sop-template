@@ -271,7 +271,7 @@ Write-Host "`n=== SOP files ===" -ForegroundColor Cyan
 
 $required = @(
   'AGENTS.md','.gitignore',
-  '.opencode/sops/WEB_DEV.md','.opencode/sops/DESIGN.md','.opencode/sops/QUALITY_GATE.md','.opencode/sops/CONTEXT.md','.opencode/sops/STACKS.md',
+  '.opencode/sops/DEVELOPMENT.md','.opencode/sops/DESIGN.md','.opencode/sops/QUALITY_GATE.md','.opencode/sops/CONTEXT.md','.opencode/sops/STACKS.md',
   '.opencode/sops/context/TROUBLESHOOTING.md',
   '.opencode/sops/stacks/nextjs.md','.opencode/sops/stacks/vue.md','.opencode/sops/stacks/svelte.md',
   '.opencode/sops/stacks/astro.md','.opencode/sops/stacks/vite.md','.opencode/sops/stacks/python.md',

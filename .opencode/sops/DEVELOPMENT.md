@@ -82,6 +82,22 @@ import style, error handling, and state management.
 - The `planner` subagent for a new module or non-obvious data flow.
 - Otherwise 3-7 numbered steps inline.
 
+## Project structure (greenfield only)
+
+Applies when creating a project from scratch. For an existing project, inherit
+its layout — never reorganize uninvited (see `develop.md`).
+
+- **Scaffold with the framework's official CLI, never hand-roll.** Take the
+  command from the stack file's **Scaffold** section; it produces the canonical
+  base layout. Do not invent a parallel one.
+- **Organize by feature/domain, not by file type.** A feature's components, hooks,
+  and tests live together; avoid a global `components/` + `hooks/` + `utils/`
+  sprawl once the app passes a few screens.
+- **Colocate tests** beside the code they cover, or follow the project's existing
+  convention — never add a second test root.
+- **Backend:** follow the framework's convention when it has one (Django apps,
+  NestJS modules); otherwise match the repo layout. No invented `src/features/`.
+
 ## Phase 4 — Build
 
 **Exit:** the change compiles and runs locally.

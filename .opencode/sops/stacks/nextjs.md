@@ -9,6 +9,11 @@
 Biome instead of ESLint: `rtk npx biome check .`. Run the `package.json` test
 script when it exists; use vitest/jest only when it is in `devDependencies`.
 
+## Scaffold
+
+`rtk npx create-next-app@latest` -> `app/` (routes), `public/`, `next.config.*`.
+App Router by default; do not add a `pages/` tree beside `app/`.
+
 ## Anti-slop
 
 - Server Components by default; `"use client"` only for real interaction or

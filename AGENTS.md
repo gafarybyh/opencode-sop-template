@@ -29,7 +29,7 @@ SOP wins.
 
 0. **`docs/`** — always first. Source of truth; beats every rule below.
 1. `.opencode/STACK.md` — before any implementation. Missing -> `/stack`.
-2. `.opencode/sops/WEB_DEV.md` — before the first implementation step.
+2. `.opencode/sops/DEVELOPMENT.md` — before the first implementation step.
 3. `.opencode/sops/CONTEXT.md` — before the first shell or context-mode call.
    Add `.opencode/sops/context/TROUBLESHOOTING.md` only when a tool errors.
 4. `.opencode/sops/QUALITY_GATE.md` — before claiming done.

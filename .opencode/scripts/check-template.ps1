@@ -26,7 +26,7 @@ Write-Host "`n=== Layout ===" -ForegroundColor Cyan
 $required = @(
   'AGENTS.md',
   '.gitignore',
-  '.opencode/sops/WEB_DEV.md','.opencode/sops/DESIGN.md','.opencode/sops/QUALITY_GATE.md',
+  '.opencode/sops/DEVELOPMENT.md','.opencode/sops/DESIGN.md','.opencode/sops/QUALITY_GATE.md',
   '.opencode/sops/CONTEXT.md','.opencode/sops/STACKS.md',
   '.opencode/sops/context/TROUBLESHOOTING.md',
   '.opencode/sops/stacks/nextjs.md','.opencode/sops/stacks/vue.md','.opencode/sops/stacks/svelte.md',
@@ -120,7 +120,7 @@ if ($SkipCopy) {
     } else {
       $expect = @(
         'AGENTS.md',
-        '.opencode/sops/WEB_DEV.md',
+        '.opencode/sops/DEVELOPMENT.md',
         '.opencode/agents/develop.md',
         '.opencode/commands/ship.md',
         '.opencode/skills/hallmark/scripts/sloplint.mjs',

@@ -9,6 +9,11 @@
 Biome instead of ESLint: `rtk npx biome check .`. Run the `package.json` test
 script when it exists; use vitest/jest only when it is in `devDependencies`.
 
+## Scaffold
+
+`rtk npm create vite@latest` -> `src/` (entry `src/main.*`), `public/`, `index.html`.
+Use the React/Vue template; never hand-build a bundler config.
+
 ## Anti-slop
 
 - No SSR or server-component assumptions; the app is client-rendered.

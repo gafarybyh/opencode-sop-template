@@ -207,7 +207,7 @@ my-app/
 
 ### The procedure
 
-The agent follows `.opencode/sops/WEB_DEV.md`, phase by phase. Each phase has an
+The agent follows `.opencode/sops/DEVELOPMENT.md`, phase by phase. Each phase has an
 exit condition; the agent may not skip an unmet exit.
 
 | Phase | Goal |

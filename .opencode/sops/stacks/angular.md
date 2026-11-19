@@ -8,6 +8,11 @@
 
 A missing tool is a gap, not a pass: record `N/A <check>: <reason>`.
 
+## Scaffold
+
+`rtk npx @angular/cli new <name>` -> `src/app/` (components, routes), `src/main.ts`.
+Standalone by default; do not add a parallel NgModules tree.
+
 ## Anti-slop
 
 - Standalone components + signals by default; do not add new NgModules.

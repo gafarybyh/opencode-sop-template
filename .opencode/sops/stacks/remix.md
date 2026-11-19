@@ -10,6 +10,12 @@ Remix v2 uses `rtk npx remix build`. Biome instead of ESLint: `rtk npx biome che
 Run the `package.json` test script when it exists; use vitest/jest only when it is
 in `devDependencies`.
 
+## Scaffold
+
+`rtk npx create-react-router@latest` -> `app/` (`app/routes/`, `app/root.tsx`).
+Remix v2: `rtk npx create-remix@latest` -> `app/routes/`. Routes are files, not a
+custom router config.
+
 ## Anti-slop
 
 - Load data in `loader` and mutate in `action`; never `useEffect` + `fetch`.

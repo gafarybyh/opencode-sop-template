@@ -9,6 +9,11 @@
 Biome instead of ESLint: `rtk npx biome check .`. Run the `package.json` test
 script when it exists; use vitest/jest only when it is in `devDependencies`.
 
+## Scaffold
+
+`rtk npm create astro@latest` -> `src/pages/`, `src/layouts/`, `src/components/`,
+`public/`. Islands live in `src/components/`; do not force a SPA shell.
+
 ## Anti-slop
 
 - Zero JS by default. `client:load` only when hydration is proven necessary.

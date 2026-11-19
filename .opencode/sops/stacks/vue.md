@@ -9,6 +9,11 @@
 Biome instead of ESLint: `rtk npx biome check .`. Run the `package.json` test
 script when it exists; use vitest/jest only when it is in `devDependencies`.
 
+## Scaffold
+
+Nuxt: `rtk npx nuxi init` -> `app.vue`, `pages/`, `components/`, `composables/`.
+Vue SPA: `rtk npm create vue@latest` -> `src/`. Do not mix the two layouts.
+
 ## Anti-slop
 
 - `<script setup lang="ts">` consistently; no mixing Options API in new files.
