@@ -113,16 +113,21 @@ it passed.
 
 ## Gate 6 — Accessibility and performance (class D)
 
-`chrome-devtools` MCP against the production/preview server, never the dev server.
+**One command first:** `node .opencode/scripts/qa-perf.mjs --url <preview-url>` (or a
+file/folder) measures CLS, LCP, a11y (axe-core), console/network errors and
+320px overflow, and exits `0`/`1`/`3` like `qa-gate`. It is the mechanical half of
+this gate — a screenshot cannot catch a layout shift, so "looks fine" is not
+evidence here. Then use `chrome-devtools` MCP against the production/preview
+server (never the dev server) for anything it does not cover.
 
-- [ ] Console: zero errors (warnings triaged).
-- [ ] Network: no 404 on fonts, images, or assets.
-- [ ] a11y: zero critical violations.
+- [ ] `qa-perf` PASS (exit 0): CLS < 0.1, LCP < 2.5 s, 0 critical a11y, 0 console
+      errors, no 4xx/failed request, no overflow at 320. Paste its PASS line.
 - [ ] Body text contrast >= 4.5:1; large text >= 3:1.
-- [ ] LCP < 2.5 s on the desktop viewport.
-- [ ] CLS < 0.1.
 - [ ] Images have `width`/`height` or a sized parent (no layout shift).
 - [ ] Platform patterns follow current Baseline guidance (when `modern-web-guidance` is installed): correct fallbacks, no deprecated APIs.
+
+`qa-perf` exits 3 (INCOMPLETE) when axe-core is unreachable or Chrome/puppeteer is
+missing — that is not a pass. Record `WAIVED G6 <reason>` and say "G6 not measured".
 
 ## Gate 6b — Native UI (mobile, when UI changed)
 

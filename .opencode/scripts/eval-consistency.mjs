@@ -30,6 +30,7 @@ const REQUIRED = [
   ".opencode/scripts/lib-gate-hash.mjs",
   ".opencode/scripts/precommit-gate.mjs",
   ".opencode/scripts/install-git-hooks.ps1",
+  ".opencode/scripts/qa-perf.mjs",
   ".opencode/plugins/qa-gate-guard.js",
   ".opencode/ci/qa-gate.yml",
   ".opencode/sops/QUALITY_GATE.md",

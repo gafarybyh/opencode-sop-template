@@ -167,7 +167,15 @@ node .opencode/scripts/qa-gate.mjs <path>
 Then, per class: **C** — resize to 1280, one screenshot, tab through the changed
 control. **D** — the `playwright-cli` CLI at 320 / 768 / 1280 / 1440, then
 `chrome-devtools` MCP against the production/preview server (console, network,
-a11y, performance trace).
+a11y, performance trace). **Class D also runs the mechanical G6 gate:**
+
+```bash
+node .opencode/scripts/qa-perf.mjs --url http://localhost:<port>/
+```
+
+It must print PASS (exit 0): CLS < 0.1, LCP < 2.5 s, 0 critical a11y. A
+screenshot looks fine even when the page shifted — CLS needs this measurement,
+not an eyeball.
 
 Browser tooling missing: stop and report "UI not verified, browser tooling missing".
 Never tick a checklist without evidence. Full gate items:

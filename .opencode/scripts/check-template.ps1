@@ -46,6 +46,7 @@ $required = @(
   '.opencode/scripts/install-git-hooks.ps1',
   '.opencode/scripts/eval-consistency.mjs',
   '.opencode/scripts/eval-score.mjs',
+  '.opencode/scripts/qa-perf.mjs',
   '.opencode/sops/EVAL.md',
   '.opencode/ci/qa-gate.yml',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',

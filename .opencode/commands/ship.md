@@ -57,6 +57,10 @@ paste its `PASS`/`FAIL` line. Then the `playwright-cli` CLI: resize 320 / 768 / 
 Then `chrome-devtools` MCP against the production/preview server: console
 errors, 404s, a11y critical, LCP, CLS.
 
+**G6 in one command (class D):** `node .opencode/scripts/qa-perf.mjs --url <preview-url>`
+prints PASS/FAIL for CLS, LCP, a11y, console, network and 320px overflow. Paste
+its PASS line; a screenshot does not catch a layout shift.
+
 **Native stack (React Native / Expo, Flutter):** the browser path above does not
 apply. Run `.opencode/sops/QUALITY_GATE.md` **Gate 6b** instead — device/emulator
 screenshots at phone and tablet, touch targets, SafeArea, light/dark themes.

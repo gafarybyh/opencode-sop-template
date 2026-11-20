@@ -31,7 +31,14 @@ if (staged.status !== 0) {
   console.error("precommit-gate: git not available; allowing commit.");
   process.exit(0);
 }
-const uiStaged = staged.stdout.split(/\r?\n/).filter((f) => UI.test(f));
+const uiStaged = staged.stdout
+  .split(/\r?\n/)
+  .filter((f) => UI.test(f))
+  // Only PRODUCT UI is this gate's business. The SOP's own tooling (skills,
+  // scripts, plugins, sops) ships .css/.js assets that are not lint targets and
+  // are excluded from hashInputs; gating them false-blocks a fresh project's
+  // first commit. Mirrors lib-gate-hash's ".opencode/" and dotted-dir skip.
+  .filter((f) => !/(^|\/)\.opencode\//.test(f) && !/(^|\/)\.[^/]+\//.test(f));
 
 if (uiStaged.length === 0) process.exit(0); // no UI touched -> not this gate's business
 
