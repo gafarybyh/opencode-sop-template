@@ -54,7 +54,24 @@ If the user names files, review those instead.
 4. **Conventions.** Wrong file naming, inconsistent import style, an existing
    helper rewritten instead of reused, new dependency where one already exists.
 5. **Design slop** (only if UI files changed). The ban table in
-   `.opencode/sops/DESIGN_LAW.md` Layer 3. Run `sloplint` if the files are HTML/CSS.
+   `.opencode/sops/DESIGN_LAW.md` Layer 3. Run `qa-gate` if the files are HTML/CSS.
+
+## Gate audit (when the handoff declares a change class)
+
+The pre-commit hook and CI enforce only the G4 design floor (`gate-status.json`).
+G5/G6 — screenshots, a11y, LCP/CLS — are declared, not machine-checked, so you
+are the check. Given the declared class and the diff, verify:
+
+- **Class matches the diff.** A layout/redesign/shared-component change declared
+  as C to skip class-D evidence is blocking. Escalate, do not accept.
+- **Evidence matches the class.** Class C: one 1280 screenshot, keyboard reach,
+  zero console errors. Class D: 320/768/1280/1440 screenshots, an a11y result
+  (0 critical), and LCP < 2.5 s / CLS < 0.1 — or an explicit, accepted waiver.
+- **A waiver is named, not implied.** `WAIVED G5/G6: <reason>` must be in the
+  handoff. A gate that simply does not appear is blocking, not waived.
+
+Report a missing-evidence or wrong-class item under **Blocking** with the gate
+name. Do not re-run the browser yourself (you cannot); audit what is presented.
 
 ## Confidence filter
 

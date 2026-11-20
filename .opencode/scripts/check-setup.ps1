@@ -288,6 +288,8 @@ $required = @(
   '.opencode/agents/develop.md','.opencode/agents/ui-designer.md','.opencode/agents/reviewer.md','.opencode/agents/planner.md',
   '.opencode/commands/ship.md','.opencode/commands/new-feature.md','.opencode/commands/ui-audit.md','.opencode/commands/build-ui.md','.opencode/commands/stack.md','.opencode/commands/i-have-adhd.md',
   '.opencode/scripts/bootstrap-windows.ps1','.opencode/scripts/copy-to-project.ps1','.opencode/scripts/install-skills.ps1','.opencode/scripts/lib-jsonc.ps1','.opencode/scripts/check-template.ps1','.opencode/scripts/setup-menu.ps1',
+  '.opencode/scripts/qa-gate.mjs','.opencode/scripts/lib-gate-hash.mjs','.opencode/scripts/precommit-gate.mjs','.opencode/scripts/install-git-hooks.ps1','.opencode/scripts/eval-consistency.mjs','.opencode/scripts/eval-score.mjs',
+  '.opencode/sops/EVAL.md','.opencode/ci/qa-gate.yml',
   '.opencode/instructions/ALWAYS-ON.md',
   '.opencode/plugins/graphify-auto-update.js',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',
@@ -369,6 +371,33 @@ if (Get-Command rtk -ErrorAction SilentlyContinue) {
   }
 } else {
   Warn "rtk not installed; skipped"
+}
+
+Write-Host "`n=== Enforcement (design gate) ===" -ForegroundColor Cyan
+
+# The pre-commit hook and the CI workflow are what make the design gate
+# mechanical rather than advisory. Check both are actually wired, not just that
+# the files exist. Warnings, not failures: a repo may deliberately run without
+# the local hook (CI is then the only backstop).
+if (Test-Path (Join-Path $root '.git')) {
+  $hooksPath = (& git -C $root config --get core.hooksPath 2>$null | Out-String).Trim()
+  if ($hooksPath -eq '.githooks') {
+    if (Test-Path (Join-Path $root '.githooks\pre-commit')) { Ok 'pre-commit hook installed (core.hooksPath=.githooks)' }
+    else { Warn 'core.hooksPath=.githooks but .githooks/pre-commit is missing; run install-git-hooks.ps1' }
+  } else {
+    Warn "pre-commit hook not installed (core.hooksPath='$hooksPath'); run .opencode/scripts/install-git-hooks.ps1"
+  }
+} else {
+  Note 'no .git yet; hook not applicable (run install-git-hooks.ps1 after git init)'
+}
+
+$wf = Join-Path $root '.github\workflows\qa-gate.yml'
+if (Test-Path $wf) {
+  Ok 'CI backstop present (.github/workflows/qa-gate.yml)'
+} elseif ($isTemplate) {
+  Note 'CI template at .opencode/ci/qa-gate.yml (copied into .github/workflows/ in a project)'
+} else {
+  Warn 'CI backstop missing (.github/workflows/qa-gate.yml); UI commits have no push-time gate'
 }
 
 Write-Host "`n=== Summary ===" -ForegroundColor Cyan

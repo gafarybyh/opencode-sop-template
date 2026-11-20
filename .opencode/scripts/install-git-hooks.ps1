@@ -6,10 +6,23 @@
 #
 # Usage:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\install-git-hooks.ps1
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\install-git-hooks.ps1 -Root "C:\path\to\project"
+#
+# -Root lets copy-to-project.ps1 install the hook into the DESTINATION repo
+# while running from the template's script folder. Omit it to use the folder
+# this script lives in.
+
+param(
+  [string]$Root
+)
 
 $ErrorActionPreference = 'Stop'
 $scriptsDir = $PSScriptRoot
-$root = Split-Path -Parent (Split-Path -Parent $scriptsDir)   # <root>/.opencode/scripts -> <root>
+if ($Root) {
+  $root = (Resolve-Path $Root).Path
+} else {
+  $root = Split-Path -Parent (Split-Path -Parent $scriptsDir)   # <root>/.opencode/scripts -> <root>
+}
 
 if (-not (Test-Path (Join-Path $root '.git'))) {
   Write-Host "No .git at $root - skipping (not a git repo, or run from the project root)." -ForegroundColor Yellow

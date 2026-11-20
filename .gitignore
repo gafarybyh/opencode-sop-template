@@ -36,6 +36,10 @@ graphify-out/
 # qa-gate status, written by .opencode/scripts/qa-gate.mjs (per-run, not source)
 .opencode/gate-status.json
 
+# eval trial results, written by .opencode/scripts/eval-score.mjs --init
+# (per-machine measurements; regenerate and record after a real run)
+eval/
+
 # --- editor / OS noise --------------------------------------
 .DS_Store
 Thumbs.db

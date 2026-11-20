@@ -55,7 +55,7 @@ state "UI not visually verified".
 ```
 Direction: <one sentence>
 Files: <paths>
-sloplint: <exit code, counts>
+qa-gate: <PASS/FAIL, exit code, counts>
 Screenshots: <paths>
 Waivers: <gate + evidence + reason, or none>
 Not done: <what and why>

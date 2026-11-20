@@ -109,8 +109,10 @@ The 16-item floor is non-waivable. The concrete ban table is match-and-refuse.
 `.opencode/sops/QUALITY_GATE.md` is the single source of truth for every gate;
 do not restate thresholds elsewhere. Done = every applicable gate passed or
 explicitly waived with a user-accepted reason. Declare the **change class** (A-E,
-per the QUALITY_GATE triage) in the handoff; it sets which gates apply. Handoff
-order: what works, how to see it, what is not done, risks, next action.
+per the QUALITY_GATE triage) in the handoff; it sets which gates apply. Only the
+G4 design floor is machine-enforced (hook/CI); G5/G6 (screenshots, a11y, perf) are
+declared and audited at review — so the class must match the diff, not dodge it.
+Handoff order: what works, how to see it, what is not done, risks, next action.
 
 ## Communication
 
@@ -121,7 +123,7 @@ lives in `.opencode/skills/i-have-adhd/SKILL.md`. Invoke `/i-have-adhd` to reloa
 
 | Path | Contents |
 |---|---|
-| `.opencode/sops/` | Five procedures + `stacks/` + `context/` |
+| `.opencode/sops/` | Six procedures (`DEVELOPMENT`, `DESIGN_LAW`, `QUALITY_GATE`, `CONTEXT`, `STACKS`, `EVAL`) + `stacks/` + `context/` |
 | `.opencode/agents/` | `develop`, `ui-designer`, `reviewer`, `planner` |
 | `.opencode/commands/` | `/ship`, `/new-feature`, `/ui-audit`, `/build-ui`, `/stack` |
 | `.opencode/skills/` | hallmark, refactoring-ui, design-taste, i-have-adhd, design-md |

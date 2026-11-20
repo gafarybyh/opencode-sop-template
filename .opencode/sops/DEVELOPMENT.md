@@ -120,7 +120,16 @@ Rules:
 
 ## Phase 5 — Verify (mechanical)
 
-**Exit:** all commands pass, or every failure is explained and accepted.
+**Exit:** the commands for your **change class** pass, or every failure is
+explained and accepted. The class was fixed in Phase 3 (triage in
+`.opencode/sops/QUALITY_GATE.md`). Do not run class-D ceremony on a class-A change.
+
+| Class | Run |
+|---|---|
+| A — docs/config | lint the changed files only; no build, no tests |
+| B — logic | build + typecheck + lint + tests (full list below) |
+| C — UI tweak | build + typecheck + lint; tests only if logic changed |
+| D — new screen | build + typecheck + lint + tests |
 
 Take exact commands from the stack file's **Verify** section. Prefer
 `package.json` scripts. JS example, with `rtk` prefix:
@@ -132,13 +141,20 @@ rtk npx eslint .            # or biome check
 rtk npx vitest run          # or pytest / go test / cargo test
 ```
 
-Then build and start the production/preview server (background) before Phase 6.
-Dev-server numbers are not gate evidence.
+Classes C and D: build and start the production/preview server (background)
+before Phase 6. Dev-server numbers are not gate evidence.
 
 ## Phase 6 — Verify (visual and real)
 
-**Exit:** qa-gate PASS (0 FAIL), screenshots at 320/768/1280/1440, no console errors,
-no critical a11y issue, LCP < 2.5 s, CLS < 0.1 on desktop 1440.
+**Skip this phase entirely for classes A and B** — no UI change, nothing to render.
+
+**Exit, by class:**
+- **C — UI tweak (G5-fast):** qa-gate PASS (0 FAIL); one screenshot at 1280; no
+  console errors; keyboard reachability. The four-viewport sweep, perf trace and
+  full a11y audit belong to class D.
+- **D — new screen / redesign (G5 full + G6):** qa-gate PASS (0 FAIL); screenshots
+  at 320/768/1280/1440; no console errors; no critical a11y issue; LCP < 2.5 s;
+  CLS < 0.1 at desktop 1440.
 
 **Ask the user before the browser pass.** Screenshots and DevTools are slow. If
 declined, record `WAIVED G5/G6`, state "UI not visually verified", and continue.
@@ -148,9 +164,10 @@ Never tick a visual gate without evidence.
 node .opencode/scripts/qa-gate.mjs <path>
 ```
 
-Then the `playwright-cli` CLI: resize and screenshot 320 / 768 / 1280 / 1440. Then
-`chrome-devtools` MCP against the production/preview server: console, network,
-a11y, performance trace.
+Then, per class: **C** — resize to 1280, one screenshot, tab through the changed
+control. **D** — the `playwright-cli` CLI at 320 / 768 / 1280 / 1440, then
+`chrome-devtools` MCP against the production/preview server (console, network,
+a11y, performance trace).
 
 Browser tooling missing: stop and report "UI not verified, browser tooling missing".
 Never tick a checklist without evidence. Full gate items:
@@ -161,7 +178,8 @@ Never tick a checklist without evidence. Full gate items:
 **Exit:** an independent review pass found nothing blocking.
 
 - The `reviewer` agent for logic, convention, and security bugs (auth, input,
-  network, or files).
+  network, or files). Required for classes B-E when the diff touches more than
+  one file; a single-file class-A change can skip it.
 - Report: what now works, how to see it, what is deliberately not done, open
   risks, next action.
 

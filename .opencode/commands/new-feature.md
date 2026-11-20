@@ -24,8 +24,8 @@ another orchestrator on top of it.
 
 ## Project gates that always apply
 
-- UI work: `.opencode/skills/hallmark` or `.opencode/skills/refactoring-ui`, plus sloplint and
-  screenshots. No exceptions.
+- UI work: `.opencode/skills/hallmark` or `.opencode/skills/refactoring-ui`, plus
+  `qa-gate` (design floor) and screenshots. No exceptions.
 - `.opencode/sops/QUALITY_GATE.md` is the definition of done.
 - No comments in code unless asked. No commit unless asked.
 

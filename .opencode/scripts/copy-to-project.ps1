@@ -117,6 +117,51 @@ if (Test-Path $giSrc) {
   }
 }
 
+# --- Project scaffolding: docs/ skeleton, CI workflow, git hook -------------
+# G0 (requirement traceability) quotes docs/, so a fresh project needs a docs/
+# folder to land in. Without it the first task has nowhere to point and the
+# agent improvises. Create empty, clearly-marked stubs; never overwrite.
+$docsDir = Join-Path $Destination 'docs'
+if (-not (Test-Path $docsDir)) {
+  New-Item -ItemType Directory -Path $docsDir -Force | Out-Null
+  Write-Host "  docs/ (created)"
+}
+$docsStubs = [ordered]@{
+  'README.md' = "# docs/`r`n`r`nSource of truth for this project. The agent reads these before any code.`r`n`r`n- PRD.md      product requirements`r`n- STACK.md    chosen stack (also detected into .opencode/STACK.md)`r`n- features/   one file per feature`r`n`r`nStubs marked 'not written yet' must be filled before the work they describe.`r`n"
+  'PRD.md'    = "# PRD`r`n`r`nStatus: NOT WRITTEN YET. Fill this before implementation; Gate 0 quotes requirements from here.`r`n"
+}
+foreach ($k in $docsStubs.Keys) {
+  $dp = Join-Path $docsDir $k
+  if (-not (Test-Path $dp)) { Set-Content -LiteralPath $dp -Value $docsStubs[$k] -Encoding UTF8; Write-Host "  docs/$k (stub)" }
+}
+
+# CI backstop: copy the workflow into .github/workflows/ so it actually runs.
+# qa-gate.yml is a no-op pass on UI-less repos, so it is safe to install anywhere.
+# Never overwrite an existing workflow of the same name (the user may have edited it).
+$ciSrc = Join-Path $agentsDir 'ci\qa-gate.yml'
+$wfDir = Join-Path $Destination '.github\workflows'
+if (Test-Path $ciSrc) {
+  if (-not (Test-Path $wfDir)) { New-Item -ItemType Directory -Path $wfDir -Force | Out-Null }
+  $wfDst = Join-Path $wfDir 'qa-gate.yml'
+  if (-not (Test-Path $wfDst)) {
+    Copy-Item -Path $ciSrc -Destination $wfDst -Force
+    Write-Host "  .github/workflows/qa-gate.yml (CI backstop)"
+  } else {
+    Write-Host "  .github/workflows/qa-gate.yml already present (left as-is)"
+  }
+}
+
+# Pre-commit hook: hard block on UI commits without a fresh clean gate.
+# Only meaningful inside a git repo; if the destination is not one yet, skip.
+$hookScript = Join-Path $agentsDir 'scripts\install-git-hooks.ps1'
+if (Test-Path (Join-Path $Destination '.git')) {
+  & powershell -NoProfile -ExecutionPolicy Bypass -File $hookScript -Root $Destination | Out-Null
+  if ($LASTEXITCODE -eq 0) { Write-Host "  pre-commit hook installed (core.hooksPath=.githooks)" }
+  else { Write-Host "  WARNING: hook install failed; run install-git-hooks.ps1 manually" -ForegroundColor Yellow }
+} else {
+  Write-Host "  no .git yet; after 'git init' run: powershell -File .opencode\scripts\install-git-hooks.ps1" -ForegroundColor Yellow
+}
+
 # Keep the machine layer in sync with the template's always-on rules.
 # The global AGENTS.md is what opencode actually loads in every session.
 $globalAgents  = Join-Path $userHome '.config\opencode\AGENTS.md'
@@ -196,7 +241,7 @@ Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Open opencode in $Destination"
 Write-Host "  2. Run /stack          -> writes .opencode/STACK.md from real detection"
 Write-Host "  3. Edit AGENTS.md      -> replace PROJECT_NAME"
-Write-Host "  4. Put your documents in docs/ (PRD, STACK, features) - read before any code"
+Write-Host "  4. Fill docs/PRD.md   -> G0 quotes requirements from docs/ (stubs are marked NOT WRITTEN YET)"
 
 Write-Host ""
 Write-Host "The .gitignore above already covers the generated files:" -ForegroundColor Cyan

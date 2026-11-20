@@ -23,6 +23,12 @@ Notes:
 
 - **G4 is machine-enforced** for classes C and D (pre-commit hook / CI). You do
   not have to remember it; running `qa-gate` is how you clear it.
+- **G5/G6 are declared, not machine-enforced.** The hook and CI only read
+  `gate-status.json` (the G4 design floor); they cannot see screenshots, the a11y
+  tree, or LCP/CLS. So G5/G6 rest on the declared class and are **audited at
+  review** (Gate 7 / `reviewer`): a class-C/D handoff must show the evidence its
+  class requires, or an explicit waiver. Declaring class C to dodge class D's
+  evidence is a false claim, exactly like claiming a gate passed.
 - **G5-fast (class C)** = the checks that `qa-gate --render` already performs
   (overflow at 375, sticky/fold, focus ring) **plus** one screenshot at 1280,
   zero console errors, and keyboard reachability. The four-viewport row, the
@@ -87,6 +93,8 @@ silently.
 - [ ] Enforcement (repo with UI): a pre-commit hook (`.opencode/scripts/install-git-hooks.ps1`)
       or the CI in `.opencode/ci/qa-gate.yml` blocks a UI commit/push unless
       `gate-status.json` is a clean pass whose `inputHash` matches the tree.
+      `copy-to-project.ps1` installs both into a new project; a static-only
+      (`--static`) gate does not satisfy the hook — it is a waiver, not evidence.
 
 ## Gate 5 — Visual evidence (UI changed; class C: fast subset, class D: full)
 
@@ -134,6 +142,13 @@ Declined, or no device/emulator available: record `WAIVED G6b <reason>`. Never
 claim it passed.
 
 ## Gate 7 — Review (classes B-E, > 1 file)
+
+**This gate also audits gates the machine cannot see (G5/G6).** The pre-commit
+hook and CI enforce only the G4 design floor; screenshots, the a11y tree and
+LCP/CLS are declared. The reviewer checks the declared class against the diff and
+the handoff evidence: a class-D change with no four-viewport screenshots, no
+a11y result, or no LCP/CLS is a blocking finding (or must carry an accepted
+waiver). A class declared lower than the diff warrants is blocking too.
 
 - [ ] The `reviewer` agent run; blockers addressed.
 - [ ] Security checked when auth, input parsing, network, file I/O, or

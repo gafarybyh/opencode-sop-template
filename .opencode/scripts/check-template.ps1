@@ -44,6 +44,9 @@ $required = @(
   '.opencode/scripts/lib-gate-hash.mjs',
   '.opencode/scripts/precommit-gate.mjs',
   '.opencode/scripts/install-git-hooks.ps1',
+  '.opencode/scripts/eval-consistency.mjs',
+  '.opencode/scripts/eval-score.mjs',
+  '.opencode/sops/EVAL.md',
   '.opencode/ci/qa-gate.yml',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',
   '.opencode/skills/refactoring-ui/SKILL.md','.opencode/skills/design-taste/SKILL.md',
@@ -181,6 +184,22 @@ if ($SkipAgents) {
     }
   } else {
     Warn "'opencode debug agents' returned no agent ids; skipped"
+  }
+}
+
+Write-Host "`n=== SOP consistency (eval) ===" -ForegroundColor Cyan
+
+$evalScript = Join-Path $scriptsDir 'eval-consistency.mjs'
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+  Warn 'node not on PATH; consistency eval skipped'
+} elseif (-not (Test-Path $evalScript)) {
+  Bad 'eval-consistency.mjs missing'
+} else {
+  $evalOut = & node $evalScript 2>&1 | Out-String
+  if ($LASTEXITCODE -eq 0) {
+    Ok ($evalOut.Trim())
+  } else {
+    Bad "consistency eval failed:`n$($evalOut.Trim())"
   }
 }
 

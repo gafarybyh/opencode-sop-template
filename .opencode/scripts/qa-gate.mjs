@@ -146,8 +146,9 @@ console.log("");
 if (incomplete) {
   console.log(`qa-gate: INCOMPLETE — render tier did NOT run (${render}).`);
   console.log(`         Page-only gates (34 overflow, 56 sticky, hero fold) are UNCHECKED.`);
-  console.log(`         Install Chrome, or accept static-only with: node .opencode/scripts/qa-gate.mjs --static`);
-  console.log(`         (record WAIVED G4 render in the handoff). Not a clean pass.`);
+  console.log(`         Needs Chrome + puppeteer-core (npm i -g puppeteer-core).`);
+  console.log(`         Or accept static-only with: node .opencode/scripts/qa-gate.mjs --static`);
+  console.log(`         (that is a recorded WAIVED G4 render — not a clean pass, and not valid for a UI commit).`);
 } else if (staticOnly) {
   console.log(`qa-gate: PASS (static only, WAIVED G4 render — page-only gates 34/56 not checked)  (${fails} FAIL, ${reflex} REFLEX, ${warns} WARN)`);
 } else {

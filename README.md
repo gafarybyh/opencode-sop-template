@@ -189,7 +189,7 @@ my-app/
 | `Setup.bat` | One-door setup menu (stays in the template, not copied) |
 | `AGENTS.md` | Routing table and hard rules; opencode reads it automatically |
 | `.gitignore` | Single source of truth for what must never be committed |
-| `.opencode/sops/` | Five procedures + `stacks/` (one file per stack) + `context/TROUBLESHOOTING.md` |
+| `.opencode/sops/` | Six procedures (`DEVELOPMENT`, `DESIGN_LAW`, `QUALITY_GATE`, `CONTEXT`, `STACKS`, `EVAL`) + `stacks/` (one file per stack) + `context/TROUBLESHOOTING.md` |
 | `.opencode/agents/` | `develop` (primary) plus `ui-designer`, `planner`, `reviewer` (subagents) |
 | `.opencode/commands/` | `/stack`, `/new-feature`, `/ship`, `/build-ui`, `/ui-audit`, `/i-have-adhd` |
 | `.opencode/skills/hallmark` | Anti-slop design skill with a deterministic linter (`sloplint.mjs`) |
@@ -203,8 +203,9 @@ my-app/
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/plugins/qa-gate-guard.js` | Prepends a one-line reminder to run `qa-gate` before claiming a UI done (same echo mechanism as graphify; silent when the gate is fresh and clean) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
-| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate`, `precommit-gate`, `install-git-hooks` |
+| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate`, `lib-gate-hash`, `precommit-gate`, `install-git-hooks`, `eval-consistency`, `eval-score` |
 | `.opencode/ci/` | `qa-gate.yml` — CI backstop that runs `qa-gate` on push/PR (no-op for UI-less repos) |
+| `eval/` | Trial results for the compliance eval (`.opencode/sops/EVAL.md`); create with `node .opencode/scripts/eval-score.mjs --init`. Per-machine, gitignored |
 
 ---
 
@@ -288,11 +289,17 @@ gates. Every gate passes or is **explicitly waived with a user-accepted reason**
 a waived gate is never reported as passed.
 
 UI changes are also gated **mechanically**, not just by discipline: `qa-gate`
-writes `.opencode/gate-status.json`, and an optional pre-commit hook
-(`.opencode/scripts/install-git-hooks.ps1`) plus a CI example
+writes `.opencode/gate-status.json`, and a pre-commit hook
+(`.opencode/scripts/install-git-hooks.ps1`) plus a CI workflow
 (`.opencode/ci/qa-gate.yml`) block a commit/push that touches UI without a fresh
-clean gate. Enable locally with
+clean gate. `copy-to-project.ps1` installs both into a new project (hook via
+`core.hooksPath`, workflow into `.github/workflows/`); to (re)install by hand:
 `powershell -NoProfile -ExecutionPolicy Bypass -File .opencode/scripts/install-git-hooks.ps1`.
+
+`qa-gate`'s render tier needs Chrome **and** `puppeteer-core`
+(`npm i -g puppeteer-core`). Without them `qa-gate` exits 3 (INCOMPLETE), never a
+false PASS. `--static` is an explicit, recorded waiver — and the pre-commit hook
+refuses a static-only gate on a UI commit, so a waiver can't become a bypass.
 
 ---
 

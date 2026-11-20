@@ -370,9 +370,15 @@ winget install OpenJS.NodeJS.LTS
 # Git
 winget install Git.Git
 
-# Chrome (needed by chrome-devtools MCP)
+# Chrome (needed by chrome-devtools MCP and qa-gate's render tier)
 winget install Google.Chrome
 ```
+
+`qa-gate`'s render tier also needs `puppeteer-core`; the SOP installs it
+per-machine. If `qa-gate` exits 3 with "render tier did NOT run", run
+`npm i -g puppeteer-core` (or `npm i --no-save puppeteer-core` in the project).
+Without it the design floor still runs static-only, but a UI commit will be
+blocked by the pre-commit hook until a real render passes.
 
 Close and reopen PowerShell so PATH refreshes. Verify:
 
@@ -753,7 +759,7 @@ Full text: `.opencode/sops/DESIGN_LAW.md`, `.opencode/sops/QUALITY_GATE.md`.
 | `playwright-cli` not found | `npm install -g @playwright/cli@latest`, then reopen the terminal |
 | `playwright-cli` skill not picked up | `playwright-cli install --skills agents --global`, then copy `~\.agents\skills\playwright-cli` to `~\.config\opencode\skills\` |
 | `sloplint` exits 2 | No `.html` found. For a dev server use a URL, or export HTML first |
-| `sloplint --render` cannot find Chrome | Install Chrome, or accept the static tier only and record the waiver |
+| `sloplint --render` cannot find Chrome | Install Chrome and `npm i -g puppeteer-core`, or accept the static tier and record the waiver (a UI commit still needs a real render) |
 | Skill not discovered | Skills must sit in the project at `.opencode/skills/<name>/SKILL.md`; run `install-skills.ps1 -List` |
 | Agent assumes Next.js in a Vue repo | `/stack` first; check `.opencode/STACK.md` exists |
 | `ctx_doctor` says `No plugin array found in opencode.json or opencode.jsonc` | Cosmetic. The doctor reads `opencode.jsonc` first and stops; opencode itself merges `.json` + `.jsonc`, so context-mode loads. Confirm with `opencode debug config` and look at `plugin` |

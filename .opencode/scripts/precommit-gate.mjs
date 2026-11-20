@@ -15,7 +15,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, relative, isAbsolute } from "node:path";
 import { hashInputs } from "./lib-gate-hash.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -40,7 +40,7 @@ const block = (why) => {
   console.error(`precommit-gate: BLOCKED — ${why}`);
   console.error(`  UI files staged: ${uiStaged.slice(0, 6).join(", ")}${uiStaged.length > 6 ? " …" : ""}`);
   console.error("  Run:  node .opencode/scripts/qa-gate.mjs");
-  console.error("  Fix every FAIL, then commit again. (Static-only: add --static, a recorded waiver.)");
+  console.error("  Fix every FAIL, then commit again. A --static run is a recorded waiver and will NOT satisfy this hook.");
   console.error("");
   process.exit(1);
 };
@@ -58,9 +58,42 @@ try {
 if (st.tool !== "qa-gate") block("gate-status.json was not written by qa-gate");
 if (st.ok !== true) block(`the last design gate did not pass (ok=${st.ok}, fails=${st.fails})`);
 
+// Render honesty, enforced: a --static run reports ok:true but renderRan:false.
+// It is a handoff waiver, NOT proof the page renders. Committing UI on it would
+// let the design floor be bypassed silently, so require a real render here.
+// Escape hatch is explicit and logged: PRECOMMIT_ALLOW_STATIC=1 (CI stays the backstop).
+if (st.renderRan !== true) {
+  if (process.env.PRECOMMIT_ALLOW_STATIC === "1") {
+    console.error("precommit-gate: WARNING — committing on a static-only gate (PRECOMMIT_ALLOW_STATIC=1).");
+    console.error("  The render tier did NOT run; page-only gates (overflow/sticky/fold) are unverified.");
+  } else {
+    block("the last design gate was static-only (render tier did not run) — not valid evidence for a UI commit");
+  }
+}
+
 const current = hashInputs([root], root);
-if (st.inputHash !== current.hash) {
+
+// Compare against the SAME scope qa-gate was run on, not blindly the whole root.
+// qa-gate <path> hashes only <path>, so hashing the root here false-blocked a
+// clean gate on multi-folder repos. But a scoped gate must not license unrelated
+// UI: every staged UI file has to live inside the gate's target. Gate the root
+// (default) and both checks are the whole tree — the strictest, correct case.
+const targets = Array.isArray(st.targets) && st.targets.length ? st.targets : ["."];
+const norm = (p) => resolve(root, p).replace(/\\/g, "/");
+const coversRoot = targets.some((t) => resolve(root, t) === root);
+const gateHash = coversRoot ? current.hash : hashInputs(targets.map((t) => resolve(root, t)), root).hash;
+
+if (st.inputHash !== gateHash) {
   block("UI changed since the last clean gate (stale PASS)");
+}
+
+const outside = uiStaged.filter((f) => !targets.some((t) => {
+  const abs = norm(f);
+  const dir = norm(t);
+  return abs === dir || abs.startsWith(dir + "/");
+}));
+if (outside.length) {
+  block(`the clean gate covered ${targets.join(", ")}, but these staged UI files are outside it: ${outside.slice(0, 6).join(", ")}`);
 }
 
 console.log(`precommit-gate: OK — design gate clean (${st.fails} FAIL, ${st.reflex} REFLEX), inputs match.`);

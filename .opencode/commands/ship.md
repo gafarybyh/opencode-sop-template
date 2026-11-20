@@ -66,6 +66,11 @@ Attach the screenshot paths. State each number. Do not say "looks good".
 ## 6. Review
 
 - Invoke `reviewer` on the diff.
+- The reviewer also **audits the declared class against the evidence** (see Gate 7
+  in `QUALITY_GATE.md`): G5/G6 are declared, not machine-checked, so a class-D
+  handoff without four-viewport screenshots, an a11y result, and LCP/CLS — or a
+  named waiver — is a blocking finding. A class declared lower than the diff
+  warrants is blocking too.
 - Address every blocking finding, or state why it is not applicable.
 - Security-relevant changes also go through the `reviewer` agent (it covers
   security findings alongside code review).
