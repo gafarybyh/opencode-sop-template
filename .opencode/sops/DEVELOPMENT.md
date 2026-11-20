@@ -141,6 +141,12 @@ rtk npx eslint .            # or biome check
 rtk npx vitest run          # or pytest / go test / cargo test
 ```
 
+**Backend (class B/D that touches a server or schema):** the mechanical verify is
+`node .opencode/scripts/qa-api.mjs --dir <backend-dir>` — tests + coverage + a
+live HTTP smoke + a secret scan, exit `0/1/3`. Details in
+`.opencode/sops/stacks/_backend.md`. The pre-commit hook blocks a stale backend
+gate, so a code change without a fresh PASS cannot be committed.
+
 Classes C and D: build and start the production/preview server (background)
 before Phase 6. Dev-server numbers are not gate evidence.
 

@@ -203,7 +203,7 @@ my-app/
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/plugins/qa-gate-guard.js` | Prepends a one-line reminder to run `qa-gate` before claiming a UI done (same echo mechanism as graphify; silent when the gate is fresh and clean) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
-| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate`, `lib-gate-hash`, `precommit-gate`, `install-git-hooks`, `qa-perf`, `eval-consistency`, `eval-score` |
+| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate`, `lib-gate-hash`, `precommit-gate`, `install-git-hooks`, `qa-perf`, `qa-api`, `eval-consistency`, `eval-score` |
 | `.opencode/ci/` | `qa-gate.yml` — CI backstop that runs `qa-gate` on push/PR (no-op for UI-less repos) |
 | `eval/` | Trial results for the compliance eval (`.opencode/sops/EVAL.md`); create with `node .opencode/scripts/eval-score.mjs --init`. Per-machine, gitignored |
 

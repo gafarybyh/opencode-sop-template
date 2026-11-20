@@ -13,10 +13,10 @@
  * Exit: 0 allow · 1 block.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve, relative, isAbsolute } from "node:path";
-import { hashInputs } from "./lib-gate-hash.mjs";
+import { hashInputs, hashWithExts } from "./lib-gate-hash.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
@@ -39,6 +39,56 @@ const uiStaged = staged.stdout
   // are excluded from hashInputs; gating them false-blocks a fresh project's
   // first commit. Mirrors lib-gate-hash's ".opencode/" and dotted-dir skip.
   .filter((f) => !/(^|\/)\.opencode\//.test(f) && !/(^|\/)\.[^/]+\//.test(f));
+
+// --- Backend gate (opt-in) -------------------------------------------------
+// Only acts when the repo declares a backend smoke contract (qa-api.config.json).
+// Same safety idea as the UI rule: a stale/missing backend gate on changed
+// source is blocked, so "the API works" cannot be an honor-system claim. Repos
+// with no config are untouched.
+const BACKEND_EXT = /\.(mjs|js|cjs|ts|sql)$/i;
+const allStaged = staged.stdout.split(/\r?\n/).filter(Boolean);
+
+// Discover backend dirs by locating qa-api.config.json (shallow, skip deps/dot).
+const apiDirs = [];
+const findApiDirs = (dir, depth) => {
+  if (depth > 3) return;
+  let ents;
+  try { ents = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  if (ents.some((e) => e.isFile() && e.name === "qa-api.config.json")) { apiDirs.push(dir); return; }
+  for (const e of ents) {
+    if (e.isDirectory() && !e.name.startsWith(".") && e.name !== "node_modules") findApiDirs(join(dir, e.name), depth + 1);
+  }
+};
+findApiDirs(root, 0);
+
+if (apiDirs.length) {
+  let apiStatus = null;
+  const apiStatusPath = join(root, ".opencode", "api-status.json");
+  if (existsSync(apiStatusPath)) { try { apiStatus = JSON.parse(readFileSync(apiStatusPath, "utf8")); } catch { apiStatus = null; } }
+  const apiBlock = (why, dir) => {
+    console.error("");
+    console.error(`precommit-gate: BLOCKED — ${why}`);
+    console.error(`  Run:  node .opencode/scripts/qa-api.mjs --dir ${relative(root, dir).replace(/\\/g, "/")}`);
+    console.error("  Fix every FAIL (tests, coverage, smoke, secrets), then commit again.");
+    console.error("");
+    process.exit(1);
+  };
+  for (const dir of apiDirs) {
+    const relDir = relative(root, dir).replace(/\\/g, "/");
+    const touched = allStaged.some((f) => {
+      const abs = resolve(root, f).replace(/\\/g, "/");
+      return abs.startsWith(dir.replace(/\\/g, "/") + "/") && BACKEND_EXT.test(f);
+    });
+    if (!touched) continue;
+    if (!apiStatus) apiBlock("backend source changed but no backend gate has run (api-status.json missing)", dir);
+    if (apiStatus.tool !== "qa-api") apiBlock("api-status.json was not written by qa-api", dir);
+    const statusDir = resolve(root, apiStatus.dir || "").replace(/\\/g, "/");
+    if (statusDir !== dir.replace(/\\/g, "/")) apiBlock(`the last backend gate ran on a different dir (${apiStatus.dir})`, dir);
+    if (apiStatus.ok !== true) apiBlock(`the last backend gate did not pass (ok=${apiStatus.ok})`, dir);
+    const { hash: nowHash } = hashWithExts([dir], root, new Set([".mjs", ".js", ".cjs", ".ts", ".sql", ".json"]));
+    if (apiStatus.srcHash !== nowHash) apiBlock("backend source changed since the last clean gate (stale PASS)", dir);
+  }
+}
 
 if (uiStaged.length === 0) process.exit(0); // no UI touched -> not this gate's business
 

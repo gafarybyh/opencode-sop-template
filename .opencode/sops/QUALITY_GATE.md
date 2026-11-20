@@ -14,9 +14,9 @@ passed.
 | Class | Trigger | Gates that apply |
 |---|---|---|
 | **A** — docs/config | only docs, comments, config, dependency bumps; no product code | G0, G2 (lint only if it lints those files), G8 |
-| **B** — logic | source code, no user-visible UI change | G0, G1, G2, G3, G7 (>1 file), G8 |
+| **B** — logic | source code, no user-visible UI change | G0, G1, G2, G3, **G3b** (if server/schema), G7 (>1 file), G8 |
 | **C** — UI tweak | CSS/markup/copy change to an existing screen | G0, G1, G2, **G4**, G5-fast, G8 |
-| **D** — new screen | new page/screen, redesign, or layout rework | G0, G1, G2, G3 (if logic), **G4**, **G5 (full)**, **G6**, G7, G8 |
+| **D** — new screen | new page/screen, redesign, or layout rework | G0, G1, G2, G3 (if logic), **G3b** (if server/schema), **G4**, **G5 (full)**, **G6**, G7, G8 |
 | **E** — native UI | React Native / Expo / Flutter | G0, G1, G2, G3, **G4 (as applicable)**, **G6b**, G7, G8 |
 
 Notes:
@@ -67,6 +67,7 @@ passed.
 - [ ] Lint zero **new** warnings vs a baseline captured before the change:
       `rtk npx eslint .` / `rtk ruff check` / `rtk cargo clippy`
 - [ ] Tests: `rtk npx vitest run` / `rtk pytest` / `rtk go test ./...` / `rtk cargo test`
+- [ ] Dependency audit clean when dependencies changed: `rtk npm audit --audit-level=high` / `rtk pip-audit` / `rtk govulncheck ./...` / `rtk cargo audit`. A new dependency for a few lines of code is rejected.
 
 If a baseline cannot be captured, report the absolute count and list pre-existing
 warnings as `N/A pre-existing`. Capture the baseline before the change, e.g.
@@ -83,6 +84,28 @@ unrelated lint debt in the same change.
 
 No test runner and the user did not ask for one: say so, do not add a framework
 silently.
+
+## Gate 3b — Backend API + DB (when server code or schema changed)
+
+The UI gates cannot see a server. A backend change is done only when its own
+mechanical gate passes — same rule as G4 for the design floor.
+
+- [ ] `node .opencode/scripts/qa-api.mjs --dir <backend-dir>` prints **PASS
+      (exit 0)**: tests pass, coverage ≥ floor (default 70%), smoke endpoints
+      match (incl. 401/404), no hardcoded secrets. Paste its PASS line. Details:
+      `.opencode/sops/stacks/_backend.md`.
+- [ ] Integration tests hit the real HTTP surface: happy path, 400 invalid input,
+      404 unknown, 401 on every protected route.
+- [ ] Money/totals recomputed server-side from stored values; multi-row writes in
+      a transaction.
+- [ ] Migration applies to a fresh DB in the test run; a code-vs-`docs/BACKEND_SCHEMA.md`
+      mismatch is reported, not silently resolved.
+- [ ] Supply chain: dependency audit clean (see Gate 2).
+
+`qa-api` writes `.opencode/api-status.json`; the pre-commit hook blocks a stale
+backend gate when `qa-api.config.json` exists — so this is enforced, not
+honor-system. Missing runner / server-never-ready / smoke-cannot-run is INCOMPLETE
+(exit 3), never a pass.
 
 ## Gate 4 — Design floor (when UI changed)
 

@@ -15,3 +15,9 @@ a framework silently.
 - No secrets in code, logs, or responses. Use the project's settings layer.
 - Match the existing project layout, import style, and error-handling pattern.
 - No new dependency for a small utility; write the few lines.
+
+## One-command backend gate
+
+If the backend declares `qa-api.config.json`, run `node .opencode/scripts/qa-api.mjs
+--dir <backend-dir>` (tests + coverage + live smoke + secret scan). See
+`stacks/_backend.md`. Supply chain: `rtk pip-audit`.

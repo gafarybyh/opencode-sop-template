@@ -1,8 +1,15 @@
-# .github/workflows/qa-gate.yml — CI backstop for the design floor (G4).
+# .github/workflows/qa-gate.yml — CI backstop for the SOP gates.
 #
-# Wire this in a project that has UI. Copy it to <repo>/.github/workflows/.
-# It installs puppeteer-core, then runs qa-gate (which runs sloplint --render).
-# UI-less repos: this workflow is a no-op pass, so it is safe to ship anywhere.
+# Copy to <repo>/.github/workflows/. Jobs are no-ops when their trigger files are
+# absent, so the file is safe to ship into any repo (UI or not).
+#   design-floor (G4): qa-gate on the design floor — needs puppeteer-core + Chrome.
+#   perf-g6 (G6):      qa-perf sweep — a11y/LCP/CLS over every page. axe is vendored,
+#                      so a11y runs offline; needs Chrome (present on ubuntu-latest).
+#   api (G2/G3):       qa-api — tests + coverage + live HTTP smoke — only when a
+#                      backend declares server/qa-api.config.json.
+#
+# NOTE: a11y/perf are validated here; the four-viewport screenshots (G5) remain a
+# human/reviewer step — CI cannot see "looks right".
 name: qa-gate
 
 on:
@@ -14,11 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Skip when there is no UI
         id: ui
         run: |
@@ -27,11 +32,49 @@ jobs:
           else
             echo "has_ui=false" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Install puppeteer-core (render tier)
         if: steps.ui.outputs.has_ui == 'true'
         run: npm install --no-save puppeteer-core
-
       - name: Design floor (qa-gate)
         if: steps.ui.outputs.has_ui == 'true'
         run: node .opencode/scripts/qa-gate.mjs
+
+  perf-g6:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Skip when there is no UI
+        id: ui
+        run: |
+          if git ls-files | grep -qiE '\.(html|css|jsx|tsx|vue|svelte|astro)$'; then
+            echo "has_ui=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_ui=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install puppeteer-core (render tier)
+        if: steps.ui.outputs.has_ui == 'true'
+        run: npm install --no-save puppeteer-core
+      - name: G6 perf + a11y (all pages)
+        if: steps.ui.outputs.has_ui == 'true'
+        # Adapt the target to your build output (e.g. "out/" or a --url to a preview).
+        run: node .opencode/scripts/qa-perf.mjs "${QA_PERF_TARGET:-prototype/}"
+        env:
+          QA_PERF_TARGET: prototype/
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Backend gate (only if a backend declares a smoke contract)
+        run: |
+          if [ -f server/qa-api.config.json ]; then
+            node .opencode/scripts/qa-api.mjs --dir server
+          else
+            echo "No server/qa-api.config.json — no backend gate configured. Skipping."
+          fi

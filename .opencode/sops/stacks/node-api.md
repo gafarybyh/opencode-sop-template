@@ -10,6 +10,27 @@ NestJS: `rtk npx nest build`. Biome instead of ESLint: `rtk npx biome check .`.
 Run the `package.json` test script when it exists; use vitest/jest only when it is
 in `devDependencies`. A missing tool is a gap, not a pass: record `N/A <check>: <reason>`.
 
+**Coverage + integration + supply chain (when logic/DB changed):**
+
+| Coverage | Integration | Dependency audit | Migration |
+|---|---|---|---|
+| `rtk npx vitest run --coverage` | boot the server, hit real routes | `rtk npm audit --audit-level=high` | apply to a fresh DB in the test run |
+
+Zero-dependency projects (like the reference slice) may use `node --test
+--experimental-test-coverage` instead of vitest — see `stacks/_backend.md`.
+
+## One-command backend gate
+
+If the backend declares `qa-api.config.json`, run:
+
+```bash
+node .opencode/scripts/qa-api.mjs --dir <backend-dir>
+```
+
+It must print PASS (exit 0): tests pass, coverage ≥ floor, smoke endpoints match,
+no hardcoded secrets. This is the backend's G2+G3 evidence; the pre-commit hook
+blocks a stale backend gate. Details: `stacks/_backend.md`.
+
 ## Anti-slop
 
 - Validate every request at the boundary (schema or guard); never trust input.
@@ -18,5 +39,7 @@ in `devDependencies`. A missing tool is a gap, not a pass: record `N/A <check>: 
   dangling promise.
 - No secrets in code, logs, or error responses; read them from the settings layer.
 - No N+1: batch or join at the data layer, not in a loop over rows.
+- Server recomputes money totals from stored prices; never trust a client price.
+- Write multi-row mutations in a transaction (BEGIN/COMMIT/ROLLBACK).
 - Match the existing router/module layout and error-shape; no new dependency for a
   small utility.

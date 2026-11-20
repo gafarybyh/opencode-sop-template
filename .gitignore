@@ -37,6 +37,8 @@ graphify-out/
 .opencode/gate-status.json
 # qa-perf (G6) status, written by .opencode/scripts/qa-perf.mjs (per-run, not source)
 .opencode/perf-status.json
+# qa-api (G3b) status, written by .opencode/scripts/qa-api.mjs (per-run, not source)
+.opencode/api-status.json
 
 # eval trial results, written by .opencode/scripts/eval-score.mjs --init
 # (per-machine measurements; regenerate and record after a real run)
