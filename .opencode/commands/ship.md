@@ -73,6 +73,7 @@ Attach the screenshot paths. State each number. Do not say "looks good".
 ## 7. Report
 
 ```
+Change class: <A-E, per the QUALITY_GATE triage>
 Shipped: <what now works, observable>
 See it: <command | URL | path>
 Not done: <deliberate omissions + why>
@@ -80,7 +81,9 @@ Risks: <anything that could bite>
 Next: <one action under 2 minutes>
 ```
 
-Include the gate table with real values:
+Include the gate table with real values for the **declared class only** (see the
+triage in `QUALITY_GATE.md`); do not pad it with `N/A` rows for gates that class
+does not run:
 
 | Gate | Result |
 |---|---|

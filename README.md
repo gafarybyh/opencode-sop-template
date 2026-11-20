@@ -282,9 +282,10 @@ pick one. Routing is fixed per command:
 
 `.opencode/sops/QUALITY_GATE.md` is the definition of done: requirement
 traceability, correctness, build/typecheck/lint/tests, design floor, visual
-evidence, a11y and performance, review, and handoff. Every gate passes or is
-**explicitly waived with a user-accepted reason** — a waived gate is never reported
-as passed.
+evidence, a11y and performance, review, and handoff. Gates are **risk-proportional**:
+declare the change class (A-E in its triage table) and run only that class's
+gates. Every gate passes or is **explicitly waived with a user-accepted reason** —
+a waived gate is never reported as passed.
 
 UI changes are also gated **mechanically**, not just by discipline: `qa-gate`
 writes `.opencode/gate-status.json`, and an optional pre-commit hook

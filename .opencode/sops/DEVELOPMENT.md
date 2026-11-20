@@ -77,7 +77,8 @@ import style, error handling, and state management.
 
 ## Phase 3 — Plan
 
-**Exit:** ordered steps, each naming a file.
+**Exit:** ordered steps, each naming a file, and the **change class** (A–E, per
+the triage in `.opencode/sops/QUALITY_GATE.md`) that says which gates apply.
 
 - The `planner` subagent for a new module or non-obvious data flow.
 - Otherwise 3-7 numbered steps inline.

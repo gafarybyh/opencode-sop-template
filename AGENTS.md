@@ -108,8 +108,9 @@ The 16-item floor is non-waivable. The concrete ban table is match-and-refuse.
 
 `.opencode/sops/QUALITY_GATE.md` is the single source of truth for every gate;
 do not restate thresholds elsewhere. Done = every applicable gate passed or
-explicitly waived with a user-accepted reason. Handoff order: what works, how to
-see it, what is not done, risks, next action.
+explicitly waived with a user-accepted reason. Declare the **change class** (A-E,
+per the QUALITY_GATE triage) in the handoff; it sets which gates apply. Handoff
+order: what works, how to see it, what is not done, risks, next action.
 
 ## Communication
 

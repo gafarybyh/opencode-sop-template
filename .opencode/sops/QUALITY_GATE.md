@@ -4,6 +4,35 @@ Done = every applicable gate passed, or explicitly waived with a reason the user
 accepted. Design commands live in `.opencode/sops/DESIGN_LAW.md`; this file is the
 checklist.
 
+## Triage — which gates apply (declare the class, then run only those)
+
+Gates are risk-proportional. Pick the class in Phase 3, **state it in the
+handoff** (`Change class: C — UI tweak`), and run its gates. Declaring a class
+that does not match the diff is a false claim, exactly like claiming a gate
+passed.
+
+| Class | Trigger | Gates that apply |
+|---|---|---|
+| **A** — docs/config | only docs, comments, config, dependency bumps; no product code | G0, G2 (lint only if it lints those files), G8 |
+| **B** — logic | source code, no user-visible UI change | G0, G1, G2, G3, G7 (>1 file), G8 |
+| **C** — UI tweak | CSS/markup/copy change to an existing screen | G0, G1, G2, **G4**, G5-fast, G8 |
+| **D** — new screen | new page/screen, redesign, or layout rework | G0, G1, G2, G3 (if logic), **G4**, **G5 (full)**, **G6**, G7, G8 |
+| **E** — native UI | React Native / Expo / Flutter | G0, G1, G2, G3, **G4 (as applicable)**, **G6b**, G7, G8 |
+
+Notes:
+
+- **G4 is machine-enforced** for classes C and D (pre-commit hook / CI). You do
+  not have to remember it; running `qa-gate` is how you clear it.
+- **G5-fast (class C)** = the checks that `qa-gate --render` already performs
+  (overflow at 375, sticky/fold, focus ring) **plus** one screenshot at 1280,
+  zero console errors, and keyboard reachability. The four-viewport row, the
+  perf trace, and the full a11y sweep belong to class D.
+- **Class D includes class C's checks.** Class D is the superset.
+- When a change spans classes, take the **highest** class and run its gates.
+- Escalate when in doubt: a change to a shared component, a token, or a layout
+  primitive is class D for every screen that uses it, even if the diff is one
+  line.
+
 ## Gate 0 — Requirement traceability (always)
 
 - [ ] Requirement quoted from `docs/`, or stated as "not documented; user said X".
@@ -11,7 +40,7 @@ checklist.
 - [ ] Doc-vs-code conflict reported, not silently resolved.
 - [ ] No library API written from memory; each verified this session or in repo.
 
-## Gate 1 — Correctness (always)
+## Gate 1 — Correctness (classes B, C, D, E)
 
 - [ ] Behaviour works, verified by running it.
 - [ ] No new `any` / `unknown` cast / `# type: ignore` without a one-line reason.
@@ -20,7 +49,7 @@ checklist.
 - [ ] Error paths handled: network failure, empty result, invalid input.
 - [ ] No hardcoded secret, token, or credential.
 
-## Gate 2 — Mechanical build (always)
+## Gate 2 — Mechanical build (all code changes; docs-only: lint the changed files)
 
 Run with `rtk` prefix. Take the exact commands from the stack file's **Verify**
 section; the examples below are illustrative only. Missing script = gap, not
@@ -59,7 +88,7 @@ silently.
       or the CI in `.opencode/ci/qa-gate.yml` blocks a UI commit/push unless
       `gate-status.json` is a clean pass whose `inputHash` matches the tree.
 
-## Gate 5 — Visual evidence (when UI changed)
+## Gate 5 — Visual evidence (UI changed; class C: fast subset, class D: full)
 
 **Ask the user first.** Screenshots and DevTools cost real time. If the user
 declines, record `WAIVED G5/G6` and state "UI not visually verified"; never claim
@@ -74,7 +103,7 @@ it passed.
 - [ ] Empty, loading, and error states exist for any async surface.
 - [ ] Dark mode implemented or declared out of scope.
 
-## Gate 6 — Accessibility and performance (when UI changed)
+## Gate 6 — Accessibility and performance (class D)
 
 `chrome-devtools` MCP against the production/preview server, never the dev server.
 
@@ -104,7 +133,7 @@ G6 LCP/CLS are `N/A`** for a native app — do not force them. Substitute:
 Declined, or no device/emulator available: record `WAIVED G6b <reason>`. Never
 claim it passed.
 
-## Gate 7 — Review (any change > 1 file)
+## Gate 7 — Review (classes B-E, > 1 file)
 
 - [ ] The `reviewer` agent run; blockers addressed.
 - [ ] Security checked when auth, input parsing, network, file I/O, or
@@ -128,8 +157,8 @@ No "let me know if you need anything else". No recap of the plan.
 Only when the user accepts it. Record in the handoff:
 
 ```
-WAIVED G4 sloplint --render: Chrome not installed.
-Static tier clean. Install Chrome then re-run to close this.
+WAIVED G4 render: Chrome not installed; ran qa-gate --static.
+Static tier clean. Install Chrome, re-run qa-gate (inputHash updates) to close this.
 ```
 
 Never silently downgrade a gate. Never report a waived gate as passed.
