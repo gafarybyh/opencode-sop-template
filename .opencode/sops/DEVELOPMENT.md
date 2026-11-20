@@ -113,6 +113,11 @@ Rules:
 - No comments unless asked. No dead code. No `TODO` in a handoff.
 - New behaviour gets a test when the stack has a runner (stack file **Verify**).
   No runner: say so.
+- **Backend: create `qa-api.config.json` in the backend root as part of the build,**
+  before you can verify it. It is a build output of this phase, not an optional
+  extra — without it `qa-api` cannot boot the server and G3b cannot pass. Starter
+  JSON + fields: `.opencode/sops/stacks/_backend.md`. Fill `start`, `readyPath`,
+  `coverageMin`, and `smoke` entries that assert a 200, a 400, a 404 and a 401.
 - No new dependency without saying why and confirming it is absent.
 - Security: never log secrets, never ship secrets to the client, validate at the
   boundary, encode output.

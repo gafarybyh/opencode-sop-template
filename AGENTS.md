@@ -64,6 +64,13 @@ Project rules (owned here):
   and paste its `PASS` line (exit 0) as proof of the design floor (G4); never
   claim done on a stale or skipped gate. Then screenshots at 320/768/1280/1440
   via the Playwright CLI only after the user approves the browser pass.
+- **A backend is not done without `qa-api.config.json`.** The moment you create or
+  change a server (API/routes/DB) and no `qa-api.config.json` exists in that
+  backend's root, create one **in the same change** (copy the starter in
+  `.opencode/sops/stacks/_backend.md`): the start command, a ready path, and
+  smoke entries for the 200, 400, 404 and 401 paths. Then run
+  `node .opencode/scripts/qa-api.mjs --dir <backend-dir>` and paste its PASS
+  line. No config = the backend gate cannot run = the API is unverified.
 - **No code comments unless the user asks.**
 - **No commit, no push, no PR unless the user asks.**
 - **Never invent content.** No fake metrics, testimonials, logos, or images.

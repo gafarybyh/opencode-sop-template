@@ -21,7 +21,7 @@ Zero-dependency projects (like the reference slice) may use `node --test
 
 ## One-command backend gate
 
-If the backend declares `qa-api.config.json`, run:
+When the backend has a `qa-api.config.json` (it must, see `stacks/_backend.md`), run:
 
 ```bash
 node .opencode/scripts/qa-api.mjs --dir <backend-dir>

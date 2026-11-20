@@ -126,9 +126,42 @@ for (const f of files) {
   });
 }
 
+// --- 5. Backend config is mandated, not optional ---------------------------
+// The recurring slip: someone softens "create qa-api.config.json" back to "if it
+// exists", which silently removes the backend gate's trigger. In the files that
+// must MANDATE it, the obligation has to sit next to the mention, and the
+// opt-in phrasing is forbidden. (Stack run-lines may say "declares".)
+const mandateFiles = ["AGENTS.md", ".opencode/sops/DEVELOPMENT.md", ".opencode/sops/QUALITY_GATE.md"];
+const OPT_IN = /\bif\s+(?:the\s+)?backend\s+declares\b/i;
+const MANDATE = /(create|creates|creating|must|required|mandatory|not done without|in the same change|build output|part of the change)/i;
+for (const f of mandateFiles) {
+  const p = join(root, f);
+  if (!existsSync(p)) continue;
+  const txt = readFileSync(p, "utf8");
+  if (!/qa-api\.config\.json/.test(txt)) {
+    findings.push(`${f} no longer mentions qa-api.config.json (backend config mandate dropped)`);
+    continue;
+  }
+  if (OPT_IN.test(txt)) {
+    findings.push(`${f} phrases the backend config as opt-in ("if the backend declares") — it must be a create/must rule`);
+  }
+  const lines = txt.split("\n");
+  const near = lines.some((l, i) =>
+    /qa-api\.config\.json/.test(l) && MANDATE.test([lines[i - 1] ?? "", l, lines[i + 1] ?? ""].join(" "))
+  );
+  if (!near) findings.push(`${f} mentions qa-api.config.json but with no create/must rule beside it (became optional)`);
+}
+// _backend.md must keep the "Required build output" heading so the starter reads as mandatory.
+{
+  const p = join(root, ".opencode/sops/stacks/_backend.md");
+  if (existsSync(p) && !/Required build output/i.test(readFileSync(p, "utf8"))) {
+    findings.push(".opencode/sops/stacks/_backend.md lost its 'Required build output' section (config became optional)");
+  }
+}
+
 // --- report ----------------------------------------------------------------
 if (findings.length === 0) {
-  console.log("eval-consistency: PASS (artifacts present, all done-surfaces name qa-gate, no raw-sloplint step or prose drift)");
+  console.log("eval-consistency: PASS (artifacts present, done-surfaces name qa-gate, no raw-sloplint/prose drift, backend config mandated)");
   process.exit(0);
 }
 console.error(`eval-consistency: ${findings.length} issue(s):`);

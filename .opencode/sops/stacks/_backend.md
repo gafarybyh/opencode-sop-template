@@ -23,6 +23,25 @@ silent PASS. It writes `.opencode/api-status.json` (with a `srcHash`), and the
 pre-commit hook blocks a stale/missing backend gate when `qa-api.config.json`
 exists — the same enforcement the UI gets from `gate-status.json`.
 
+## Required build output: `qa-api.config.json` (do not skip)
+
+The moment a backend exists, it **must** carry a `qa-api.config.json` in its
+root. This is not optional and not a later chore: without it `qa-api` cannot
+boot the server, G3b cannot pass, and the pre-commit hook cannot protect the
+backend. Treat it as a build output of the backend, like `package.json`.
+
+Rules the agent must follow:
+- Create it in the **same change** that adds the server/route/schema.
+- `start` is the exact command that boots the server; `readyPath` is a URL
+  that returns < 500 once it is up.
+- `smoke` MUST include at least: one 200 happy path, one 400 invalid input,
+  one 404 unknown resource, and one 401 on a protected route (if the API has
+  auth). These are the paths a screenshot/unit test alone will not prove.
+- Keep it in sync: a new route or a changed start command updates this file
+  in the same commit, or the smoke silently tests a stale surface.
+
+Starter (copy, then adjust):
+
 `qa-api.config.json` lives in the backend dir:
 
 ```json

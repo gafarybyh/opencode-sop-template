@@ -18,6 +18,6 @@ a framework silently.
 
 ## One-command backend gate
 
-If the backend declares `qa-api.config.json`, run `node .opencode/scripts/qa-api.mjs
---dir <backend-dir>` (tests + coverage + live smoke + secret scan). See
+When the backend has a `qa-api.config.json` (it must, see `stacks/_backend.md`), run
+`node .opencode/scripts/qa-api.mjs --dir <backend-dir>` (tests + coverage + live smoke + secret scan). See
 `stacks/_backend.md`. Supply chain: `rtk pip-audit`.

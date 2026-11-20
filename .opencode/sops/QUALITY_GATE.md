@@ -90,6 +90,9 @@ silently.
 The UI gates cannot see a server. A backend change is done only when its own
 mechanical gate passes — same rule as G4 for the design floor.
 
+- [ ] The backend declares `qa-api.config.json` in its root (start + readyPath +
+      smoke for 200/400/404/401). If it is missing, the gate cannot run — creating
+      it is part of the change, not an optional extra. Starter: `stacks/_backend.md`.
 - [ ] `node .opencode/scripts/qa-api.mjs --dir <backend-dir>` prints **PASS
       (exit 0)**: tests pass, coverage ≥ floor (default 70%), smoke endpoints
       match (incl. 401/404), no hardcoded secrets. Paste its PASS line. Details:
