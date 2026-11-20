@@ -33,7 +33,7 @@ ctx_batch(commands: [
 ```
 
 Read only files that map to the task. Common: `docs/PRD.md`, `docs/STACK.md`,
-`docs/features/*.md`, `DESIGN.md` / `docs/DESIGN.md`, `docs/adr/*.md`.
+`docs/features/*.md`, `docs/DESIGN.md`, `docs/adr/*.md`.
 
 Rules: docs are the source of truth and beat upstream docs and training data.
 Quote the requirement before writing code. `ctx_execute(file: path)` for a doc over
@@ -107,7 +107,7 @@ Order: data/types -> logic -> UI shell -> UI polish.
 Rules:
 
 - UI work loads `.opencode/skills/hallmark` (new page/design) or
-  `.opencode/skills/refactoring-ui` (existing UI), plus `.opencode/sops/DESIGN.md`
+  `.opencode/skills/refactoring-ui` (existing UI), plus `.opencode/sops/DESIGN_LAW.md`
   for the floor and bans.
 - No comments unless asked. No dead code. No `TODO` in a handoff.
 - New behaviour gets a test when the stack has a runner (stack file **Verify**).

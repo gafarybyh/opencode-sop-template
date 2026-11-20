@@ -28,7 +28,7 @@ Read in this order when starting work:
 5. `.opencode/sops/CONTEXT.md` — before the first shell or context-mode call.
    Add `.opencode/sops/context/TROUBLESHOOTING.md` only when a tool errors.
 6. `.opencode/sops/QUALITY_GATE.md` — before claiming done.
-7. `.opencode/sops/DESIGN.md` only if the task touches user-visible UI.
+7. `.opencode/sops/DESIGN_LAW.md` only if the task touches user-visible UI.
 8. The stack file's **Verify** section before any build or test command.
 
 ## Non-negotiables

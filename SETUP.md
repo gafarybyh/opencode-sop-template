@@ -77,7 +77,7 @@ below. The daily procedure (Phase 0a–7) is in `.opencode/sops/DEVELOPMENT.md`.
 
 The file list lives in **`README.md`** -> *What is in here*. In short:
 `sops/` (procedures), `agents/` (subagents), `commands/` (slash commands),
-`skills/` (four vendored skills), `instructions/ALWAYS-ON.md` (source of the
+`skills/` (five vendored skills), `instructions/ALWAYS-ON.md` (source of the
 global rules), `plugins/graphify-auto-update.js` (local plugin), `mcp/` (why
 those servers), `scripts/` (the install and check scripts).
 
@@ -92,6 +92,7 @@ output rather than opinions.
 | Design rulebook | **refactoring-ui** (358?) | 151 traceable rules, Step-0 stack detection, maps directly onto Tailwind scales. Diagnostic, not a generator. |
 | Design craft | **design-taste** (90?) | Merges impeccable + emilkowalski + taste-skill. The sharpest concrete ban catalogue. |
 | Output style | **i-have-adhd** | Answer-first output. |
+| Design system | **design-md** (Google Labs, Apache-2.0) | Turns a Design Brief into a portable `docs/DESIGN.md` (YAML tokens + prose, 10 canonical sections), verified by the official `@google/design.md` linter (via `npx`). Hallmark reads it as the locked system. |
 | Browser verify | **Playwright CLI** (Microsoft) | Interaction and screenshots without a human, and far cheaper in context than a browser MCP. |
 | Perf/a11y verify | **Chrome DevTools MCP** (Google) | LCP, CLS, console, a11y tree. |
 | Library docs | **`ctx_index` + Tavily** | No docs MCP. Project `docs/` first, then official library docs fetched on demand. |
@@ -160,7 +161,7 @@ SOP in context, nothing more.
 | MCP: `chrome-devtools`, optional `tavily` | `~/.config/opencode/` | **no (global by design)** | `bootstrap-windows.ps1` |
 | CLI + skill: `playwright-cli` | machine + `~/.config/opencode/skills/` | **no (global by design)** | `bootstrap-windows.ps1` |
 | `SHELL` env var (context-mode) | user environment | no | `bootstrap-windows.ps1` |
-| Skills `design-taste`, `hallmark`, `i-have-adhd`, `refactoring-ui` | `<project>/.opencode/skills/` | yes | `copy-to-project.ps1` |
+| Skills `design-taste`, `hallmark`, `i-have-adhd`, `refactoring-ui`, `design-md` | `<project>/.opencode/skills/` | yes | `copy-to-project.ps1` |
 | Skills `graphify`, `playwright-cli` (tool owned) | `~/.config/opencode/skills/` | **no (global by design)** | the tools themselves |
 | Skill `project-blueprint` (template-owned, global) | `~/.config/opencode/skills/` | **no (global by design)** | `bootstrap-windows.ps1` (from `.opencode/global-skills/`) |
 
@@ -252,6 +253,7 @@ snapshot into every turn. Browser interaction runs through the CLI instead.
 | `refactoring-ui` | project | 151-rule design rulebook |
 | `design-taste` | project | Ban catalogue, motion, interaction states, OKLCH colour |
 | `i-have-adhd` | project | Answer-first output shaping |
+| `design-md` | project | Google DESIGN.md design-system file (tokens + prose), verified with `@google/design.md` |
 | `graphify` | global | Graph query conventions (from `graphify install`) |
 | `playwright-cli` | global | Browser CLI usage guide (from `playwright-cli install --skills`) |
 
@@ -509,7 +511,7 @@ powershell -NoProfile -File "C:\Users\Administrator\Desktop\SETUP OPENCODE\.open
 ## Step 8 - the skills stay project-local (no action needed)
 
 The vendored skills (`hallmark`, `refactoring-ui`, `design-taste`,
-`i-have-adhd`) are **not** installed globally. They are copied into each
+`i-have-adhd`, `design-md`) are **not** installed globally. They are copied into each
 project's `.opencode/skills/` by `copy-to-project.ps1`.
 
 That is deliberate. Every agent and command in this SOP references the skills
@@ -609,9 +611,9 @@ my-app/
 +-- docs/                    your documents (agent reads these first)
     +-- PRD.md               requirements, goals, non-goals
     +-- STACK.md             framework, versions, package manager
+    +-- DESIGN.md            locked design system from the design-md skill (optional)
     +-- features/            one file per feature + acceptance criteria
     +-- adr/                 decisions and their rationale
-+-- DESIGN.md                locked design system (optional; overrides Hallmark themes)
 +-- AGENTS.md                routing table  <- must be at the root
 +-- .opencode/               everything agent-related
     +-- sops/ (incl. stacks/, context/) agents/ commands/ skills/ instructions/ mcp/ scripts/
@@ -718,7 +720,7 @@ graphify-out/
 5. **No invented content.** No fake metrics, testimonials, logos, or images.
 6. **Answer first.** No preamble, no recap, concrete time estimates.
 
-Full text: `.opencode/sops/DESIGN.md`, `.opencode/sops/QUALITY_GATE.md`.
+Full text: `.opencode/sops/DESIGN_LAW.md`, `.opencode/sops/QUALITY_GATE.md`.
 
 ---
 
@@ -759,6 +761,7 @@ Full text: `.opencode/sops/DESIGN.md`, `.opencode/sops/QUALITY_GATE.md`.
 | refactoring-ui skill | edisonmbli | see `.opencode/skills/refactoring-ui/` |
 | design-taste | h3nryprod01 | MIT AND Apache-2.0 |
 | i-have-adhd | ayghri | MIT |
+| design-md | Google Labs (google-labs-code) | Apache-2.0 |
 | context-mode | mksglu | MIT |
 | graphify | Graphify-Labs | see package |
 | Playwright CLI | Microsoft | Apache-2.0 |

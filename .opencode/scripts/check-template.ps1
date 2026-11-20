@@ -26,7 +26,7 @@ Write-Host "`n=== Layout ===" -ForegroundColor Cyan
 $required = @(
   'AGENTS.md',
   '.gitignore',
-  '.opencode/sops/DEVELOPMENT.md','.opencode/sops/DESIGN.md','.opencode/sops/QUALITY_GATE.md',
+  '.opencode/sops/DEVELOPMENT.md','.opencode/sops/DESIGN_LAW.md','.opencode/sops/QUALITY_GATE.md',
   '.opencode/sops/CONTEXT.md','.opencode/sops/STACKS.md',
   '.opencode/sops/context/TROUBLESHOOTING.md',
   '.opencode/sops/stacks/nextjs.md','.opencode/sops/stacks/vue.md','.opencode/sops/stacks/svelte.md',
@@ -42,7 +42,7 @@ $required = @(
   '.opencode/scripts/setup-menu.ps1',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',
   '.opencode/skills/refactoring-ui/SKILL.md','.opencode/skills/design-taste/SKILL.md',
-  '.opencode/skills/i-have-adhd/SKILL.md',
+  '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
   '.opencode/instructions/ALWAYS-ON.md',
   '.opencode/plugins/graphify-auto-update.js',
   '.opencode/global-skills/project-blueprint/SKILL.md'

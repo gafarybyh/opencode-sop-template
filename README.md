@@ -196,6 +196,7 @@ my-app/
 | `.opencode/skills/refactoring-ui` | 151-rule design rulebook distilled from *Refactoring UI* |
 | `.opencode/skills/design-taste` | Ban catalogue, motion, interaction states, OKLCH colour |
 | `.opencode/skills/i-have-adhd` | Answer-first output shaping |
+| `.opencode/skills/design-md` | Google DESIGN.md design-system file (tokens + prose), verified with `@google/design.md` |
 | `.opencode/global-skills/project-blueprint/` | Global `project-blueprint` skill: generates the 6 planning docs (PRD, TRD, App Flow, Design Brief, Backend Schema, Implementation Plan) under `docs/`. Installed by `bootstrap-windows.ps1`, never copied to a project |
 | `.opencode/instructions/ALWAYS-ON.md` | Source for the global always-on file (`~/.config/opencode/AGENTS.md`) |
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
@@ -369,6 +370,7 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 |---|---|---|
 | Hallmark | Nutlope / Together AI | MIT |
 | i-have-adhd | ayghri | MIT |
+| design-md | Google Labs (google-labs-code) | Apache-2.0 |
 | context-mode | mksglu | MIT |
 | RTK | rtk-ai | see package |
 | graphify | Graphify-Labs | see package |

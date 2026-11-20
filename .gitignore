@@ -38,3 +38,8 @@ graphify-out/
 Thumbs.db
 *.tmp
 *~
+
+# --- local skill test scratch (keep on disk, never commit) ---
+# Ad-hoc project used to exercise a skill end to end; not source.
+_skill-test-toko/
+_skill-test-*/

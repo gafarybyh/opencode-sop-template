@@ -143,7 +143,7 @@ if (Test-Path $alwaysOnSrc) {
 $globalSkillDir = Join-Path $userHome '.config\opencode\skills'
 if (Test-Path $globalSkillDir) {
   $removed = @()
-  foreach ($v in @('design-taste','hallmark','i-have-adhd','refactoring-ui')) {
+  foreach ($v in @('design-taste','hallmark','i-have-adhd','refactoring-ui','design-md')) {
     $p = Join-Path $globalSkillDir $v
     if (Test-Path $p) {
       Remove-Item -LiteralPath $p -Recurse -Force

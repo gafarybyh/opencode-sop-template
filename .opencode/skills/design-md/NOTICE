@@ -1,0 +1,7 @@
+design-md
+Copyright Google LLC
+
+This skill implements the DESIGN.md format specification from
+google-labs-code/design.md (https://github.com/google-labs-code/design.md),
+licensed under the Apache License, Version 2.0.
+The skill files themselves are distributed under the Apache License, Version 2.0.

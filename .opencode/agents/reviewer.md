@@ -54,7 +54,7 @@ If the user names files, review those instead.
 4. **Conventions.** Wrong file naming, inconsistent import style, an existing
    helper rewritten instead of reused, new dependency where one already exists.
 5. **Design slop** (only if UI files changed). The ban table in
-   `.opencode/sops/DESIGN.md` Layer 3. Run `sloplint` if the files are HTML/CSS.
+   `.opencode/sops/DESIGN_LAW.md` Layer 3. Run `sloplint` if the files are HTML/CSS.
 
 ## Confidence filter
 

@@ -22,7 +22,7 @@ Routing table. Detailed procedures live in `.opencode/sops/`.
 4. `.opencode/skills/*/SKILL.md`.
 5. Global `~/.config/opencode/AGENTS.md` (machine-wide always-on rules).
 
-Lowest number wins. When a skill conflicts with `.opencode/sops/DESIGN.md`, the
+Lowest number wins. When a skill conflicts with `.opencode/sops/DESIGN_LAW.md`, the
 SOP wins.
 
 ## Load order (by trigger, not all up front)
@@ -33,7 +33,7 @@ SOP wins.
 3. `.opencode/sops/CONTEXT.md` — before the first shell or context-mode call.
    Add `.opencode/sops/context/TROUBLESHOOTING.md` only when a tool errors.
 4. `.opencode/sops/QUALITY_GATE.md` — before claiming done.
-5. `.opencode/sops/DESIGN.md` — only if the task touches user-visible UI.
+5. `.opencode/sops/DESIGN_LAW.md` — only if the task touches user-visible UI.
 6. `.opencode/sops/STACKS.md` at Phase 0b, then **one** file in
    `.opencode/sops/stacks/`.
 
@@ -89,7 +89,7 @@ Tool routing, `rtk` limits, and degraded-mode fallbacks:
 Any user-visible change:
 
 1. Load `.opencode/skills/hallmark` (new page) or `.opencode/skills/refactoring-ui` (existing UI).
-2. Apply `.opencode/sops/DESIGN.md` — all three layers.
+2. Apply `.opencode/sops/DESIGN_LAW.md` — all three layers.
 3. Verify with `sloplint --render`, then ask before the browser pass
    (screenshots + DevTools). Declined -> record `WAIVED G5/G6`.
 
@@ -114,7 +114,7 @@ lives in `.opencode/skills/i-have-adhd/SKILL.md`. Invoke `/i-have-adhd` to reloa
 | `.opencode/sops/` | Five procedures + `stacks/` + `context/` |
 | `.opencode/agents/` | `develop`, `ui-designer`, `reviewer`, `planner` |
 | `.opencode/commands/` | `/ship`, `/new-feature`, `/ui-audit`, `/build-ui`, `/stack` |
-| `.opencode/skills/` | hallmark, refactoring-ui, design-taste, i-have-adhd |
+| `.opencode/skills/` | hallmark, refactoring-ui, design-taste, i-have-adhd, design-md |
 | `.opencode/instructions/` | `ALWAYS-ON.md` (source for the global always-on file) |
 | `.opencode/plugins/` | `graphify-auto-update.js` |
 | `.opencode/mcp/` | MCP rationale, snippet, install steps |

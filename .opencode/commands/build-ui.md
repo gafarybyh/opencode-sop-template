@@ -20,7 +20,7 @@ say so.
 ## Flow pinning
 
 0. Pre-flight: detect the stack (`.opencode/sops/STACKS.md` phase 0b) and load one
-   `.opencode/sops/stacks/*.md`. Note any locked `DESIGN.md` at the root — it
+   `.opencode/sops/stacks/*.md`. Note any locked `docs/DESIGN.md` (the `design-md` system) or a root `DESIGN.md` — it
    overrides Hallmark themes.
 1. Ask once: material, audience, use, tone. Never invent material.
 2. Shape the page, then name it.

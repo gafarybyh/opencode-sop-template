@@ -1,13 +1,13 @@
 # SOP — Quality Gate (Definition of Done)
 
 Done = every applicable gate passed, or explicitly waived with a reason the user
-accepted. Design commands live in `.opencode/sops/DESIGN.md`; this file is the
+accepted. Design commands live in `.opencode/sops/DESIGN_LAW.md`; this file is the
 checklist.
 
 ## Gate 0 — Requirement traceability (always)
 
 - [ ] Requirement quoted from `docs/`, or stated as "not documented; user said X".
-- [ ] Nothing contradicts `docs/PRD.md`, `docs/STACK.md`, `DESIGN.md`, or a feature doc.
+- [ ] Nothing contradicts `docs/PRD.md`, `docs/STACK.md`, `docs/DESIGN.md`, or a feature doc.
 - [ ] Doc-vs-code conflict reported, not silently resolved.
 - [ ] No library API written from memory; each verified this session or in repo.
 
@@ -51,10 +51,10 @@ silently.
 
 ## Gate 4 — Design floor (when UI changed)
 
-- [ ] `sloplint --render` reports **0 FAIL** (command: `DESIGN.md`).
+- [ ] `sloplint --render` reports **0 FAIL** (command: `.opencode/sops/DESIGN_LAW.md`).
 - [ ] Every `REFLEX` fixed or waived in the CSS stamp with evidence.
-- [ ] All Layer-1 floor items in `DESIGN.md` hold.
-- [ ] No item from the `DESIGN.md` ban table.
+- [ ] All Layer-1 floor items in `.opencode/sops/DESIGN_LAW.md` hold.
+- [ ] No item from the `.opencode/sops/DESIGN_LAW.md` ban table.
 
 ## Gate 5 — Visual evidence (when UI changed)
 

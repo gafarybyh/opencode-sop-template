@@ -675,7 +675,7 @@ if ($SkipSkills) {
   Write-Host '       vendored skills stay project-local; installing template global skills' -ForegroundColor DarkGray
   $globalSkillDir = Join-Path $userHome '.config\opencode\skills'
   if (Test-Path $globalSkillDir) {
-    $vendored = @('design-taste', 'hallmark', 'i-have-adhd', 'refactoring-ui')
+    $vendored = @('design-taste', 'hallmark', 'i-have-adhd', 'refactoring-ui', 'design-md')
     $stale = @()
     foreach ($v in $vendored) {
       if (Test-Path (Join-Path $globalSkillDir $v)) { $stale += $v }

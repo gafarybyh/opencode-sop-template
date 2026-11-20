@@ -95,11 +95,13 @@ expected; never skip graphify because of it.
 
 ## 3b. Source of truth — read in this order
 
-1. **Project documents in `docs/`** — intent, requirements, decisions, stack.
+1. **Project documents in `docs/`** — intent, requirements, decisions, stack,
+   and the locked design system (`docs/DESIGN.md`).
 2. **The existing code** — real patterns and conventions.
 3. **Official library documentation** — only for third-party APIs.
 
-Project documents win over upstream docs and over your assumptions.
+Project documents win over upstream docs and over your assumptions. When the code
+and a document disagree, the code is what runs: follow it and report the conflict.
 
 ### Project documents (`docs/`)
 
@@ -117,11 +119,21 @@ ctx_batch(commands: [
 | `docs/PRD.md` | Requirements, goals, non-goals |
 | `docs/STACK.md` | Framework, versions, package manager |
 | `docs/features/*.md` | Per-feature specs and acceptance criteria |
-| `DESIGN.md` / `docs/DESIGN.md` | Locked design system |
+| `docs/DESIGN.md` | Locked design system (tokens + prose) the UI builders read; from the design-md skill |
 | `docs/adr/*.md` | Decisions and rationale |
 
 Rules: list large `docs/` first; `ctx_execute(file: path)` for files over ~200 lines;
 never edit docs unless asked; report code-vs-doc conflicts; quote the requirement.
+
+Design files, easy to confuse - keep them apart:
+
+- `docs/DESIGN.md` is the design **system** (values + prose): the reference for
+  coding the app/web UI. It lives in `docs/` and is read like any project document.
+- `.opencode/sops/DESIGN_LAW.md` is the design **law** (the anti-slop SOP: Hallmark
+  Floor, refactoring-ui, design-taste). Rules, not values, and NOT a `docs/` file.
+  Apply it to any user-visible UI.
+- `tokens.css` holds the token **values**, beside the app stylesheet
+  (`src/tokens.css`); `docs/DESIGN.md` references it via `@tokens.css`.
 
 ### External library documentation
 
@@ -178,12 +190,13 @@ Read**: run `node <script> …` and read only its stdout and exit code.
 | New UI, page, redesign | `.opencode/skills/hallmark` or `/build-ui` |
 | Existing UI is off | `.opencode/skills/refactoring-ui` or `/ui-audit` |
 | Design bans and craft | `.opencode/skills/design-taste` |
+| Design system (`docs/DESIGN.md`) | `.opencode/skills/design-md` |
 | Architecture survey | the `planner` subagent |
 | Deep codebase exploration | the `explore` subagent |
 | Review before handoff | the `reviewer` agent |
 | Skill by description | list `.opencode/skills/` (project-local) |
 
-Vendored: `hallmark`, `refactoring-ui`, `design-taste`, `i-have-adhd`. Do not
+Vendored: `hallmark`, `refactoring-ui`, `design-taste`, `i-have-adhd`, `design-md`. Do not
 stack two orchestrators in one turn; `/new-feature` and the `planner` subagent
 both plan, pick one.
 

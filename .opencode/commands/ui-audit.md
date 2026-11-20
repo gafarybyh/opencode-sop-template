@@ -64,7 +64,7 @@ network 404s, a11y critical, LCP, CLS.
 
 ### 5. Judge
 
-Apply the anti-slop test from `.opencode/sops/DESIGN.md`:
+Apply the anti-slop test from `.opencode/sops/DESIGN_LAW.md`:
 - Could the theme be guessed from the category alone?
 - Does it survive the squint test?
 - Could any product own this, or is it generic?

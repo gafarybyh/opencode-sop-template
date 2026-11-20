@@ -7,7 +7,7 @@ Loaded when the user asks to lock the current build's system into a portable fil
 *lock the system*, *lock the design system*, *give me a design.md*, *export this as a design.md*, *extract the tokens*, *make this portable*, *I want to use this in another project*. Anything else, including more iteration on the same prompt, skips this file.
 
 - **Page builds and redesigns of more than one page.** A single component is too small to be a system.
-- **Never overwrite.** If `design.md` or `DESIGN.md` exists at the root, refresh its `## Exports` and say so in one line: *design.md found; Exports refreshed, system unchanged.*
+- **Never overwrite.** If `design.md` or `DESIGN.md` exists at the root, refresh its `## Exports` and say so in one line: *design.md found; Exports refreshed, system unchanged.* If `docs/DESIGN.md` exists (the `design-md` skill owns it), that is the system: read it, do not write a second root `design.md`, and keep `tokens.css` as the single source of values.
 
 ## Format
 
@@ -50,4 +50,4 @@ The spacing scale, the type scale, the easings and the durations are the scaffol
 
 ## After the file exists
 
-The pre-flight finds it on every later run (SKILL.md Step 0). From then on every pick defers to it, the variety rule inverts (pages share the system rather than differ), and a page that genuinely needs something else amends `design.md` with a `## Variants` section instead of overriding it locally.
+The pre-flight finds it on every later run (SKILL.md Step 0). From then on every pick defers to it, the variety rule inverts (pages share the system rather than differ), and a page that genuinely needs something else amends `design.md` with a `## Variants` section instead of overriding it locally. When the system lives in `docs/DESIGN.md` instead, the same rules apply to that file; do not also maintain a root `design.md`.

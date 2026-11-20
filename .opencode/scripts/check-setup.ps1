@@ -254,7 +254,7 @@ if (Test-Path (Join-Path $root 'README.md')) {
 # Skills are project-local by design. Every agent and command in this SOP
 # references them by a project relative path, and sloplint.mjs is executed
 # from that path, so a global copy is a duplicate that is never used.
-$vendoredSkills = @('design-taste','hallmark','i-have-adhd','refactoring-ui')
+$vendoredSkills = @('design-taste','hallmark','i-have-adhd','refactoring-ui','design-md')
 foreach ($v in $vendoredSkills) {
   $local = Join-Path $root ".opencode\skills\$v\SKILL.md"
   if (-not (Test-Path $local)) {
@@ -278,7 +278,7 @@ Write-Host "`n=== SOP files ===" -ForegroundColor Cyan
 
 $required = @(
   'AGENTS.md','.gitignore',
-  '.opencode/sops/DEVELOPMENT.md','.opencode/sops/DESIGN.md','.opencode/sops/QUALITY_GATE.md','.opencode/sops/CONTEXT.md','.opencode/sops/STACKS.md',
+  '.opencode/sops/DEVELOPMENT.md','.opencode/sops/DESIGN_LAW.md','.opencode/sops/QUALITY_GATE.md','.opencode/sops/CONTEXT.md','.opencode/sops/STACKS.md',
   '.opencode/sops/context/TROUBLESHOOTING.md',
   '.opencode/sops/stacks/nextjs.md','.opencode/sops/stacks/vue.md','.opencode/sops/stacks/svelte.md',
   '.opencode/sops/stacks/astro.md','.opencode/sops/stacks/vite.md','.opencode/sops/stacks/python.md',
@@ -292,7 +292,7 @@ $required = @(
   '.opencode/plugins/graphify-auto-update.js',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',
   '.opencode/skills/refactoring-ui/SKILL.md','.opencode/skills/design-taste/SKILL.md',
-  '.opencode/skills/i-have-adhd/SKILL.md',
+  '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
   '.opencode/mcp/README.md','.opencode/mcp/INSTALL.md','.opencode/mcp/opencode-snippet.jsonc'
 )
 if ($isTemplate) { $required += '.opencode/global-skills/project-blueprint/SKILL.md' }
