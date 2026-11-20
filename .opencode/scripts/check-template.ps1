@@ -41,6 +41,10 @@ $required = @(
   '.opencode/scripts/install-skills.ps1','.opencode/scripts/lib-jsonc.ps1',
   '.opencode/scripts/setup-menu.ps1',
   '.opencode/scripts/qa-gate.mjs',
+  '.opencode/scripts/lib-gate-hash.mjs',
+  '.opencode/scripts/precommit-gate.mjs',
+  '.opencode/scripts/install-git-hooks.ps1',
+  '.opencode/ci/qa-gate.yml',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',
   '.opencode/skills/refactoring-ui/SKILL.md','.opencode/skills/design-taste/SKILL.md',
   '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
@@ -130,6 +134,8 @@ if ($SkipCopy) {
         '.opencode/skills/hallmark/scripts/sloplint.mjs',
         '.opencode/scripts/lib-jsonc.ps1',
         '.opencode/scripts/qa-gate.mjs',
+        '.opencode/scripts/precommit-gate.mjs',
+        '.opencode/ci/qa-gate.yml',
         '.opencode/scripts/check-template.ps1'
       )
       foreach ($f in $expect) {

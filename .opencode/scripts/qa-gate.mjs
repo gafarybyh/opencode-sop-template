@@ -31,6 +31,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
+import { hashInputs } from "./lib-gate-hash.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", ".."); // <root>/.opencode/scripts/qa-gate.mjs -> <root>
@@ -112,6 +113,8 @@ for (const f of shown) {
   console.log(`  ${f.grade} ${f.gate ?? ""} ${where} ${f.evidence ?? ""}${fix}`.trimEnd());
 }
 
+const inputHash = hashInputs(scan, root);
+
 const status = {
   tool: "qa-gate",
   v: 2,
@@ -127,6 +130,8 @@ const status = {
   renderRan,
   staticOnly,
   incomplete,
+  inputHash: inputHash.hash,
+  inputFiles: inputHash.files,
   targets: scan.map(rel),
   findings: shown.map((f) => ({ gate: f.gate, grade: f.grade, file: f.file, line: f.line, evidence: f.evidence })),
 };

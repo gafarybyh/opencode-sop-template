@@ -78,8 +78,10 @@ below. The daily procedure (Phase 0a–7) is in `.opencode/sops/DEVELOPMENT.md`.
 The file list lives in **`README.md`** -> *What is in here*. In short:
 `sops/` (procedures), `agents/` (subagents), `commands/` (slash commands),
 `skills/` (five vendored skills), `instructions/ALWAYS-ON.md` (source of the
-global rules), `plugins/graphify-auto-update.js` (local plugin), `mcp/` (why
-those servers), `scripts/` (the install and check scripts).
+global rules), `plugins/graphify-auto-update.js` and `plugins/qa-gate-guard.js`
+(local plugins), `ci/qa-gate.yml` (CI backstop for the design gate), `mcp/` (why
+those servers), `scripts/` (the install and check scripts, incl. `qa-gate.mjs`,
+`precommit-gate.mjs`, `install-git-hooks.ps1`).
 
 ## Why these tools
 

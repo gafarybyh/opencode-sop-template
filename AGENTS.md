@@ -99,6 +99,9 @@ Any user-visible change:
    `sloplint --render`), then ask before the browser pass (screenshots +
    DevTools). Declined -> record `WAIVED G5/G6`.
 
+Enforcement: a pre-commit hook (`.opencode/scripts/install-git-hooks.ps1`) and CI
+(`.opencode/ci/qa-gate.yml`) block a UI commit/push without a fresh clean `qa-gate`.
+
 The 16-item floor is non-waivable. The concrete ban table is match-and-refuse.
 
 ## Definition of done

@@ -203,7 +203,8 @@ my-app/
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/plugins/qa-gate-guard.js` | Prepends a one-line reminder to run `qa-gate` before claiming a UI done (same echo mechanism as graphify; silent when the gate is fresh and clean) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
-| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate` |
+| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate`, `precommit-gate`, `install-git-hooks` |
+| `.opencode/ci/` | `qa-gate.yml` — CI backstop that runs `qa-gate` on push/PR (no-op for UI-less repos) |
 
 ---
 
@@ -284,6 +285,13 @@ traceability, correctness, build/typecheck/lint/tests, design floor, visual
 evidence, a11y and performance, review, and handoff. Every gate passes or is
 **explicitly waived with a user-accepted reason** — a waived gate is never reported
 as passed.
+
+UI changes are also gated **mechanically**, not just by discipline: `qa-gate`
+writes `.opencode/gate-status.json`, and an optional pre-commit hook
+(`.opencode/scripts/install-git-hooks.ps1`) plus a CI example
+(`.opencode/ci/qa-gate.yml`) block a commit/push that touches UI without a fresh
+clean gate. Enable locally with
+`powershell -NoProfile -ExecutionPolicy Bypass -File .opencode/scripts/install-git-hooks.ps1`.
 
 ---
 

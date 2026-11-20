@@ -55,6 +55,9 @@ silently.
 - [ ] Every `REFLEX` fixed or waived in the CSS stamp with evidence.
 - [ ] All Layer-1 floor items in `.opencode/sops/DESIGN_LAW.md` hold.
 - [ ] No item from the `.opencode/sops/DESIGN_LAW.md` ban table.
+- [ ] Enforcement (repo with UI): a pre-commit hook (`.opencode/scripts/install-git-hooks.ps1`)
+      or the CI in `.opencode/ci/qa-gate.yml` blocks a UI commit/push unless
+      `gate-status.json` is a clean pass whose `inputHash` matches the tree.
 
 ## Gate 5 — Visual evidence (when UI changed)
 

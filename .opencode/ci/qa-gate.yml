@@ -1,0 +1,37 @@
+# .github/workflows/qa-gate.yml — CI backstop for the design floor (G4).
+#
+# Wire this in a project that has UI. Copy it to <repo>/.github/workflows/.
+# It installs puppeteer-core, then runs qa-gate (which runs sloplint --render).
+# UI-less repos: this workflow is a no-op pass, so it is safe to ship anywhere.
+name: qa-gate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  design-floor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Skip when there is no UI
+        id: ui
+        run: |
+          if git ls-files | grep -qiE '\.(html|css|jsx|tsx|vue|svelte|astro)$'; then
+            echo "has_ui=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_ui=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install puppeteer-core (render tier)
+        if: steps.ui.outputs.has_ui == 'true'
+        run: npm install --no-save puppeteer-core
+
+      - name: Design floor (qa-gate)
+        if: steps.ui.outputs.has_ui == 'true'
+        run: node .opencode/scripts/qa-gate.mjs

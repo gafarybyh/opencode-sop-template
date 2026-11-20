@@ -65,7 +65,7 @@ Write-Host "copying .opencode/ ..."
 New-Item -ItemType Directory -Path $agentsDst -Force | Out-Null
 
 if ($Force -and (Test-Path $agentsDst)) {
-  foreach ($owned in @('sops','agents','commands','skills','instructions','mcp','scripts','plugins','reference','global-skills')) {
+  foreach ($owned in @('sops','agents','commands','skills','instructions','mcp','scripts','plugins','ci','reference','global-skills')) {
     $p = Join-Path $agentsDst $owned
     if (Test-Path $p) { Remove-Item -LiteralPath $p -Recurse -Force }
   }
