@@ -23,7 +23,11 @@ Routing table. Detailed procedures live in `.opencode/sops/`.
 5. Global `~/.config/opencode/AGENTS.md` (machine-wide always-on rules).
 
 Lowest number wins. When a skill conflicts with `.opencode/sops/DESIGN_LAW.md`, the
-SOP wins.
+SOP wins. Facts beat style: for modern web-platform behavior (APIs, accessibility,
+performance, Baseline/fallbacks) the global `modern-web-guidance` skill is the
+reference; `docs/DESIGN.md` and `DESIGN_LAW.md` still govern the project's visual
+system and floor. If a guide's pattern breaks a `DESIGN_LAW.md` ban, the ban wins -
+rewrite, do not adopt.
 
 ## Load order (by trigger, not all up front)
 

@@ -191,6 +191,7 @@ Read**: run `node <script> …` and read only its stdout and exit code.
 | Existing UI is off | `.opencode/skills/refactoring-ui` or `/ui-audit` |
 | Design bans and craft | `.opencode/skills/design-taste` |
 | Design system (`docs/DESIGN.md`) | `.opencode/skills/design-md` |
+| Modern web-platform behavior (global) | `modern-web-guidance` skill (installed globally) |
 | Architecture survey | the `planner` subagent |
 | Deep codebase exploration | the `explore` subagent |
 | Review before handoff | the `reviewer` agent |
@@ -212,3 +213,5 @@ both plan, pick one.
   it grows past that.
 - `ctx_*` is for reading and analysis. Write files with the native Write/Edit
   tools.
+- `modern-web-guidance retrieve` can exceed ~9.5 KB; fetch one guide at a time and
+  print only the applied rule.

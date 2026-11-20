@@ -295,7 +295,7 @@ $required = @(
   '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
   '.opencode/mcp/README.md','.opencode/mcp/INSTALL.md','.opencode/mcp/opencode-snippet.jsonc'
 )
-if ($isTemplate) { $required += '.opencode/global-skills/project-blueprint/SKILL.md' }
+if ($isTemplate) { $required += '.opencode/global-skills/project-blueprint/SKILL.md'; $required += '.opencode/global-skills/modern-web-guidance/SKILL.md' }
 foreach ($f in $required) {
   $p = Join-Path $root ($f -replace '/','\')
   if (Test-Path $p) { Ok $f } else { Bad "missing: $f" }

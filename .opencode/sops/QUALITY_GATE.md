@@ -82,6 +82,7 @@ it passed.
 - [ ] LCP < 2.5 s on the desktop viewport.
 - [ ] CLS < 0.1.
 - [ ] Images have `width`/`height` or a sized parent (no layout shift).
+- [ ] Platform patterns follow current Baseline guidance (when `modern-web-guidance` is installed): correct fallbacks, no deprecated APIs.
 
 ## Gate 6b — Native UI (mobile, when UI changed)
 

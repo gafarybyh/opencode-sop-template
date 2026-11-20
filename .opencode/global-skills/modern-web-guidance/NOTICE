@@ -1,0 +1,23 @@
+modern-web-guidance
+
+SKILL.md in this folder is vendored from GoogleChrome/modern-web-guidance
+(https://github.com/GoogleChrome/modern-web-guidance), file:
+skills/modern-web-guidance/SKILL.md.
+
+License:
+- Software / instructions (SKILL.md): Apache License 2.0.
+- The guide content under guides/ is licensed CC-BY-4.0 by Google. It is NOT
+  vendored here. At runtime the thin SKILL.md calls the self-contained npm
+  package via `npx -y modern-web-guidance@latest`, which bundles the guides
+  offline.
+
+Local changes:
+1. Non-ASCII punctuation (em dash, en dash, <=, ellipsis) rendered to ASCII to
+   match this template's strict-ASCII convention. Meaning unchanged.
+2. Removed the `--skill-version <hash>` pin from the example `search` command so
+   it always runs `npx -y modern-web-guidance@latest`. The pin is a freshness
+   handshake: once upstream bumps the skill it makes every call print an
+   'out-of-date' warning and exit non-zero, which reads as a tool failure. Using
+   @latest keeps calls clean and current.
+
+Copyright Google LLC. Apache-2.0.

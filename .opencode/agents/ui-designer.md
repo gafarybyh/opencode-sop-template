@@ -21,6 +21,11 @@ To author or update the design-system file itself (`docs/DESIGN.md`: tokens + pr
 use the `design-md` skill. Hallmark, refactoring-ui and design-taste build the UI;
 design-md writes the system they read.
 
+For modern web-platform behavior (APIs, accessibility, performance, Baseline and
+fallbacks), consult the global `modern-web-guidance` skill before writing
+HTML/CSS/client-side JS. It is authoritative for platform facts; `DESIGN_LAW.md`
+still governs the visual floor.
+
 ## Procedure
 
 1. **Detect the system.** Framework, Tailwind version, existing tokens,

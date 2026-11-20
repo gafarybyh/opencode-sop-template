@@ -93,6 +93,7 @@ output rather than opinions.
 | Design craft | **design-taste** (90?) | Merges impeccable + emilkowalski + taste-skill. The sharpest concrete ban catalogue. |
 | Output style | **i-have-adhd** | Answer-first output. |
 | Design system | **design-md** (Google Labs, Apache-2.0) | Turns a Design Brief into a portable `docs/DESIGN.md` (YAML tokens + prose, 10 canonical sections), verified by the official `@google/design.md` linter (via `npx`). Hallmark reads it as the locked system. |
+| Platform guidance | **modern-web-guidance** (GoogleChrome, Apache-2.0) | Global skill: keeps the agent on current web best practices (APIs, a11y, performance, Baseline/fallbacks). Thin SKILL.md; guides served offline by the `modern-web-guidance` npm package via `npx`. |
 | Browser verify | **Playwright CLI** (Microsoft) | Interaction and screenshots without a human, and far cheaper in context than a browser MCP. |
 | Perf/a11y verify | **Chrome DevTools MCP** (Google) | LCP, CLS, console, a11y tree. |
 | Library docs | **`ctx_index` + Tavily** | No docs MCP. Project `docs/` first, then official library docs fetched on demand. |
@@ -164,6 +165,7 @@ SOP in context, nothing more.
 | Skills `design-taste`, `hallmark`, `i-have-adhd`, `refactoring-ui`, `design-md` | `<project>/.opencode/skills/` | yes | `copy-to-project.ps1` |
 | Skills `graphify`, `playwright-cli` (tool owned) | `~/.config/opencode/skills/` | **no (global by design)** | the tools themselves |
 | Skill `project-blueprint` (template-owned, global) | `~/.config/opencode/skills/` | **no (global by design)** | `bootstrap-windows.ps1` (from `.opencode/global-skills/`) |
+| Skill `modern-web-guidance` (external, global) | `~/.config/opencode/skills/` | **no (global by design)** | `bootstrap-windows.ps1` (from `.opencode/global-skills/`) |
 
 The vendored skills stay project-local on purpose. Every agent and command
 references them by a project relative path, for example
@@ -762,6 +764,7 @@ Full text: `.opencode/sops/DESIGN_LAW.md`, `.opencode/sops/QUALITY_GATE.md`.
 | design-taste | h3nryprod01 | MIT AND Apache-2.0 |
 | i-have-adhd | ayghri | MIT |
 | design-md | Google Labs (google-labs-code) | Apache-2.0 |
+| modern-web-guidance | GoogleChrome | Apache-2.0 (code) / CC-BY-4.0 (guides) |
 | context-mode | mksglu | MIT |
 | graphify | Graphify-Labs | see package |
 | Playwright CLI | Microsoft | Apache-2.0 |

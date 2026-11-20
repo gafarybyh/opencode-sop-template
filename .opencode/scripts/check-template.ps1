@@ -45,7 +45,8 @@ $required = @(
   '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
   '.opencode/instructions/ALWAYS-ON.md',
   '.opencode/plugins/graphify-auto-update.js',
-  '.opencode/global-skills/project-blueprint/SKILL.md'
+  '.opencode/global-skills/project-blueprint/SKILL.md',
+  '.opencode/global-skills/modern-web-guidance/SKILL.md'
 )
 foreach ($f in $required) {
   $p = Join-Path $root ($f -replace '/','\')

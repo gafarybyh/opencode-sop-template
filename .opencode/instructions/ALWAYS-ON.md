@@ -34,5 +34,15 @@
 - On resume -> `ctx_search(sort:"timeline")` before asking the user.
 - Write artifacts to files, not inline.
 
+## Modern web guidance (when installed)
+- Use the global `modern-web-guidance` skill for platform decisions: HTML/CSS
+  semantics, accessibility, performance (LCP/INP/CLS), Baseline/fallbacks, modern
+  APIs. Not for trivial styling.
+- Query is a 2-5 word action phrase; `retrieve` at most 1-2 guides per task. Never
+  paste a whole guide into chat - cite the `id` only.
+- `DESIGN_LAW.md` floor bans override any guide pattern that conflicts.
+- Disclosure when used: one line, `MWG: <id>` under Evidence. No multi-line
+  template, no preamble (i-have-adhd wins).
+
 ## Shell
 - Prefix every command with `rtk`. Windows PowerShell 5.1: no `&&`, use `;`.

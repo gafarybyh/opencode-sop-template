@@ -198,6 +198,7 @@ my-app/
 | `.opencode/skills/i-have-adhd` | Answer-first output shaping |
 | `.opencode/skills/design-md` | Google DESIGN.md design-system file (tokens + prose), verified with `@google/design.md` |
 | `.opencode/global-skills/project-blueprint/` | Global `project-blueprint` skill: generates the 6 planning docs (PRD, TRD, App Flow, Design Brief, Backend Schema, Implementation Plan) under `docs/`. Installed by `bootstrap-windows.ps1`, never copied to a project |
+| `.opencode/global-skills/modern-web-guidance/` | Global `modern-web-guidance` skill (GoogleChrome, Apache-2.0): keeps the agent on current web best practices (APIs, a11y, performance, Baseline/fallbacks). Thin SKILL.md; the `modern-web-guidance` npm package serves the guides offline via `npx`. Installed by `bootstrap-windows.ps1`, never copied to a project |
 | `.opencode/instructions/ALWAYS-ON.md` | Source for the global always-on file (`~/.config/opencode/AGENTS.md`) |
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
@@ -371,6 +372,7 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 | Hallmark | Nutlope / Together AI | MIT |
 | i-have-adhd | ayghri | MIT |
 | design-md | Google Labs (google-labs-code) | Apache-2.0 |
+| modern-web-guidance | GoogleChrome | Apache-2.0 (code) / CC-BY-4.0 (guides) |
 | context-mode | mksglu | MIT |
 | RTK | rtk-ai | see package |
 | graphify | Graphify-Labs | see package |
