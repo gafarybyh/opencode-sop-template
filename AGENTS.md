@@ -60,9 +60,10 @@ Project rules (owned here):
 - **graphify before grep.** If `graphify-out/graph.json` exists,
   `graphify query "<question>"` precedes `grep`.
 - **Detect, never assume, the stack.**
-- **UI is not done without evidence.** `sloplint` clean; screenshots at
-  320/768/1280/1440 via the Playwright CLI only after the user approves the
-  browser pass.
+- **UI is not done without evidence.** Run `node .opencode/scripts/qa-gate.mjs`
+  and paste its `PASS` line (exit 0) as proof of the design floor (G4); never
+  claim done on a stale or skipped gate. Then screenshots at 320/768/1280/1440
+  via the Playwright CLI only after the user approves the browser pass.
 - **No code comments unless the user asks.**
 - **No commit, no push, no PR unless the user asks.**
 - **Never invent content.** No fake metrics, testimonials, logos, or images.
@@ -94,8 +95,9 @@ Any user-visible change:
 
 1. Load `.opencode/skills/hallmark` (new page) or `.opencode/skills/refactoring-ui` (existing UI).
 2. Apply `.opencode/sops/DESIGN_LAW.md` — all three layers.
-3. Verify with `sloplint --render`, then ask before the browser pass
-   (screenshots + DevTools). Declined -> record `WAIVED G5/G6`.
+3. Verify the design floor with `node .opencode/scripts/qa-gate.mjs` (runs
+   `sloplint --render`), then ask before the browser pass (screenshots +
+   DevTools). Declined -> record `WAIVED G5/G6`.
 
 The 16-item floor is non-waivable. The concrete ban table is match-and-refuse.
 

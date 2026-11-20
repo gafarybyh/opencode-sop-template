@@ -40,11 +40,13 @@ $required = @(
   '.opencode/scripts/bootstrap-windows.ps1','.opencode/scripts/copy-to-project.ps1',
   '.opencode/scripts/install-skills.ps1','.opencode/scripts/lib-jsonc.ps1',
   '.opencode/scripts/setup-menu.ps1',
+  '.opencode/scripts/qa-gate.mjs',
   '.opencode/skills/hallmark/SKILL.md','.opencode/skills/hallmark/scripts/sloplint.mjs',
   '.opencode/skills/refactoring-ui/SKILL.md','.opencode/skills/design-taste/SKILL.md',
   '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
   '.opencode/instructions/ALWAYS-ON.md',
   '.opencode/plugins/graphify-auto-update.js',
+  '.opencode/plugins/qa-gate-guard.js',
   '.opencode/global-skills/project-blueprint/SKILL.md',
   '.opencode/global-skills/modern-web-guidance/SKILL.md'
 )
@@ -127,6 +129,7 @@ if ($SkipCopy) {
         '.opencode/commands/ship.md',
         '.opencode/skills/hallmark/scripts/sloplint.mjs',
         '.opencode/scripts/lib-jsonc.ps1',
+        '.opencode/scripts/qa-gate.mjs',
         '.opencode/scripts/check-template.ps1'
       )
       foreach ($f in $expect) {

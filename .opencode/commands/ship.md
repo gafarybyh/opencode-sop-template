@@ -49,10 +49,11 @@ detail to bury.
 `WAIVED G5/G6`, state "UI not visually verified", and skip the rest of this step.
 
 ```bash
-node .opencode/skills/hallmark/scripts/sloplint.mjs <path> --render
+node .opencode/scripts/qa-gate.mjs <path>
 ```
 
-Then the `playwright-cli` CLI: resize 320 / 768 / 1280 / 1440 and screenshot each.
+`qa-gate` runs `sloplint --render` and writes `.opencode/gate-status.json`;
+paste its `PASS`/`FAIL` line. Then the `playwright-cli` CLI: resize 320 / 768 / 1280 / 1440 and screenshot each.
 Then `chrome-devtools` MCP against the production/preview server: console
 errors, 404s, a11y critical, LCP, CLS.
 
@@ -87,7 +88,7 @@ Include the gate table with real values:
 | typecheck | pass |
 | lint | 0 new |
 | tests | N passed |
-| sloplint | 0 FAIL, N waived |
+| sloplint | qa-gate: PASS, 0 FAIL |
 | screenshots | 320 / 768 / 1280 / 1440 attached |
 | a11y | 0 critical |
 | LCP / CLS | x.x s / 0.0x |

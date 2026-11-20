@@ -51,7 +51,7 @@ silently.
 
 ## Gate 4 — Design floor (when UI changed)
 
-- [ ] `sloplint --render` reports **0 FAIL** (command: `.opencode/sops/DESIGN_LAW.md`).
+- [ ] `node .opencode/scripts/qa-gate.mjs` reports **PASS, 0 FAIL** (it runs `sloplint --render`; details in `.opencode/sops/DESIGN_LAW.md`).
 - [ ] Every `REFLEX` fixed or waived in the CSS stamp with evidence.
 - [ ] All Layer-1 floor items in `.opencode/sops/DESIGN_LAW.md` hold.
 - [ ] No item from the `.opencode/sops/DESIGN_LAW.md` ban table.

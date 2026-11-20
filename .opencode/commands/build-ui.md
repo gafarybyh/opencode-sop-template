@@ -32,7 +32,7 @@ say so.
 6. Sweep:
 
 ```bash
-node .opencode/skills/hallmark/scripts/sloplint.mjs <output> --render
+node .opencode/scripts/qa-gate.mjs <output>
 ```
 
 Fix every FAIL. Fix or waive every REFLEX with real evidence in the CSS stamp.

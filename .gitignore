@@ -33,6 +33,9 @@ graphify-out/
 .hallmark/
 .playwright-cli/
 
+# qa-gate status, written by .opencode/scripts/qa-gate.mjs (per-run, not source)
+.opencode/gate-status.json
+
 # --- editor / OS noise --------------------------------------
 .DS_Store
 Thumbs.db
@@ -43,3 +46,5 @@ Thumbs.db
 # Ad-hoc project used to exercise a skill end to end; not source.
 _skill-test-toko/
 _skill-test-*/
+_sop-test-toko/
+SOP Test Coding/
