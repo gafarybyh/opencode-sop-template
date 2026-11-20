@@ -39,7 +39,7 @@ still governs the visual floor.
    then depth, then motion. See `.opencode/skills/refactoring-ui/references/`.
 5. **Load Hallmark** for a new page: `.opencode/skills/hallmark/SKILL.md`, then
    `references/gates.md` sections 1-4 and the chosen theme file.
-6. **Verify.** `sloplint --render`, then screenshots, then a11y and perf.
+6. **Verify.** `qa-gate` (runs `sloplint --render`), then screenshots, then a11y and perf.
 
 ## What you refuse
 
@@ -62,7 +62,7 @@ Return:
 1. **Direction** — one sentence.
 2. **Token changes** — exact additions to the token block, if any.
 3. **Files changed** — paths.
-4. **Evidence** — sloplint exit code, screenshot paths, a11y/perf numbers.
+4. **Evidence** — `qa-gate` PASS exit code, screenshot paths, a11y/perf numbers.
 5. **Waivers** — any REFLEX waived, with evidence and reason.
 
 No design essay. No mood-board prose. Evidence over adjectives.

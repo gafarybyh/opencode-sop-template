@@ -87,8 +87,11 @@ Match-and-refuse. Rewrite the element, do not decorate it.
 ### Static + render lint
 
 ```bash
-node .opencode/skills/hallmark/scripts/sloplint.mjs <file-or-dir> --render
+node .opencode/scripts/qa-gate.mjs <file-or-dir>
 ```
+
+This runs `sloplint --render` and writes `.opencode/gate-status.json`. Run
+`sloplint` directly only to debug the linter itself.
 
 - Exit `0` clean.
 - Exit `1` slop found. Fix every `FAIL`; fix or waive every `REFLEX` on record in

@@ -35,8 +35,9 @@ Read in this order when starting work:
 
 - **Detect, never assume.** No framework is assumed. If there is no manifest,
   stop and ask.
-- **UI work is not done without visual evidence.** Screenshots at 320/768/1280/1440
-  via the `playwright-cli` CLI, plus `sloplint` clean.
+- **UI work is not done without visual evidence.** `qa-gate` PASS (runs
+  `sloplint --render`; paste its exit-0 line) and screenshots at 320/768/1280/1440
+  via the `playwright-cli` CLI.
 - **`rtk` prefix on every shell command.** Context-mode routing per
   `.opencode/sops/CONTEXT.md`. `graphify query` before bulk grep.
 - **No comments in code unless the user asked.** No commit unless asked.

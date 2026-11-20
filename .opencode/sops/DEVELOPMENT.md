@@ -136,7 +136,7 @@ Dev-server numbers are not gate evidence.
 
 ## Phase 6 — Verify (visual and real)
 
-**Exit:** sloplint 0 FAIL, screenshots at 320/768/1280/1440, no console errors,
+**Exit:** qa-gate PASS (0 FAIL), screenshots at 320/768/1280/1440, no console errors,
 no critical a11y issue, LCP < 2.5 s, CLS < 0.1 on desktop 1440.
 
 **Ask the user before the browser pass.** Screenshots and DevTools are slow. If
@@ -144,7 +144,7 @@ declined, record `WAIVED G5/G6`, state "UI not visually verified", and continue.
 Never tick a visual gate without evidence.
 
 ```bash
-node .opencode/skills/hallmark/scripts/sloplint.mjs <path> --render
+node .opencode/scripts/qa-gate.mjs <path>
 ```
 
 Then the `playwright-cli` CLI: resize and screenshot 320 / 768 / 1280 / 1440. Then
