@@ -128,6 +128,7 @@ Both belong to graphify, but they do different jobs and **both must stay**:
 |---|---|---|---|
 | `graphify.js` | global `~/.config/opencode/plugins/` | `execute.before` | Prepends a reminder to the first shell command of a session: query the graph instead of grepping raw files. |
 | `graphify-auto-update.js` | project `.opencode/plugins/` | `execute.after` + `session.idle` | Runs `graphify update .` after edits (debounced 1.5 s, flushed on session idle). |
+| `qa-gate-guard.js` | project `.opencode/plugins/` | `execute.before` | Prepends a reminder to run `qa-gate` when UI changed since the last clean gate; silent when the gate is fresh and clean or the command is `qa-gate` itself. |
 
 They do not conflict and are not loaded twice: opencode discovers every
 `.opencode/plugins/` directory separately, and the global plugin's id carries
@@ -155,6 +156,7 @@ SOP in context, nothing more.
 | SOPs, agents, commands, skills, instructions | `.opencode/` | yes | copy |
 | `AGENTS.md` | project root | yes | copy |
 | Local plugin `graphify-auto-update.js` | `.opencode/plugins/` | yes | copy |
+| Local plugin `qa-gate-guard.js` | `.opencode/plugins/` | yes | copy |
 | Node, Git, Chrome, uv | machine | no | `bootstrap-windows.ps1` |
 | `opencode`, `rtk`, `graphify` | machine | no | `bootstrap-windows.ps1` |
 | Plugins: `context-mode` | `~/.config/opencode/` | **no (global by design)** | `bootstrap-windows.ps1` |
@@ -227,6 +229,7 @@ file or a config entry that exists.
 |---|---|---|
 | `graphify.js` | global | Reminder hook: prefer `graphify query` over grep |
 | `graphify-auto-update.js` | project | Runs `graphify update .` after edits |
+| `qa-gate-guard.js` | project | Reminds to run `qa-gate` after a UI edit until the design gate is clean |
 | `context-mode` | global package | `ctx_*` tools, shell interception, output filtering |
 
 ### MCP servers
@@ -595,7 +598,7 @@ Verify the agent behaves:
 /ship  build a settings page with a profile form, a toggle for dark mode, and an empty state
 ```
 
-Expected: stack detected, plan, implementation, `sloplint` clean, screenshots at
+Expected: stack detected, plan, implementation, `qa-gate` PASS (`sloplint`), screenshots at
 320/768/1440, a11y and perf numbers, review, handoff block.
 
 ---
@@ -716,7 +719,7 @@ graphify-out/
    stack. Never assume either.
 2. **Three design layers.** Hallmark floor (16 non-waivable items) ? refactoring-ui
    (151 rules) ? design-taste (concrete bans). Lower number wins on conflict.
-3. **Evidence or it did not happen.** `sloplint` exit code, screenshot paths,
+3. **Evidence or it did not happen.** `qa-gate` PASS exit code, screenshot paths,
    LCP/CLS numbers, a11y count. "Looks good" is not accepted.
 4. **Small diffs, one concern.** Polish is a gate, not a ticket.
 5. **No invented content.** No fake metrics, testimonials, logos, or images.

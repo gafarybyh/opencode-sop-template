@@ -41,8 +41,8 @@ The SOP text is portable; the install scripts are **Windows PowerShell 5.1** onl
 - **Phased procedure (0a → 7).** Requirements → detect → understand → spec → plan
   → build → mechanical verify → visual verify → review. Each phase has an exit
   condition.
-- **Evidence, not adjectives.** Done means `sloplint` clean, screenshots at
-  320 / 768 / 1280 / 1440, and LCP < 2.5 s / CLS < 0.1 — not "looks good".
+- **Evidence, not adjectives.** Done means `qa-gate` PASS (`sloplint`), screenshots
+  at 320 / 768 / 1280 / 1440, and LCP < 2.5 s / CLS < 0.1 — not "looks good".
 - **Anti-slop design floor.** A deterministic linter (`sloplint`) plus a 151-rule
   design rulebook and a concrete ban catalogue.
 - **Small context, on demand.** `AGENTS.md` is a thin router; detailed SOPs and
@@ -201,8 +201,9 @@ my-app/
 | `.opencode/global-skills/modern-web-guidance/` | Global `modern-web-guidance` skill (GoogleChrome, Apache-2.0): keeps the agent on current web best practices (APIs, a11y, performance, Baseline/fallbacks). Thin SKILL.md; the `modern-web-guidance` npm package serves the guides offline via `npx`. Installed by `bootstrap-windows.ps1`, never copied to a project |
 | `.opencode/instructions/ALWAYS-ON.md` | Source for the global always-on file (`~/.config/opencode/AGENTS.md`) |
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
+| `.opencode/plugins/qa-gate-guard.js` | Prepends a one-line reminder to run `qa-gate` before claiming a UI done (same echo mechanism as graphify; silent when the gate is fresh and clean) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
-| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu` |
+| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate` |
 
 ---
 
@@ -221,7 +222,7 @@ exit condition; the agent may not skip an unmet exit.
 | 2–3 | Spec and plan (only for >1 file or >1 concern) |
 | 4 | Build — data/types → logic → UI shell → UI polish |
 | 5 | Mechanical verify — build, typecheck, lint, tests |
-| 6 | Visual verify — `sloplint --render`, screenshots, a11y, LCP/CLS |
+| 6 | Visual verify — `qa-gate` (`sloplint --render`), screenshots, a11y, LCP/CLS |
 | 7 | Independent review and handoff |
 
 ### Agents
