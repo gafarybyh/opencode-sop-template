@@ -16,7 +16,7 @@ in `devDependencies`. A missing tool is a gap, not a pass: record `N/A <check>: 
 |---|---|---|---|
 | `rtk npx vitest run --coverage` | boot the server, hit real routes | `rtk npm audit --audit-level=high` | apply to a fresh DB in the test run |
 
-Zero-dependency projects (like the reference slice) may use `node --test
+Zero-dependency projects (a small API with no framework) may use `node --test
 --experimental-test-coverage` instead of vitest — see `stacks/_backend.md`.
 
 ## One-command backend gate

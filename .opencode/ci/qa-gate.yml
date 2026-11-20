@@ -59,10 +59,10 @@ jobs:
         run: npm install --no-save puppeteer-core
       - name: G6 perf + a11y (all pages)
         if: steps.ui.outputs.has_ui == 'true'
-        # Adapt the target to your build output (e.g. "out/" or a --url to a preview).
-        run: node .opencode/scripts/qa-perf.mjs "${QA_PERF_TARGET:-prototype/}"
+        # Point QA_PERF_TARGET at your built UI folder (out/, dist/, public/) or a --url.
+        run: node .opencode/scripts/qa-perf.mjs "$QA_PERF_TARGET"
         env:
-          QA_PERF_TARGET: prototype/
+          QA_PERF_TARGET: out/
 
   api:
     runs-on: ubuntu-latest

@@ -8,7 +8,7 @@
  * "the API works" into an exit code instead of an assertion.
  *
  * It is project-agnostic: point --dir at a backend that has a qa-api.config.json
- * declaring how to start it and what to smoke. See server/qa-api.config.json.
+ * declaring how to start it and what to smoke (format: .opencode/sops/stacks/_backend.md).
  *
  * Honesty: a missing test runner, a server that never becomes ready, or a smoke
  * check that cannot run is INCOMPLETE (exit 3) — never a silent PASS.

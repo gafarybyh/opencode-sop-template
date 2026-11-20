@@ -23,8 +23,8 @@
  *
  * Usage:
  *   node .opencode/scripts/qa-perf.mjs --url http://localhost:3000/
- *   node .opencode/scripts/qa-perf.mjs prototype/index.html   (one page)
- *   node .opencode/scripts/qa-perf.mjs prototype/             (sweep every *.html)
+ *   node .opencode/scripts/qa-perf.mjs dist/index.html       (one page)
+ *   node .opencode/scripts/qa-perf.mjs dist/                 (sweep every *.html)
  *   flags: --lcp 2500 --cls 0.1 --axe <url-or-path>
  *
  * Exit: 0 pass · 1 a threshold failed · 2 cannot run · 3 measurement incomplete.
@@ -163,7 +163,7 @@ let pages = []; // [{label, url}]
 if (urlArg) {
   pages = [{ label: urlArg, url: urlArg }];
 } else {
-  if (!positional.length) die("give a --url, a file, or a folder (e.g. qa-perf.mjs prototype/)");
+  if (!positional.length) die("give a --url, a file, or a folder (e.g. qa-perf.mjs dist/)");
   const target = resolve(root, positional[0]);
   if (!existsSync(target)) die(`target not found: ${target}`);
   const info = await stat(target);

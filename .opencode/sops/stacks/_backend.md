@@ -81,8 +81,8 @@ Starter (copy, then adjust):
 
 ### Engine note (honest)
 
-This template's reference slice (`_sop-test-toko/server/`) runs on **`node:sqlite`
-(built-in, Node ≥ 22.5)** as a *runnable stand-in* for the documented
+The reference implementation built while validating this template runs on
+**`node:sqlite` (built-in, Node ≥ 22.5)** as a *runnable stand-in* for the documented
 **PostgreSQL 16**. SQLite exercises the same HTTP + SQL + constraint logic without
 requiring a Postgres server or Docker. It is not a Postgres substitute for
 production: no real connection pooling, `ILIKE` vs `LIKE`, enum types, or
