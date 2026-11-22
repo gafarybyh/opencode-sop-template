@@ -17,6 +17,15 @@
  * Sweep: point it at a FOLDER and it tests every top-level *.html page (class D
  * "full" = all pages, not one). Point it at a file or --url for one page.
  *
+ * SPA / served-asset note: a single-page app whose CSS/JS load from absolute
+ * paths (/static/...) needs those assets served at the server root. If the
+ * built UI lives in a subfolder (web/, public/), point --asset-root at the
+ * folder that maps to "/" so the assets resolve — otherwise the page renders
+ * unstyled and every measurement is a false reading:
+ *     node .opencode/scripts/qa-perf.mjs web/ --asset-root web
+ * (--asset-root defaults to the page's own folder, which is right for a plain
+ * site; only set it when the app is served from a different root than its pages.)
+ *
  * axe-core is VENDORED at scripts/vendor/axe.min.js, so a11y runs offline. Only
  * if that file is missing AND the CDN is unreachable does a11y report INCOMPLETE
  * (exit 3) — never a silent PASS. Missing Chrome/puppeteer is also exit 3.
@@ -25,7 +34,8 @@
  *   node .opencode/scripts/qa-perf.mjs --url http://localhost:3000/
  *   node .opencode/scripts/qa-perf.mjs dist/index.html       (one page)
  *   node .opencode/scripts/qa-perf.mjs dist/                 (sweep every *.html)
- *   flags: --lcp 2500 --cls 0.1 --axe <url-or-path>
+ *   node .opencode/scripts/qa-perf.mjs web/ --asset-root web  (SPA served from web/)
+ *   flags: --lcp 2500 --cls 0.1 --axe <url-or-path> --asset-root <dir>
  *
  * Exit: 0 pass · 1 a threshold failed · 2 cannot run · 3 measurement incomplete.
  */
@@ -34,7 +44,7 @@ import { readFile, stat, readdir } from "node:fs/promises";
 import { existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { dirname, join, resolve, extname, normalize, sep } from "node:path";
+import { dirname, join, resolve, relative, extname, normalize, sep } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
@@ -51,7 +61,8 @@ const LCP_MAX = Number(opt("--lcp", "2500"));
 const CLS_MAX = Number(opt("--cls", "0.1"));
 const AXE_SRC = opt("--axe", "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js");
 let urlArg = opt("--url", null);
-const positional = argv.filter((a, i) => !a.startsWith("--") && !["--url", "--lcp", "--cls", "--axe"].includes(argv[i - 1]));
+const ASSET_ROOT = opt("--asset-root", null);
+const positional = argv.filter((a, i) => !a.startsWith("--") && !["--url", "--lcp", "--cls", "--axe", "--asset-root"].includes(argv[i - 1]));
 
 // --- resolve puppeteer-core + Chrome (same dependency qa-gate uses) --------
 function loadPuppeteer() {
@@ -74,16 +85,25 @@ function findChrome() {
 }
 
 // --- optional zero-dep static server for a file/folder target --------------
+// rootDir maps to "/" (so absolute asset paths resolve); pageDir is where the
+// SPA's index.html lives, used as the fallback for unknown paths.
 const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8" };
-async function startStaticServer(baseDir) {
+async function startStaticServer(rootDir, pageDir) {
+  rootDir = normalize(resolve(rootDir));
   const server = createServer(async (req, res) => {
     try {
       const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
       let rel = urlPath === "/" ? "index.html" : urlPath.replace(/^\/+/, "");
-      let full = normalize(join(baseDir, rel));
-      if (!full.startsWith(baseDir + sep) && full !== baseDir) { res.writeHead(403); res.end("Forbidden"); return; }
+      let full = normalize(join(rootDir, rel));
+      if (!full.startsWith(rootDir + sep) && full !== rootDir) { res.writeHead(403); res.end("Forbidden"); return; }
       let info = await stat(full).catch(() => null);
       if (info && info.isDirectory()) { full = join(full, "index.html"); info = await stat(full).catch(() => null); }
+      if (!info) {
+        // SPA fallback: unknown path -> the app's index.html (like a real SPA host).
+        const index = join(pageDir, "index.html");
+        const idxInfo = await stat(index).catch(() => null);
+        if (idxInfo && idxInfo.isFile()) { full = index; info = idxInfo; }
+      }
       if (!info) { res.writeHead(404); res.end("404"); return; }
       const data = await readFile(full);
       res.writeHead(200, { "Content-Type": MIME[extname(full).toLowerCase()] || "application/octet-stream", "Cache-Control": "no-cache" });
@@ -168,15 +188,17 @@ if (urlArg) {
   if (!existsSync(target)) die(`target not found: ${target}`);
   const info = await stat(target);
   const baseDir = info.isDirectory() ? target : dirname(target);
-  const s = await startStaticServer(baseDir);
+  const assetRoot = ASSET_ROOT ? resolve(root, ASSET_ROOT) : baseDir;
+  const s = await startStaticServer(assetRoot, baseDir);
   server = s.server;
   const baseUrl = s.url.replace(/\/$/, "");
+  const urlFor = (abs) => baseUrl + "/" + relative(assetRoot, abs).replace(/\\/g, "/");
   if (info.isDirectory()) {
     const entries = (await readdir(target)).filter((f) => f.toLowerCase().endsWith(".html")).sort();
     if (!entries.length) die(`no .html pages in ${target}`);
-    pages = entries.map((f) => ({ label: f, url: `${baseUrl}/${f}` }));
+    pages = entries.map((f) => ({ label: f, url: urlFor(join(target, f)) }));
   } else {
-    pages = [{ label: target.slice(baseDir.length + 1).replace(/\\/g, "/"), url: `${baseUrl}/${target.slice(baseDir.length + 1).replace(/\\/g, "/")}` }];
+    pages = [{ label: target.slice(baseDir.length + 1).replace(/\\/g, "/"), url: urlFor(target) }];
   }
 }
 

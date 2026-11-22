@@ -6,7 +6,14 @@
 #   perf-g6 (G6):      qa-perf sweep — a11y/LCP/CLS over every page. axe is vendored,
 #                      so a11y runs offline; needs Chrome (present on ubuntu-latest).
 #   api (G2/G3):       qa-api — tests + coverage + live HTTP smoke — only when a
-#                      backend declares server/qa-api.config.json.
+#                      backend declares server/qa-api.config.json. Supports Node and
+#                      Python backends (the config's "framework" picks the runner).
+#
+# SPA note: if the app loads CSS/JS from absolute paths (/static/...), a plain
+# file/folder scan renders an unstyled page and reports false FAILs. Start the
+# app first and point the gate at it: set QA_UI_URL / QA_PERF_URL (job env) to the
+# preview URL, and add a "start server" step above the gate. Left empty, the
+# gates scan the built files (correct for a plain, relative-path site).
 #
 # NOTE: a11y/perf are validated here; the four-viewport screenshots (G5) remain a
 # human/reviewer step — CI cannot see "looks right".
@@ -19,6 +26,9 @@ on:
 jobs:
   design-floor:
     runs-on: ubuntu-latest
+    env:
+      QA_UI_TARGET: ""      # "" = scan the repo root; or a folder like web/ or out/
+      QA_UI_URL: ""         # set to the preview URL (e.g. http://127.0.0.1:8000/) for an SPA
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,12 +45,21 @@ jobs:
       - name: Install puppeteer-core (render tier)
         if: steps.ui.outputs.has_ui == 'true'
         run: npm install --no-save puppeteer-core
+      # For an SPA, add a step here that starts the app (e.g. uvicorn / npm start)
+      # and export its URL into QA_UI_URL above. Left out, the gate scans files.
       - name: Design floor (qa-gate)
         if: steps.ui.outputs.has_ui == 'true'
-        run: node .opencode/scripts/qa-gate.mjs
+        run: |
+          ARGS="$QA_UI_TARGET"
+          if [ -n "$QA_UI_URL" ]; then ARGS="$ARGS --url $QA_UI_URL"; fi
+          node .opencode/scripts/qa-gate.mjs $ARGS
 
   perf-g6:
     runs-on: ubuntu-latest
+    env:
+      QA_PERF_TARGET: out/          # folder to sweep when no URL is given
+      QA_PERF_URL: ""               # set to a preview URL for an SPA
+      QA_PERF_ASSET_ROOT: ""        # set when pages live in a subfolder served from /
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -59,10 +78,12 @@ jobs:
         run: npm install --no-save puppeteer-core
       - name: G6 perf + a11y (all pages)
         if: steps.ui.outputs.has_ui == 'true'
-        # Point QA_PERF_TARGET at your built UI folder (out/, dist/, public/) or a --url.
-        run: node .opencode/scripts/qa-perf.mjs "$QA_PERF_TARGET"
-        env:
-          QA_PERF_TARGET: out/
+        run: |
+          if [ -n "$QA_PERF_URL" ]; then
+            node .opencode/scripts/qa-perf.mjs --url "$QA_PERF_URL"
+          else
+            node .opencode/scripts/qa-perf.mjs "$QA_PERF_TARGET" ${QA_PERF_ASSET_ROOT:+--asset-root "$QA_PERF_ASSET_ROOT"}
+          fi
 
   api:
     runs-on: ubuntu-latest
@@ -71,10 +92,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Backend gate (only if a backend declares a smoke contract)
         run: |
-          if [ -f server/qa-api.config.json ]; then
-            node .opencode/scripts/qa-api.mjs --dir server
-          else
+          if [ ! -f server/qa-api.config.json ]; then
             echo "No server/qa-api.config.json — no backend gate configured. Skipping."
+            exit 0
           fi
+          # Install Python deps when present so a pytest-based backend can run.
+          if [ -f requirements.txt ]; then python -m pip install -q -r requirements.txt; fi
+          if [ -f server/requirements.txt ]; then python -m pip install -q -r server/requirements.txt; fi
+          python -m pip install -q pytest pytest-cov
+          node .opencode/scripts/qa-api.mjs --dir server --python python

@@ -18,16 +18,26 @@
  * static-only on purpose, pass --static; that is recorded as a waiver
  * (WAIVED G4 render) in gate-status.json so the handoff can name it.
  *
+ * SPA / served-asset note: for a single-page app whose CSS/JS load from
+ * absolute paths (/static/...), rendering the file directly (file://) does NOT
+ * load those assets — the render tier would then grade an unstyled page and
+ * report false FAILs. Point --url at the running dev/preview server so the
+ * render tier sees the real page:
+ *     node .opencode/scripts/qa-gate.mjs web/ --url http://127.0.0.1:3000/
+ * The static tier still runs over the `web/` path; --url only changes what the
+ * render tier loads.
+ *
  * Usage:
- *   node .opencode/scripts/qa-gate.mjs [target ...] [--static] [-- <flags>]
+ *   node .opencode/scripts/qa-gate.mjs [target ...] [--static] [--url URL] [-- <flags>]
  *     no target  -> the project root
  *     a path     -> lint just that folder/file
  *     --static   -> accept static-only (no --render); recorded as a waiver
+ *     --url URL  -> render this running URL instead of the local files (SPA)
  *     --genre x  -> forwarded to sloplint (any other leading-dash flag too)
  *
  * Exit: 0 clean · 1 slop found · 2 cannot run · 3 render tier did not run.
  */
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
@@ -45,10 +55,25 @@ const die = (msg, code = 2) => {
 
 if (!existsSync(slop)) die(`sloplint not found at ${slop} (is the hallmark skill installed?)`);
 
-const argv = process.argv.slice(2);
-const staticOnly = argv.includes("--static");
-const targets = argv.filter((a) => !a.startsWith("-"));
-const passthrough = argv.filter((a) => a.startsWith("-") && a !== "--static");
+// Parse args. --url takes a value (defaulting to :3000 when omitted) so the
+// render tier can target a running server; its value must NOT be treated as a
+// lint target (the old parser did, and crashed trying to stat the URL).
+const rawArgs = process.argv.slice(2);
+const staticOnly = rawArgs.includes("--static");
+let urlArg = null;
+const rest = [];
+for (let i = 0; i < rawArgs.length; i++) {
+  const a = rawArgs[i];
+  if (a === "--url") {
+    const v = rawArgs[i + 1];
+    if (v && !v.startsWith("-")) { urlArg = v; i++; }
+    else urlArg = "http://127.0.0.1:3000/";
+    continue;
+  }
+  rest.push(a);
+}
+const targets = rest.filter((a) => !a.startsWith("-"));
+const passthrough = rest.filter((a) => a.startsWith("-") && a !== "--static");
 const scan = targets.length ? targets.map((t) => resolve(root, t)) : [root];
 
 // sloplint resolves puppeteer via `npm root -g`; hand it a Chrome if we can find one.
@@ -66,16 +91,30 @@ if (!env.CHROME_PATH) {
   if (found) env.CHROME_PATH = found;
 }
 
-const rel = (p) => (p === root ? "." : p);
-const slopArgs = [slop, ...scan, "--scope", "app", ...(staticOnly ? [] : ["--render"]), "--json", ...passthrough];
-console.log(`qa-gate: sloplint ${staticOnly ? "(static only)" : "--render"} --scope app  ${scan.map(rel).join(" ")}`);
+// Async spawn (not spawnSync): spawnSync cannot carry a fetch-capable render
+// target over long runs reliably and blocks the loop; async keeps it simple and
+// lets sloplint reach the --url server.
+function runSpawn(args, opts) {
+  return new Promise((res) => {
+    const p = spawn(process.execPath, args, opts);
+    let out = "", err = "";
+    p.stdout.on("data", (d) => (out += d.toString("utf8")));
+    p.stderr.on("data", (d) => (err += d.toString("utf8")));
+    p.on("close", (code) => res({ code: typeof code === "number" ? code : 2, out, err }));
+    p.on("error", (e) => res({ code: 2, out, err: String(e) }));
+  });
+}
 
-const r = spawnSync(process.execPath, slopArgs, { encoding: "utf8", env });
-const code = typeof r.status === "number" ? r.status : 2;
-const raw = (r.stdout || "").trim();
+const rel = (p) => (p === root ? "." : p);
+const slopArgs = [slop, ...scan, "--scope", "app", ...(staticOnly ? [] : ["--render"]), ...(urlArg ? ["--url", urlArg] : []), "--json", ...passthrough];
+console.log(`qa-gate: sloplint ${staticOnly ? "(static only)" : "--render"} --scope app  ${scan.map(rel).join(" ")}${urlArg ? `  (render: ${urlArg})` : ""}`);
+
+const r = await runSpawn(slopArgs, { encoding: "utf8", env, cwd: root });
+const code = r.code;
+const raw = (r.out || "").trim();
 
 if (code === 2 && !raw) {
-  const tail = (r.stderr || "sloplint could not run").trim().split("\n").slice(-1)[0];
+  const tail = (r.err || "sloplint could not run").trim().split("\n").slice(-1)[0];
   die(tail, 2);
 }
 
@@ -130,6 +169,7 @@ const status = {
   renderRan,
   staticOnly,
   incomplete,
+  renderUrl: urlArg || null,
   inputHash: inputHash.hash,
   inputFiles: inputHash.files,
   targets: scan.map(rel),

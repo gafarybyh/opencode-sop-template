@@ -175,6 +175,10 @@ Never tick a visual gate without evidence.
 node .opencode/scripts/qa-gate.mjs <path>
 ```
 
+**SPA (assets under `/static/...`):** add `--url <preview-url>` so the render tier
+sees the real page; rendering the files directly would miss the CSS and report
+false FAILs. Same idea for `qa-perf` (use `--url`, or `--asset-root <ui-dir>`).
+
 Then, per class: **C** — resize to 1280, one screenshot, tab through the changed
 control. **D** — the `playwright-cli` CLI at 320 / 768 / 1280 / 1440, then
 `chrome-devtools` MCP against the production/preview server (console, network,

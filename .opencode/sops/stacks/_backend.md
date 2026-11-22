@@ -17,6 +17,10 @@ equivalent of `qa-gate`. It:
    must match, including the 401/404 paths;
 4. scans shipped source for **hardcoded secrets** (test fixtures are skipped).
 
+It is **polyglot**: `framework` in the config (`node` | `python`) selects the
+default test/coverage commands and the output parser. Any runner that prints
+"N passed" and a coverage percentage works (pytest, vitest, jest, `node --test`).
+
 Exit `0`/`1`/`3` like `qa-gate`. A missing test runner, a server that never
 becomes ready, or a smoke check that cannot run is **INCOMPLETE (3)** — never a
 silent PASS. It writes `.opencode/api-status.json` (with a `srcHash`), and the
@@ -32,8 +36,11 @@ backend. Treat it as a build output of the backend, like `package.json`.
 
 Rules the agent must follow:
 - Create it in the **same change** that adds the server/route/schema.
-- `start` is the exact command that boots the server; `readyPath` is a URL
-  that returns < 500 once it is up.
+- `framework` is `node` (default) or `python`; it selects pytest vs `node --test`
+  and the output parser. Set it correctly or the gate cannot read the results.
+- `start` is the exact command that boots the server; use `${PORT}` where the
+  port goes (the gate substitutes a free one). `readyPath` is a URL that returns
+  < 500 once it is up.
 - `smoke` MUST include at least: one 200 happy path, one 400 invalid input,
   one 404 unknown resource, and one 401 on a protected route (if the API has
   auth). These are the paths a screenshot/unit test alone will not prove.
@@ -44,8 +51,11 @@ Starter (copy, then adjust):
 
 `qa-api.config.json` lives in the backend dir:
 
+Node (default):
+
 ```json
 {
+  "framework": "node",
   "start": ["node", "src/index.mjs"],
   "readyPath": "/api/products",
   "coverageMin": 70,
@@ -55,6 +65,27 @@ Starter (copy, then adjust):
   ]
 }
 ```
+
+Python (FastAPI / Flask / Django):
+
+```json
+{
+  "framework": "python",
+  "test": ["python", "-m", "pytest"],
+  "coverage": ["python", "-m", "pytest", "--cov=app", "--cov-report=term"],
+  "start": ["python", "-m", "uvicorn", "server:app", "--port", "${PORT}"],
+  "readyPath": "/health",
+  "coverageMin": 70,
+  "smoke": [
+    { "method": "GET", "path": "/api/items", "expect": 200 },
+    { "method": "POST", "path": "/api/items", "body": {}, "expect": 400 },
+    { "method": "GET", "path": "/api/items/nope", "expect": 404 }
+  ]
+}
+```
+
+A throwaway `DB_PATH` is passed to the server only when `start`/`env` references
+`${DB_PATH}` — an app with its own data dir is left alone.
 
 ## What a backend change must prove (G2 + G3)
 

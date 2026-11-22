@@ -113,6 +113,10 @@ honor-system. Missing runner / server-never-ready / smoke-cannot-run is INCOMPLE
 ## Gate 4 — Design floor (when UI changed)
 
 - [ ] `node .opencode/scripts/qa-gate.mjs` reports **PASS, 0 FAIL** (it runs `sloplint --render`; details in `.opencode/sops/DESIGN_LAW.md`).
+- [ ] **SPA:** if the UI loads CSS/JS from absolute paths (`/static/...`), render the
+      running server, not the files: `node .opencode/scripts/qa-gate.mjs <ui-dir> --url <preview-url>`.
+      Rendering the files directly (`file://`) does not load those assets and reports
+      false FAILs; the static tier still lints `<ui-dir>`.
 - [ ] Every `REFLEX` fixed or waived in the CSS stamp with evidence.
 - [ ] All Layer-1 floor items in `.opencode/sops/DESIGN_LAW.md` hold.
 - [ ] No item from the `.opencode/sops/DESIGN_LAW.md` ban table.
@@ -144,7 +148,9 @@ file/folder) measures CLS, LCP, a11y (axe-core), console/network errors and
 320px overflow, and exits `0`/`1`/`3` like `qa-gate`. It is the mechanical half of
 this gate — a screenshot cannot catch a layout shift, so "looks fine" is not
 evidence here. Then use `chrome-devtools` MCP against the production/preview
-server (never the dev server) for anything it does not cover.
+server (never the dev server) for anything it does not cover. For an SPA whose
+assets load from `/`, prefer `--url` against the preview server; if you sweep a
+folder instead, add `--asset-root <ui-dir>` when the pages sit in a subfolder.
 
 - [ ] `qa-perf` PASS (exit 0): CLS < 0.1, LCP < 2.5 s, 0 critical a11y, 0 console
       errors, no 4xx/failed request, no overflow at 320. Paste its PASS line.

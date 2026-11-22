@@ -7,13 +7,18 @@
  * a declared smoke contract, and scans source for hardcoded secrets. It turns
  * "the API works" into an exit code instead of an assertion.
  *
- * It is project-agnostic: point --dir at a backend that has a qa-api.config.json
- * declaring how to start it and what to smoke (format: .opencode/sops/stacks/_backend.md).
+ * It is project-agnostic and polyglot: point --dir at a backend that has a
+ * qa-api.config.json declaring how to start it, how to run tests/coverage and
+ * what to smoke (format: .opencode/sops/stacks/_backend.md). The config's
+ * `framework` (node|python) only selects the default commands and the output
+ * parser; any stack that prints "N passed, M failed" and a coverage number works.
  *
  * Honesty: a missing test runner, a server that never becomes ready, or a smoke
- * check that cannot run is INCOMPLETE (exit 3) — never a silent PASS.
+ * check that cannot run is INCOMPLETE (exit 3) — never a silent PASS. If the
+ * runner's pass count cannot be read, that is INCOMPLETE too, not "0 failed".
  *
  * Usage: node .opencode/scripts/qa-api.mjs [--dir server] [--coverage-min 70]
+ *        [--python <path-to-python>]   (override the interpreter; default: python)
  * Exit: 0 pass · 1 a check failed · 2 cannot run · 3 measurement incomplete.
  */
 import { spawn } from "node:child_process";
@@ -38,13 +43,29 @@ if (!existsSync(cfgPath)) die(`no ${cfgPath}. A backend gate needs a smoke contr
 let cfg;
 try { cfg = JSON.parse(readFileSync(cfgPath, "utf8")); } catch (e) { die(`cannot parse ${cfgPath}: ${e.message}`, 2); }
 const COV_MIN = Number(opt("--coverage-min", cfg.coverageMin ?? 70));
+const FRAMEWORK = (cfg.framework || "node").toLowerCase();
 const nodeExe = process.execPath;
+const PYTHON_BIN = opt("--python", cfg.python || (process.platform === "win32" ? "python" : "python3"));
+
+// Map a config command array to the real executable for this machine.
 const cmdOf = (arr) => {
-  if (arr[0] === "node") return [nodeExe, ...arr.slice(1)];
+  if (!arr || !arr.length) return arr;
+  const head = arr[0];
+  if (head === "node") return [nodeExe, ...arr.slice(1)];
+  // A python command: honour the configured/overridden interpreter.
+  if (head === "python" || head === "python3" || head === "py") return [PYTHON_BIN, ...arr.slice(1)];
   // On Windows, bare package-manager names need their .cmd shim when not run via a shell.
-  if (process.platform === "win32" && ["npm", "npx", "pnpm", "yarn"].includes(arr[0])) return [arr[0] + ".cmd", ...arr.slice(1)];
+  if (process.platform === "win32" && ["npm", "npx", "pnpm", "yarn"].includes(head)) return [head + ".cmd", ...arr.slice(1)];
   return arr;
 };
+
+// Default commands per framework (only used when the config omits them). No
+// extra -q: a project-level `addopts = "-q"` plus our -q would become -qq and
+// hide the "N passed" summary the parser needs.
+const DEFAULT_TEST = FRAMEWORK === "python" ? ["python", "-m", "pytest"] : ["node", "--test"];
+const DEFAULT_COVERAGE = FRAMEWORK === "python"
+  ? ["python", "-m", "pytest", "--cov=.", "--cov-report=term"]
+  : ["node", "--test", "--experimental-test-coverage"];
 
 function runCmd(arr, extraEnv = {}) {
   return new Promise((res) => {
@@ -58,6 +79,33 @@ function runCmd(arr, extraEnv = {}) {
   });
 }
 
+// Parse "N passed" and "M failed" from the common runners:
+//   node --test : "# pass 12" / "# fail 0"
+//   pytest      : "12 passed, 1 failed in 0.5s"  (pytest -q also prints this)
+//   vitest/jest : "Tests  12 passed" / "Tests: 1 failed, 12 passed"
+function parseCounts(text) {
+  const t = text || "";
+  let pass = null, fail = null;
+  let m = /(?:#|\u2139)\s*pass (\d+)/.exec(t); if (m) pass = Number(m[1]);
+  m = /(?:#|\u2139)\s*fail (\d+)/.exec(t); if (m) fail = Number(m[1]);
+  if (pass === null) { m = /\b(\d+)\s+passed\b/.exec(t); if (m) pass = Number(m[1]); }
+  if (fail === null) { m = /\b(\d+)\s+failed\b/.exec(t); if (m) fail = Number(m[1]); }
+  return { pass, fail };
+}
+
+// Parse a coverage percentage from the common reporters:
+//   node --test : "all files | 96.9 | ..."
+//   pytest-cov  : "TOTAL  2535  1137  55%"
+//   vitest/jest : "All files | 88.5 |"  /  "Statements   : 88.5%"
+function parseCoverage(text) {
+  const t = text || "";
+  let m = /all files\s*\|\s*([\d.]+)/i.exec(t); if (m) return Number(m[1]);
+  m = /^TOTAL\s+.*?\s([\d.]+)%/m.exec(t); if (m) return Number(m[1]);
+  m = /All files\s*\|\s*([\d.]+)/.exec(t); if (m) return Number(m[1]);
+  m = /Statements\s*:\s*([\d.]+)%/.exec(t); if (m) return Number(m[1]);
+  return null;
+}
+
 function freePort() {
   return new Promise((res, rej) => {
     const s = createServer();
@@ -67,12 +115,22 @@ function freePort() {
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Only hand the server a throwaway DB when the config actually uses ${DB_PATH};
+// otherwise DB_PATH is meaningless (a Node/sqlite app may honour it, a Python
+// app with its own data dir does not, and a stray env var can surprise it).
+function smokeEnv(port, tmpDb) {
+  const base = { PORT: String(port), ...(cfg.env || {}) };
+  const usesDbPath = JSON.stringify(cfg.env || {}).includes("${DB_PATH}") || (cfg.start || []).some((s) => String(s).includes("${DB_PATH}"));
+  if (usesDbPath) base.DB_PATH = tmpDb;
+  return base;
+}
+
 async function httpSmoke() {
   if (!cfg.start) return { incomplete: "config has no 'start' command" };
   const port = await freePort();
   const tmpDb = join(tmpdir(), `qa-api-${port}-${Date.now()}.db`);
-  const env = { PORT: String(port), ...(cfg.env || {}), DB_PATH: tmpDb };
-  const [cmd, ...args] = cmdOf(cfg.start);
+  const env = smokeEnv(port, tmpDb);
+  const [cmd, ...args] = cmdOf(cfg.start.map((s) => String(s).replace(/\$\{PORT\}/g, String(port)).replace(/\$\{DB_PATH\}/g, tmpDb)));
   const child = spawn(cmd, args, { cwd: targetDir, env: { ...process.env, ...env }, shell: false });
   let bootLog = "";
   child.stdout.on("data", (d) => (bootLog += d.toString("utf8")));
@@ -105,18 +163,23 @@ function secretScan() {
   const findings = [];
   const re = /(password|secret|token|api[_-]?key)\s*[:=]\s*["'][^"']{6,}["']/i;
   const allow = cfg.secretScanAllow || [];
+  const SKIP = ["node_modules", "data", "test", "tests", "__tests__", "venv", ".venv", "__pycache__", "build", "dist"];
   const walk = (dir) => {
     for (const name of readdirSync(dir)) {
       const p = join(dir, name);
       const st = statSync(p);
-      if (st.isDirectory()) { if (!["node_modules", "data", "test", "tests", "__tests__"].includes(name)) walk(p); continue; }
-      if (!/\.(mjs|js|ts|cjs)$/.test(name)) continue;
+      if (st.isDirectory()) { if (!SKIP.includes(name)) walk(p); continue; }
+      if (!/\.(mjs|js|ts|cjs|py)$/.test(name)) continue;
       // Test files hold fixtures, not real secrets; the gate is about shipped code.
-      if (/\.(test|spec)\./.test(name)) continue;
+      if (/\.(test|spec)\./.test(name) || /^test_.*\.py$/.test(name)) continue;
       const rel = p.slice(targetDir.length + 1).replace(/\\/g, "/");
       if (allow.some((a) => rel.endsWith(a))) continue;
       const lines = readFileSync(p, "utf8").split("\n");
-      lines.forEach((ln, i) => { if (re.test(ln) && !/process\.env/.test(ln)) findings.push(`${rel}:${i + 1}: ${ln.trim().slice(0, 80)}`); });
+      lines.forEach((ln, i) => {
+        if (!re.test(ln)) return;
+        if (/process\.env|os\.environ|os\.getenv/.test(ln)) return;
+        findings.push(`${rel}:${i + 1}: ${ln.trim().slice(0, 80)}`);
+      });
     }
   };
   try { walk(targetDir); } catch { /* ignore */ }
@@ -127,28 +190,39 @@ function secretScan() {
 const checks = [];
 const push = (name, pass, detail) => checks.push({ name, pass, detail });
 
-console.log(`qa-api: ${targetDir}  (coverage>=${COV_MIN}%)`);
+console.log(`qa-api: ${targetDir}  (framework=${FRAMEWORK}, coverage>=${COV_MIN}%)`);
 
 // 1) tests
-const testCmd = cfg.test || ["node", "--test"];
-const tr = await runCmd(testCmd);
-const passM = /(?:#|\u2139)\s*pass (\d+)/.exec(tr.out);
-const failM = /(?:#|\u2139)\s*fail (\d+)/.exec(tr.out);
-if (!passM) {
-  console.error("qa-api: INCOMPLETE — test runner produced no 'pass N' line (is node --test available?).");
+const testCmd = cfg.test || DEFAULT_TEST;
+let tr = await runCmd(testCmd);
+let tc = parseCounts(tr.out);
+// Robustness: a project pytest addopts (e.g. "-q") can hide the summary line,
+// and stacking our own -q would make it -qq. If the count is unreadable on a
+// Python backend, retry once with pytest's addopts neutralised so "N passed"
+// prints. An unreadable count stays INCOMPLETE (exit 3), never "0 failed".
+if (tc.pass === null && FRAMEWORK === "python" && !testCmd.includes("-o")) {
+  tr = await runCmd([...testCmd, "-o", "addopts="]);
+  tc = parseCounts(tr.out);
+}
+if (tc.pass === null) {
+  console.error("qa-api: INCOMPLETE — could not read a 'N passed' line from the test runner.");
+  console.error("  Set cfg.test to the exact command; it must print 'N passed' (pytest/vitest/jest/node --test all do).");
   console.error((tr.out + tr.err).slice(-500));
-  writeStatus({ tool: "qa-api", ok: false, incomplete: true, reason: "test runner unavailable", at: new Date().toISOString() });
+  writeStatus({ tool: "qa-api", ok: false, incomplete: true, reason: "test pass-count unreadable", at: new Date().toISOString() });
   process.exit(3);
 }
-const tPass = Number(passM[1]);
-const tFail = failM ? Number(failM[1]) : 0;
+const tPass = tc.pass;
+const tFail = tc.fail ?? 0;
 push("tests", tr.code === 0 && tFail === 0 && tPass > 0, `${tPass} passed, ${tFail} failed`);
 
 // 2) coverage
-const covCmd = cfg.coverage || ["node", "--test", "--experimental-test-coverage"];
-const cr = await runCmd(covCmd);
-const covM = /all files\s*\|\s*([\d.]+)/.exec(cr.out);
-const cov = covM ? Number(covM[1]) : null;
+const covCmd = cfg.coverage || DEFAULT_COVERAGE;
+let cr = await runCmd(covCmd);
+let cov = parseCoverage(cr.out);
+if (cov === null && FRAMEWORK === "python" && !covCmd.includes("-o")) {
+  cr = await runCmd([...covCmd, "-o", "addopts="]);
+  cov = parseCoverage(cr.out);
+}
 push("coverage", cov !== null && cov >= COV_MIN, cov === null ? "coverage not reported" : `${cov}% line (min ${COV_MIN}%)`);
 
 // 3) http smoke (real server over a real socket)
@@ -170,10 +244,11 @@ push("no hardcoded secrets", secrets.length === 0, secrets.length ? `${secrets.l
 const ok = checks.every((c) => c.pass);
 // Source hash: lets precommit-gate prove the backend gate ran on the CURRENT
 // tree (no stale PASS), the same way qa-gate's inputHash does for the UI.
-const BACKEND_EXT = new Set([".mjs", ".js", ".cjs", ".ts", ".sql", ".json"]);
+// Extensions cover Node and Python backends so a .py edit invalidates a PASS.
+const BACKEND_EXT = new Set([".mjs", ".js", ".cjs", ".ts", ".sql", ".json", ".py"]);
 const { hash: srcHash, files: srcFiles } = hashWithExts([targetDir], root, BACKEND_EXT);
 writeStatus({
-  tool: "qa-api", v: 1, at: new Date().toISOString(), dir: targetDir, ok,
+  tool: "qa-api", v: 2, at: new Date().toISOString(), dir: targetDir, framework: FRAMEWORK, ok,
   srcHash, srcFiles,
   tests: { pass: tPass, fail: tFail }, coverage: cov, coverageMin: COV_MIN,
   smoke: smoke.results, secretFindings: secrets, checks,
