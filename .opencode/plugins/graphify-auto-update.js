@@ -1,6 +1,9 @@
 // graphify auto-update — runs `graphify update .` after file edits.
 // Debounced so a burst of edits produces one update, and flushed on session idle.
 // No-ops when the project has no graph (graphify-out/graph.json).
+// First generation is manual: run `graphify .` once per project. This plugin
+// only refreshes an existing graph. Excludes are in `.graphifyignore`
+// (same syntax as .gitignore).
 //
 // This is NOT a duplicate of the global graphify plugin in
 // ~/.config/opencode/plugins/graphify.js. The two split the work:

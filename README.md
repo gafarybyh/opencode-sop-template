@@ -144,6 +144,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\.opencode\scripts\copy-to
 
 Finally, replace `PROJECT_NAME` in `AGENTS.md` before the first real task.
 
+First `graphify` run per project (auto-update only refreshes an existing
+graph):
+
+```powershell
+graphify .
+# reads .graphifyignore — same syntax as .gitignore, excludes node_modules,
+# build output, env files, and test scratch folders from the graph
+```
+
 ---
 
 ## What gets installed
