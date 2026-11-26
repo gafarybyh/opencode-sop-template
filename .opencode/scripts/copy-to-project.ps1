@@ -118,6 +118,9 @@ if (Test-Path $giSrc) {
 }
 
 # --- Project scaffolding: docs/ skeleton, CI workflow, git hook -------------
+# .graphifyignore is NOT auto-copied: each project has a different folder
+# structure. The agent creates it from the template starter (.graphifyignore
+# in the template root) and adapts the patterns per project. See Phase 1.
 # G0 (requirement traceability) quotes docs/, so a fresh project needs a docs/
 # folder to land in. Without it the first task has nowhere to point and the
 # agent improvises. Create empty, clearly-marked stubs; never overwrite.

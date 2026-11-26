@@ -1,14 +1,18 @@
-# Graphify ignore — agent creates this file per project from scratch.
-# Same syntax as .gitignore. Graph only source code + docs; exclude the SOP
-# folder (.opencode/), generated output, and test scratch.
+# Graphify ignore — TEMPLATE STARTER.
+# Agent: create each project's .graphifyignore from this starter, then adapt
+# the patterns to that project's folder structure (every project differs).
+# Same syntax as .gitignore. Goal: graph only REAL PROJECT content.
 
-# --- SOP / template internals (never graphed) ---
-.opencode/
+# --- template / SOP files: never graphed ---
+AGENTS.md
+.opencode/*
+!.opencode/STACK.md
 
 # --- dependencies ---
 node_modules/
+.opencode/node_modules/
 
-# --- generated output ---
+# --- generated output (not source) ---
 graphify-out/
 dist/
 build/
@@ -48,7 +52,7 @@ Thumbs.db
 .idea/
 .vscode/
 
-# --- test scratch (ad-hoc projects, never graphed) ---
+# --- test scratch (ad-hoc, never graphed) ---
 _skill-test-*/
 _sop-test-*/
 SOP Test Coding/
