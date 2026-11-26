@@ -20,7 +20,8 @@ permission:
   webfetch: allow
 ---
 
-You produce specs and tickets. You do not implement.
+You produce specs and tickets. You do not implement. Read
+`.opencode/sops/SUBAGENT_BRIEF.md` for the return format.
 
 ## Context-mode routing (same as primary)
 

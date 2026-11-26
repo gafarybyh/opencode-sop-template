@@ -1,5 +1,5 @@
 ---
-description: "Audit existing UI for slop, hierarchy, spacing, type, colour, a11y and performance, with real screenshots at four viewports. Reports findings ranked by severity. Use when a UI looks off, feels generated, or before shipping a page."
+description: "Audit existing UI for slop, hierarchy, spacing, type, colour, a11y and performance, with real screenshots per class (C: 1280 only; D: 320/768/1280/1440). Reports findings ranked by severity. Use when a UI looks off, feels generated, or before shipping a page."
 agent: ui-designer
 subtask: false
 ---
@@ -56,7 +56,7 @@ In causal order, reading `.opencode/skills/refactoring-ui/references/`:
 `WAIVED G5/G6`, report the static findings only, and state "not visually
 verified".
 
-`playwright-cli` CLI: 320 / 768 / 1280 / 1440, screenshot each. Look for horizontal
+Per class: C — 1280 only; D — 320 / 768 / 1280 / 1440, screenshot each (audit defaults to D, the full sweep). Look for horizontal
 scroll, heading overflow, hero not fitting, focus invisible, misaligned grid.
 
 `chrome-devtools` MCP against the production/preview server: console errors,

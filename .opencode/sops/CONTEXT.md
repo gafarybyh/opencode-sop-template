@@ -109,8 +109,8 @@ Do not assume filenames. Discover, then read only what maps to the task:
 
 ```js
 ctx_batch(commands: [
-  {label:"docs-tree", command:"rtk find docs -name *.md"},
-  {label:"docs-root", command:"rtk find . -maxdepth 1 -name *.md"}
+  "rtk find docs -name *.md",
+  "rtk find . -maxdepth 1 -name *.md"
 ], queries: ["requirements","stack","features","design system","decisions"])
 ```
 

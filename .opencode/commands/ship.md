@@ -102,7 +102,7 @@ does not run:
 | lint | 0 new |
 | tests | N passed |
 | sloplint | qa-gate: PASS, 0 FAIL |
-| screenshots | 320 / 768 / 1280 / 1440 attached |
+| screenshots | per class (C: 1280; D: 320/768/1280/1440) attached |
 | a11y | 0 critical |
 | LCP / CLS | x.x s / 0.0x |
 

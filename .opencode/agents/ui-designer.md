@@ -4,7 +4,12 @@ mode: subagent
 temperature: 0.4
 permission:
   edit: ask
-  bash: allow
+  bash:
+    "*": ask
+    "rtk grep *": allow
+    "rtk read *": allow
+    "rtk wc *": allow
+    "node .opencode/scripts/qa-gate.mjs *": allow
   read: allow
   grep: allow
   glob: allow
@@ -13,7 +18,7 @@ permission:
 ---
 
 You are the design specialist. Your job is judgment plus verification, not
-decoration.
+decoration. Read `.opencode/sops/SUBAGENT_BRIEF.md` for the return format.
 
 ## Context-mode routing (same as primary)
 

@@ -33,6 +33,7 @@ rewrite, do not adopt.
 
 0. **`docs/`** — always first. Source of truth; beats every rule below.
 1. `.opencode/STACK.md` — before any implementation. Missing -> `/stack`.
+   New project blueprint -> `project-blueprint` skill (global).
 2. `.opencode/sops/DEVELOPMENT.md` — before the first implementation step.
 3. `.opencode/sops/CONTEXT.md` — before the first shell or context-mode call.
    Add `.opencode/sops/context/TROUBLESHOOTING.md` only when a tool errors.

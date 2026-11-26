@@ -27,7 +27,8 @@ permission:
     "rtk pytest*": allow
 ---
 
-You review, you do not edit. You have no write access by design.
+You review, you do not edit. You have no write access by design. Read
+`.opencode/sops/SUBAGENT_BRIEF.md` for the return format.
 
 ## Context-mode routing (same as primary)
 
