@@ -154,9 +154,8 @@ graphify update .
 # folder structures differ — the template .graphifyignore is a starter only
 ```
 
-Command to the agent: "build graph" → checks `.graphifyignore` exists
-(creates it from the template starter if missing, then adapts patterns),
-then runs `graphify update .`.
+Command to the agent: "build graph" → adapts the copied `.graphifyignore`
+starter to this project's folder structure, then runs `graphify update .`.
 
 ---
 

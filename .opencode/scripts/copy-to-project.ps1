@@ -117,10 +117,22 @@ if (Test-Path $giSrc) {
   }
 }
 
+# --- .graphifyignore: starter copied, then agent adapts it per project ---
+# The template starter excludes SOP internals (AGENTS.md + .opencode/*,
+# except STACK.md) so the graph holds only real project content. Every
+# project differs in folder structure, so the agent edits the copied file.
+$ggSrc = Join-Path $sourceRoot '.graphifyignore'
+$ggDst = Join-Path $Destination '.graphifyignore'
+if (Test-Path $ggSrc) {
+  if (-not (Test-Path $ggDst)) {
+    Copy-Item -Path $ggSrc -Destination $ggDst -Force
+    Write-Host "  .graphifyignore (starter — agent adapts patterns per project)"
+  } else {
+    Write-Host "  .graphifyignore already present (left as-is)"
+  }
+}
+
 # --- Project scaffolding: docs/ skeleton, CI workflow, git hook -------------
-# .graphifyignore is NOT auto-copied: each project has a different folder
-# structure. The agent creates it from the template starter (.graphifyignore
-# in the template root) and adapts the patterns per project. See Phase 1.
 # G0 (requirement traceability) quotes docs/, so a fresh project needs a docs/
 # folder to land in. Without it the first task has nowhere to point and the
 # agent improvises. Create empty, clearly-marked stubs; never overwrite.

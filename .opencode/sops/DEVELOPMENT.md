@@ -55,10 +55,9 @@ unknown directory.
 
 **Exit:** you can name the files you will touch and the pattern you will follow.
 
-If `graphify-out/` is missing: agent builds the graph first, then queries it.
-The agent checks `.graphifyignore` exists in the project root (creates it from
-the template copy if missing, then edits the patterns for this project's
-folder structure — every project differs); then runs `graphify update .`:
+If `graphify-out/` is missing: the `.graphifyignore` starter was copied by
+`copy-to-project.ps1`. The agent **adapts** its patterns to this project's
+folder structure (every project differs), then runs `graphify update .`:
 
 ```bash
 graphify query "<feature area>"     # when graphify-out/ exists
