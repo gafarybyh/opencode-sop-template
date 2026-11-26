@@ -55,10 +55,15 @@ unknown directory.
 
 **Exit:** you can name the files you will touch and the pattern you will follow.
 
+If `graphify-out/` is missing: agent builds the graph first, then queries it.
+The agent checks `.graphifyignore` exists in the project root (creates it from
+the template copy if missing, then edits the patterns for this project's
+folder structure — every project differs); then runs `graphify update .`:
+
 ```bash
 graphify query "<feature area>"     # when graphify-out/ exists
 graphify explain "<concept>"
-graphify .                          # build once if no graph and repo is non-trivial
+graphify update .                   # build/update graph from project root (dot = cwd)
 ```
 
 Read sibling components and nearest tests before writing. Match file naming,
