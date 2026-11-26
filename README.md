@@ -233,7 +233,7 @@ exit condition; the agent may not skip an unmet exit.
 
 ```mermaid
 flowchart LR
-    U[User request] --> D[develop Phase 0a docs]
+    U[User request] --> D[develop PRIMARY<br/>owns phases + evidence]
     D --> P[Phase 1-3 spec plan]
     P --> B[Phase 4 build]
     B --> CP{Checkpoint}
@@ -241,10 +241,11 @@ flowchart LR
     CP -- full --> M[Phase 5 mechanical]
     M --> V[Phase 6 visual class C/D]
     V --> R[Phase 7 review + handoff]
-    D -.-> PL[planner]
-    D -.-> EX[explore]
-    D -.-> UD[ui-designer]
-    D -.-> RV[reviewer]
+    D -.-> PL[planner subagent<br/>spec tickets readonly]
+    D -.-> EX[explore subagent<br/>codebase map readonly]
+    D -.-> UD[ui-designer subagent<br/>audit UI token-locked]
+    D -.-> RV[reviewer subagent<br/>security review readonly]
+    D -.-> SUB["SUBAGENT_BRIEF.md<br/>5-line brief + return format"]
 ```
 
 Subagents start with fresh context. They do not read the full SOP — the primary
