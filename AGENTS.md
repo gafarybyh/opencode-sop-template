@@ -136,7 +136,7 @@ lives in `.opencode/skills/i-have-adhd/SKILL.md`. Invoke `/i-have-adhd` to reloa
 | `.opencode/commands/` | `/ship`, `/new-feature`, `/ui-audit`, `/build-ui`, `/stack`, `/i-have-adhd` |
 | `.opencode/skills/` | hallmark, refactoring-ui, design-taste, i-have-adhd, design-md |
 | `.opencode/instructions/` | `ALWAYS-ON.md` (source for the global always-on file) |
-| `.opencode/plugins/` | `graphify-auto-update.js` |
+| `.opencode/plugins/` | `graphify-auto-update.js`, `qa-gate-guard.js` |
 | `.opencode/mcp/` | MCP rationale, snippet, install steps |
 | `.opencode/scripts/` | Setup, copy, install helpers |
 | `.opencode/STACK.md` | Written by `/stack` |

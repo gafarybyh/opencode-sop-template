@@ -53,7 +53,8 @@ node .opencode/scripts/qa-gate.mjs <path>
 ```
 
 `qa-gate` runs `sloplint --render` and writes `.opencode/gate-status.json`;
-paste its `PASS`/`FAIL` line. Then the `playwright-cli` CLI: resize 320 / 768 / 1280 / 1440 and screenshot each.
+paste its `PASS`/`FAIL` line. Then, per class (C: 1280 only; D: 320 / 768 /
+1280 / 1440), the `playwright-cli` CLI screenshots each viewport.
 Then `chrome-devtools` MCP against the production/preview server: console
 errors, 404s, a11y critical, LCP, CLS.
 

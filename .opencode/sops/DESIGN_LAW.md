@@ -111,9 +111,9 @@ npx -y @gessobuild/anti-slop check <file-or-dir> --json
 
 Ask the user before the browser pass. If declined, record `WAIVED G5/G6` and say
 "UI not visually verified"; never imply otherwise. Use the `playwright-cli` CLI,
-never imagination. A UI claim without a screenshot is a guess. Resize 320x800,
-768x1024, 1280x800, 1440x900 and screenshot each. Checklist:
-`.opencode/sops/QUALITY_GATE.md` gates 5-6.
+never imagination. A UI claim without a screenshot is a guess. Per class:
+C — 1280x800 only; D — resize 320x800, 768x1024, 1280x800, 1440x900 and
+screenshot each. Checklist: `.opencode/sops/QUALITY_GATE.md` gates 5-6.
 
 ### Accessibility and performance
 

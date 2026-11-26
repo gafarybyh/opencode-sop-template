@@ -133,7 +133,7 @@ declines, record `WAIVED G5/G6` and state "UI not visually verified"; never clai
 it passed.
 
 - [ ] User approved browser verification.
-- [ ] Screenshots at 320 / 768 / 1280 / 1440 from the `playwright-cli` CLI.
+- [ ] Screenshots per class (C: 1280 only; D: 320 / 768 / 1280 / 1440) from the `playwright-cli` CLI.
 - [ ] No horizontal scrollbar at 320.
 - [ ] Hero headline + one sentence + primary action visible at 1280x800.
 - [ ] Keyboard Tab reaches every control; focus ring visible.

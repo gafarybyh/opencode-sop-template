@@ -8,6 +8,10 @@
 
 A missing tool is a gap, not a pass: record `N/A <check>: <reason>`.
 
+## Scaffold (greenfield only)
+
+- **Never hand-roll a project skeleton.** Scaffold with the official CLI: `cargo new <name>` (binary) or `cargo new --lib <name>`. The CLI produces the canonical base layout.
+
 ## Anti-slop
 
 - No `unwrap()` / `expect()` on request-path input; propagate errors.

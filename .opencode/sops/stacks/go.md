@@ -8,6 +8,10 @@
 
 A missing tool is a gap, not a pass: record `N/A <check>: <reason>`.
 
+## Scaffold (greenfield only)
+
+- **Never hand-roll a project skeleton.** Scaffold with the official CLI: `go mod init <module>` + the framework's official generator (e.g. `go create` for Fiber, `air init`). The CLI produces the canonical base layout.
+
 ## Anti-slop
 
 - Return errors; never panic on request-path input.
