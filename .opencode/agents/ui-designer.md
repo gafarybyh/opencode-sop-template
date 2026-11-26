@@ -3,7 +3,7 @@ description: "Design specialist. Decides visual direction, defines or extends th
 mode: subagent
 temperature: 0.4
 permission:
-  edit: allow
+  edit: ask
   bash: allow
   read: allow
   grep: allow

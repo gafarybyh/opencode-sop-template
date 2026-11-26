@@ -12,10 +12,6 @@ its work with a linter, screenshots, and hard quality gates.
 Built for **opencode 2.x**; works with any agent that reads `AGENTS.md` + `SKILL.md`.
 The SOP text is portable; the install scripts are **Windows PowerShell 5.1** only.
 
-> **This file is the short version.** It answers *what this is and how to run it*.
-> The full guide — every step, every MCP decision, the troubleshooting tables and
-> the design rationale — is in **[`SETUP.md`](SETUP.md)**.
-
 ---
 
 ## Contents
@@ -182,7 +178,6 @@ opencode-template/
 ├── AGENTS.md          <- the routing table that gets copied
 ├── .gitignore         <- single source of truth, copied into projects
 ├── README.md          <- this file
-├── SETUP.md           <- the full setup guide
 └── .opencode/         <- the SOP: sops, agents, commands, skills, global-skills, scripts
 ```
 
@@ -438,5 +433,5 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 | Playwright CLI | Microsoft | Apache-2.0 |
 | Chrome DevTools MCP | Google | Apache-2.0 |
 
-For the full inventory, MCP rationale, and troubleshooting, see
-**[`SETUP.md`](SETUP.md)**.
+Per-project setup lives in `.opencode/scripts/copy-to-project.ps1` and the
+MCP rationale in `.opencode/mcp/README.md`.

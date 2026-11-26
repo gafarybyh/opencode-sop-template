@@ -9,6 +9,12 @@
 A missing tool is a gap, not a pass: record `N/A <check>: <reason>`. Do not add
 a framework silently.
 
+## Scaffold (greenfield only)
+
+- **Never hand-roll a project skeleton.** Scaffold with the framework's official CLI: FastAPI — `pipx` template or official repo starter; Django — `django-admin startproject`; Flask — official starter. The CLI produces the canonical base layout.
+- If no official generator fits, state so and stop — do not invent `src/features/`.
+- Backend root carries `qa-api.config.json` from the first commit (starter: `stacks/_backend.md`).
+
 ## Anti-slop
 
 - Validate at the boundary; never trust request input.

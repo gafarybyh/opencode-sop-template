@@ -244,10 +244,10 @@ foreach ($junk in @('Microsoft','rtk')) {
   }
 }
 if (Test-Path (Join-Path $root 'README.md')) {
-  # The template ships its own README plus SETUP.md. In a project, a root
+  # The template ships its own README. In a project, a root
   # README is normally the project's own file, so it is expected there and
   # must not be treated as a problem.
-  if ($isTemplate) { Note "README.md at the template root (the setup guide is SETUP.md)" }
+  if ($isTemplate) { Note "README.md at the template root" }
   else { Note "README.md at project root (the project's own readme)" }
 }
 

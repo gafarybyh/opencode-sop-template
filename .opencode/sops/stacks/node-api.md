@@ -31,6 +31,12 @@ It must print PASS (exit 0): tests pass, coverage ≥ floor, smoke endpoints mat
 no hardcoded secrets. This is the backend's G2+G3 evidence; the pre-commit hook
 blocks a stale backend gate. Details: `stacks/_backend.md`.
 
+## Scaffold (greenfield only)
+
+- **Never hand-roll a project skeleton.** Scaffold with the framework's official CLI: Express/Fastify — `npm create` the official generator; NestJS — `npx nest@latest new <name>`; Hono — `npm create hono@latest`. The CLI produces the canonical base layout.
+- If no official generator fits, state so and stop — do not invent `src/features/`.
+- Backend root carries `qa-api.config.json` from the first commit (starter: `stacks/_backend.md`).
+
 ## Anti-slop
 
 - Validate every request at the boundary (schema or guard); never trust input.

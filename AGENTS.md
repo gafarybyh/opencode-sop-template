@@ -62,8 +62,9 @@ Project rules (owned here):
 - **Detect, never assume, the stack.**
 - **UI is not done without evidence.** Run `node .opencode/scripts/qa-gate.mjs`
   and paste its `PASS` line (exit 0) as proof of the design floor (G4); never
-  claim done on a stale or skipped gate. Then screenshots at 320/768/1280/1440
-  via the Playwright CLI only after the user approves the browser pass.
+  claim done on a stale or skipped gate. Then screenshots per class
+  (C: 1280 only; D: 320/768/1280/1440) via the Playwright CLI only after
+  the user approves the browser pass.
 - **A backend is not done without `qa-api.config.json`.** The moment you create or
   change a server (API/routes/DB) and no `qa-api.config.json` exists in that
   backend's root, create one **in the same change** (copy the starter in
