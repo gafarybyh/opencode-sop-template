@@ -117,6 +117,28 @@ if (Test-Path $giSrc) {
   }
 }
 
+# --- .graphifyignore: same append-only copy as .gitignore (agent runs graphify) ---
+$ggSrc = Join-Path $sourceRoot '.graphifyignore'
+$ggDst = Join-Path $Destination '.graphifyignore'
+if (Test-Path $ggSrc) {
+  $ggLines = @(Get-Content $ggSrc | Where-Object { $_.Trim() -ne '' -and -not $_.Trim().StartsWith('#') })
+  if (-not (Test-Path $ggDst)) {
+    Copy-Item -Path $ggSrc -Destination $ggDst -Force
+    Write-Host "  .graphifyignore"
+  } else {
+    $existingRaw = Get-Content $ggDst -Raw
+    $existing = @(Get-Content $ggDst | Where-Object { $_.Trim() -ne '' -and -not $_.Trim().StartsWith('#') })
+    $missing = @($ggLines | Where-Object { $existing -notcontains $_ })
+    if ($missing.Count -gt 0) {
+      $block = "`r`n" + ($missing -join "`r`n") + "`r`n"
+      Add-Content -Path $ggDst -Value $block -Encoding UTF8
+      Write-Host "  .graphifyignore (added $($missing.Count) missing rule(s))"
+    } else {
+      Write-Host "  .graphifyignore (already covers the SOP rules)"
+    }
+  }
+}
+
 # --- Project scaffolding: docs/ skeleton, CI workflow, git hook -------------
 # G0 (requirement traceability) quotes docs/, so a fresh project needs a docs/
 # folder to land in. Without it the first task has nowhere to point and the
