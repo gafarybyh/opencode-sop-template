@@ -47,9 +47,13 @@ The SOP text is portable; the install scripts are **Windows PowerShell 5.1** onl
   design rulebook and a concrete ban catalogue.
 - **Small context, on demand.** `AGENTS.md` is a thin router; detailed SOPs and
   skills load only when their trigger fires — no dumping every rule up front.
-- **One primary, three specialists.** `develop` is the primary implementer; it
-  delegates to the `ui-designer`, `reviewer`, and `planner` subagents — each with
-  the right permissions (reviewers cannot edit).
+- **One primary, four specialists.** `develop` is the primary implementer; it
+  delegates to the `ui-designer`, `reviewer`, `planner`, and `explore` subagents —
+  each with the right permissions (reviewers and explore cannot edit).
+- **Verify checkpoint, not blind verify.** After Phase 4 the agent asks once per
+  task: full verify / skip (defer) / lint-only. Persisted in `.opencode/STACK.md`
+  as `verify: auto | ask | off`; the handoff records `VERIFY: PASS | DEFERRED |
+  LINT-ONLY | WAIVED`.
 - **Two-layer install.** The SOP is copied per project; machine tools, plugins
   and MCP servers are installed once per PC.
 - **Token-minimal by design.** `context-mode` routes analysis through a sandbox so
@@ -189,8 +193,8 @@ my-app/
 | `Setup.bat` | One-door setup menu (stays in the template, not copied) |
 | `AGENTS.md` | Routing table and hard rules; opencode reads it automatically |
 | `.gitignore` | Single source of truth for what must never be committed |
-| `.opencode/sops/` | Six procedures (`DEVELOPMENT`, `DESIGN_LAW`, `QUALITY_GATE`, `CONTEXT`, `STACKS`, `EVAL`) + `stacks/` (one file per stack) + `context/TROUBLESHOOTING.md` |
-| `.opencode/agents/` | `develop` (primary) plus `ui-designer`, `planner`, `reviewer` (subagents) |
+| `.opencode/sops/` | Seven procedures (`DEVELOPMENT`, `DESIGN_LAW`, `QUALITY_GATE`, `CONTEXT`, `STACKS`, `EVAL`, `SUBAGENT_BRIEF`) + `stacks/` (one file per stack) + `context/TROUBLESHOOTING.md` |
+| `.opencode/agents/` | `develop` (primary) plus `ui-designer`, `planner`, `reviewer`, `explore` (subagents) |
 | `.opencode/commands/` | `/stack`, `/new-feature`, `/ship`, `/build-ui`, `/ui-audit`, `/i-have-adhd` |
 | `.opencode/skills/hallmark` | Anti-slop design skill with a deterministic linter (`sloplint.mjs`) |
 | `.opencode/skills/refactoring-ui` | 151-rule design rulebook distilled from *Refactoring UI* |
@@ -222,19 +226,43 @@ exit condition; the agent may not skip an unmet exit.
 | 0b | Detect the stack, write `.opencode/STACK.md`, load one stack file |
 | 1 | Understand the codebase (`graphify query`, read siblings and tests) |
 | 2–3 | Spec and plan (only for >1 file or >1 concern) |
-| 4 | Build — data/types → logic → UI shell → UI polish |
-| 5 | Mechanical verify — build, typecheck, lint, tests |
+| 4 | Build — data/types → logic → UI shell → UI polish. **Then the verify checkpoint: full / skip / lint-only (once per task)** |
+| 5 | Mechanical verify — build, typecheck, lint, tests (skipped when deferred) |
 | 6 | Visual verify — `qa-gate` (`sloplint --render`), screenshots, a11y, LCP/CLS |
 | 7 | Independent review and handoff |
+
+```mermaid
+flowchart LR
+    U[User request] --> D[develop:<br/>Phase 0a docs<br/>Phase 0b stack]
+    D --> P[Phase 1-3<br/>spec / plan]
+    P --> B[Phase 4 build]
+    B --> CP{{Checkpoint<br/>full / skip /<br/>lint-only}}
+    CP -- skip --> B
+    CP -- full --> M[Phase 5 mechanical<br/>build · typecheck · lint · tests]
+    M --> V[Phase 6 visual<br/>qa-gate · screenshots · a11y · LCP/CLS<br/>class C/D only]
+    V --> R[Phase 7 review<br/>+ handoff VERIFY:PASS|DEFERRED|LINT-ONLY|WAIVED]
+    D -.-> PL[planner<br/>Phase 2-3, &gt;1 file]
+    D -.-> EX[explore<br/>Phase 1/3, &gt;3 files]
+    D -.-> UD[ui-designer<br/>audit UI, token-locked]
+    D -.-> RV[reviewer<br/>diff &gt;1 file / security]
+```
+
+Subagents start with fresh context. They do not read the full SOP — the primary
+sends a 5-line brief (context, scope, class, checkpoint, return shape) and the
+light standard in `.opencode/sops/SUBAGENT_BRIEF.md`. They return raw evidence
+only; the primary decides `VERIFY:`. All subagents use the same context-mode
+routing as the primary (`ctx_execute`, `ctx_batch`, `ctx_search`) so large
+output is analyzed in the sandbox, never dumped into the chat.
 
 ### Agents
 
 | Agent | Mode | Job |
 |---|---|---|
 | `develop` | primary | Implementation; owns the phases and the evidence |
-| `ui-designer` | subagent | Visual direction and the design system |
+| `ui-designer` | subagent | Visual direction, audit, and the design system |
 | `planner` | subagent | Spec and tracer-bullet tickets (read-only) |
 | `reviewer` | subagent | Code and security review, high-confidence findings only (read-only) |
+| `explore` | subagent | Codebase map: files, patterns, entry points (read-only) |
 
 ### Commands
 
@@ -275,9 +303,9 @@ pick one. Routing is fixed per command:
 
 > **Only `develop` is a primary agent**, so it is the only project agent the Tab
 > switcher cycles to (alongside opencode's built-in `build`). `ui-designer`,
-> `planner`, and `reviewer` are **subagents** — they run when a command routes to
-> them or when `develop` delegates, not via Tab. opencode's default agent is
-> `build`, not `develop`; start with `@develop` or press Tab to switch.
+> `planner`, `reviewer`, and `explore` are **subagents** — they run when a command
+> routes to them or when `develop` delegates, not via Tab. opencode's default
+> agent is `build`, not `develop`; start with `@develop` or press Tab to switch.
 
 ### Quality gates
 
