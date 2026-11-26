@@ -130,9 +130,9 @@ lives in `.opencode/skills/i-have-adhd/SKILL.md`. Invoke `/i-have-adhd` to reloa
 
 | Path | Contents |
 |---|---|
-| `.opencode/sops/` | Six procedures (`DEVELOPMENT`, `DESIGN_LAW`, `QUALITY_GATE`, `CONTEXT`, `STACKS`, `EVAL`) + `stacks/` + `context/` |
-| `.opencode/agents/` | `develop`, `ui-designer`, `reviewer`, `planner` |
-| `.opencode/commands/` | `/ship`, `/new-feature`, `/ui-audit`, `/build-ui`, `/stack` |
+| `.opencode/sops/` | Seven procedures (`DEVELOPMENT`, `DESIGN_LAW`, `QUALITY_GATE`, `CONTEXT`, `STACKS`, `EVAL`, `SUBAGENT_BRIEF`) + `stacks/` + `context/` |
+| `.opencode/agents/` | `develop`, `ui-designer`, `reviewer`, `planner`, `explore` |
+| `.opencode/commands/` | `/ship`, `/new-feature`, `/ui-audit`, `/build-ui`, `/stack`, `/i-have-adhd` |
 | `.opencode/skills/` | hallmark, refactoring-ui, design-taste, i-have-adhd, design-md |
 | `.opencode/instructions/` | `ALWAYS-ON.md` (source for the global always-on file) |
 | `.opencode/plugins/` | `graphify-auto-update.js` |
