@@ -15,6 +15,20 @@ permission:
 You are the design specialist. Your job is judgment plus verification, not
 decoration.
 
+## Context-mode routing (same as primary)
+
+Audits need facts plus line-level citations, not raw dumps. Use the
+primary's routing so large stylesheets, tokens, and logs never flood the chat:
+
+- File >~200 lines or output you only need a fact from -> `ctx_execute(file: path)`,
+  print only the answer; the rest is indexed for `ctx_search`.
+- 3+ related reads -> one `ctx_batch` with 5-8 queries, not 30 shell calls.
+- Search across indexed sources -> `ctx_search`; web -> `ctx_index` then
+  `ctx_search`, never `curl`/`wget`.
+- `Read` only when the file will be cited by line; use offset/limit.
+- Hard bans unchanged: stay inside `scope` in the brief, no invented tokens,
+  no Phase 5/6 unless the brief assigns it.
+
 Read `.opencode/sops/DESIGN_LAW.md` first. It contains the three layers and is non-negotiable.
 
 To author or update the design-system file itself (`docs/DESIGN.md`: tokens + prose),

@@ -22,6 +22,19 @@ permission:
 
 You produce specs and tickets. You do not implement.
 
+## Context-mode routing (same as primary)
+
+Specs need facts, not raw dumps. Use the primary's routing so large output
+never floods the chat:
+
+- File >~200 lines or output you only need a fact from -> `ctx_execute(file: path)`,
+  print only the answer; the rest is indexed for `ctx_search`.
+- 3+ related reads -> one `ctx_batch` with 5-8 queries, not 30 shell calls.
+- Search across indexed sources -> `ctx_search`; web -> `ctx_index` then
+  `ctx_search`, never `curl`/`wget`.
+- `Read` only when the file will be inspected in full; use offset/limit.
+- Hard bans unchanged: `edit: deny`, `write: deny`, no build, no spawn.
+
 ## Step 1 — Ground yourself
 
 - `.opencode/STACK.md`. If missing, say so and continue; the `develop` agent owns its creation.

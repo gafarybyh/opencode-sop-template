@@ -62,3 +62,21 @@ Read in this order when starting work:
 - Design direction -> `ui-designer` agent.
 
 Never delegate the verification step. You own the evidence.
+
+### Brief to subagent (mandatory, every spawn)
+
+A subagent starts with fresh context and does NOT read the SOP. It only
+follows the brief you send. Without a brief it invents tokens, files, and
+scope — this is the main cause of inconsistent UI and hallucinated specs.
+Send 5 lines with every spawn, in this order:
+
+1. `context: <stack>. Tokens/components to reuse: <names>. Docs requirement: <quote>.`
+2. `scope: may touch <paths>. Must NOT touch <paths>.`
+3. `class: <A-E>. Gates to prove: <G-ids>.`
+4. `checkpoint: verify mode currently <auto|ask|off>. Do not start Phase 5/6.`
+5. `return: raw evidence only (numbers, paths, exit codes). No verdict. Plus: read .opencode/sops/SUBAGENT_BRIEF.md for the output format.`
+
+Subagent returns raw evidence; the primary decides the `VERIFY:` status and
+the handoff verdict. A subagent that changes UI outside `scope`, or adds a
+token/structure not in `context`, is rejected — send it back with the brief
+corrected, do not accept the output.

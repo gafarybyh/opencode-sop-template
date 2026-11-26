@@ -202,6 +202,12 @@ State, in this order:
 4. **Open risks** — anything that could bite later.
 5. **Next action** — one thing, under two minutes.
 
+Always add one line: `VERIFY: PASS | DEFERRED | LINT-ONLY | WAIVED` with a reason
+when deferred or waived. The checkpoint that sets this status lives in
+`.opencode/sops/DEVELOPMENT.md`, Phase 4 "Checkpoint — verify mode". A handoff
+with `VERIFY: DEFERRED` or `WAIVED` is not Done; Phase 5/6 must run before
+Phase 7, or the user must accept the waiver in writing.
+
 No "let me know if you need anything else". No recap of the plan.
 
 ## Waiving a gate

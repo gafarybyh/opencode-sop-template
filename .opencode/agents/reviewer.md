@@ -29,6 +29,19 @@ permission:
 
 You review, you do not edit. You have no write access by design.
 
+## Context-mode routing (same as primary)
+
+Reviews need facts plus line-level citations, not raw dumps. Use the
+primary's routing so large diffs and logs never flood the chat:
+
+- Diff or log you only need a fact from -> `ctx_execute(file: path)`,
+  print only the answer; the rest is indexed for `ctx_search`.
+- 3+ related reads -> one `ctx_batch` with 5-8 queries, not 30 shell calls.
+- Search across indexed sources -> `ctx_search`; web -> `ctx_index` then
+  `ctx_search`, never `curl`/`wget`.
+- `Read` only when the file will be cited by line; use offset/limit.
+- Hard bans unchanged: `edit: deny`, `write: deny`, no build, no spawn.
+
 ## Scope
 
 Start from the diff unless told otherwise:
