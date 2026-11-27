@@ -431,14 +431,6 @@ foreach ($p in $desiredPlugins) {
   elseif ($inOther) { Ok "plugin present in the other config file: $p" }
   else { $pluginList += $p; $changed = $true; Ok "plugin added: $p" }
 }
-# drop any retired plugin entries (opencode-power-pack) that are still listed
-foreach ($stale in @('opencode-power-pack')) {
-  if ($pluginList | Where-Object { $_ -like "*$stale*" }) {
-    $pluginList = @($pluginList | Where-Object { $_ -notlike "*$stale*" })
-    $changed = $true
-    Ok "plugin removed: $stale"
-  }
-}
 if (-not $DryRun -and $pluginList.Count -gt 0) { Set-Prop $cfg 'plugins' $pluginList }
 
 $mcp = Get-Prop $cfg 'mcp'

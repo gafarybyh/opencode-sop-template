@@ -152,16 +152,6 @@ if (Test-Path $cfgJson) {
     if ($raw -match "`"$([regex]::Escape($m))`"") { Ok "MCP declared: $m" }
     else { Gate "MCP missing from opencode.json: $m (see .opencode/mcp/INSTALL.md)" }
   }
-  if ($raw -match '"@playwright/mcp"') {
-    Warn "playwright MCP is still declared. It was replaced by the Playwright CLI (token-efficient). See .opencode/mcp/README.md."
-  } else {
-    Ok "playwright MCP not declared (expected)"
-  }
-  if ($raw -match '"context7"') {
-    Warn "context7 is still declared. It was dropped from this setup: project docs/ + ctx_index cover library docs. See .opencode/mcp/README.md."
-  } else {
-    Ok "context7 not declared (expected)"
-  }
   foreach ($p in @('context-mode')) {
     if ($raw -match [regex]::Escape($p)) {
       Ok "plugin declared: $p"
@@ -177,11 +167,6 @@ if (Test-Path $cfgJson) {
       }
     }
     else { Warn "plugin not declared: $p" }
-  }
-  if ($raw -match 'opencode-power-pack') {
-    Warn "opencode-power-pack is still declared. It was retired: the local SOP, agents, and commands replace it. See .opencode/mcp/README.md."
-  } else {
-    Ok "opencode-power-pack not declared (expected)"
   }
 
   # The chrome-devtools MCP can carry an absolute --executablePath. That path
