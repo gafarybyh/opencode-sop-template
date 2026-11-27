@@ -37,7 +37,9 @@ to `Edit` (you never edit) and a file under ~100 lines you need in full. If
 - `Read` with offset/limit only for one known line range; do not `Read` files
   the brief already describes.
 - Hard bans unchanged: `edit: deny`, `write: deny`, no build, no spawn.
-- If `ctx_*` fails: announce once, use `Read`, continue.
+- If `ctx_*` fails: announce once, emit `CTX: UNAVAILABLE — reason`, primary
+  re-derives heavy analysis via `ctx_execute(file: path)` and passes only facts
+  (<=5 lines, numbers only) back in the brief, use `Read`, continue.
 
 ## Step 1 — Ground yourself
 

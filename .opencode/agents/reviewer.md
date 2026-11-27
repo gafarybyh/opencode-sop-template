@@ -42,7 +42,9 @@ If `ctx_*` is unavailable in this spawn, say so once, use Read, continue.
 - Search across indexed sources -> `ctx_search`; web -> `ctx_index` then
   `ctx_search`, never `curl`/`wget`.
 - `Read` only when the file will be cited by line; use offset/limit.
-- If `ctx_*` fails: announce once, use `Read`, continue.
+- If `ctx_*` fails: announce once, emit `CTX: UNAVAILABLE — reason`, primary
+  re-derives heavy analysis via `ctx_execute(file: path)` and passes only facts
+  (<=5 lines, numbers only) back in the brief, use `Read`, continue.
 - Hard bans unchanged: `edit: deny`, `write: deny`, no build, no spawn.
 
 ## Scope

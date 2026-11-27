@@ -283,6 +283,25 @@ Never claim a UI looks right without Phase 6 evidence.
 `.opencode/sops/QUALITY_GATE.md`. Done = every box checked or explicitly waived
 with a user-accepted reason.
 
+## Fast-path — small change, own path (optimal + efficient)
+
+**Fast-path when all hold:** 1 file (or 1 config block / 1 doc), no new file,
+no schema, no dep, no shared component/token, no auth/network/persistence,
+no new screen or layout change. Typical: typo fix, one-line logic fix in an
+isolated function, config value tweak, comment/doc line.
+
+**Fast-path steps (5):**
+
+1. Declare: `Fast-path Class A — 1 file <path>, gates G0,G8` (G2 lint if it lints that file).
+2. Edit. If lint/build command unclear, one `ctx_execute(file: path)` read; else grep + direct read only.
+3. Verify: `rtk git diff --stat` + lint changed file only + `git diff` review by primary (self-review, Gate 7 waived).
+4. Handoff 3 lines: what works, `VERIFY: PASS` + gate evidence, what is not done. No subagents, no planner, no explore, no Phase 0b, no graphify (primary reads files directly).
+5. Escalate notice (do this first): if the diff needs a second file or a shared component, stop Fast-path → full procedure Phase 2/3, declare proper class. Gate 7 review applies.
+
+**Bans steal quality in Fast-path:** no edit without lint changed file, no handoff without `git diff --stat` evidence, no self-review claim without re-read diff.
+
+**Checkpoint:** Class A Fast-path skips Phase 5/6 checkpoint (lint only, no build, no screenshots).
+
 ## Failure modes to avoid
 
 | Sloppy | Correct |

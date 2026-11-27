@@ -36,7 +36,9 @@ once, use Read/Grep/Glob, and say so in Evidence.
 - `Read` with offset/limit only for one known line range; do not `Read` files
   the brief already describes.
 - Hard bans unchanged: no edit, no write, no build, no spawn.
-- If `ctx_*` fails: announce once, use `Read`, continue.
+- If `ctx_*` fails: announce once, emit `CTX: UNAVAILABLE — reason`, primary
+  re-derives heavy analysis via `ctx_execute(file: path)` and passes only facts
+  (<=5 lines, numbers only) back in the brief, use `Read`, continue.
 
 ## Procedure
 
