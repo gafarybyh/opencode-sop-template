@@ -141,7 +141,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\.opencode\scripts\copy-to
 Finally, replace `PROJECT_NAME` in `AGENTS.md` before the first real task.
 
 First `graphify` run per project, by the agent (auto-update only refreshes an
-existing graph):
+existing graph). Agent runs this automatically in Phase 1
+(`.opencode/sops/DEVELOPMENT.md:58`) — user does not type it by hand.
+Manual only when debugging:
 
 ```powershell
 graphify update .
@@ -162,7 +164,7 @@ Two layers, split so each fact lives in exactly one place.
 | Layer | What it contains | Installed by |
 |---|---|---|
 | **Per project** | the SOP: `sops/`, `agents/`, `commands/`, `skills/`, `instructions/`, `plugins/graphify-auto-update.js`, `AGENTS.md`, `.gitignore` | `copy-to-project.ps1` |
-| **Per machine** (`~/.config/opencode`) | MCP servers (`chrome-devtools`, optional `tavily`), package plugins (`context-mode`), the global `AGENTS.md`, the `SHELL` env var, CLI tools (`opencode`, `rtk`, `graphify`, `playwright-cli`), the global `project-blueprint` skill (from `.opencode/global-skills/`) | `bootstrap-windows.ps1` |
+| **Per machine** (`~/.config/opencode`) | MCP servers (`chrome-devtools`, optional `tavily`), package plugins (`context-mode`), the global `AGENTS.md`, the `SHELL` env var, CLI tools (`opencode`, `rtk`, `graphify`, `playwright-cli`), global skills (`project-blueprint`, `modern-web-guidance`, `doc-coauthoring` from `.opencode/global-skills/`) | `bootstrap-windows.ps1` |
 
 MCP servers and package plugins are deliberately **not** copied into projects: one
 machine-wide definition serves every project. To add an MCP server, edit the global
@@ -211,11 +213,12 @@ my-app/
 | `.opencode/skills/design-md` | Google DESIGN.md design-system file (tokens + prose), verified with `@google/design.md` |
 | `.opencode/global-skills/project-blueprint/` | Global `project-blueprint` skill: generates the 6 planning docs (PRD, TRD, App Flow, Design Brief, Backend Schema, Implementation Plan) under `docs/`. Installed by `bootstrap-windows.ps1`, never copied to a project |
 | `.opencode/global-skills/modern-web-guidance/` | Global `modern-web-guidance` skill (GoogleChrome, Apache-2.0): keeps the agent on current web best practices (APIs, a11y, performance, Baseline/fallbacks). Thin SKILL.md; the `modern-web-guidance` npm package serves the guides offline via `npx`. Installed by `bootstrap-windows.ps1`, never copied to a project |
+| `.opencode/global-skills/doc-coauthoring/` | Global `doc-coauthoring` skill: co-author docs with a Fresh Claude reader test. Installed by `bootstrap-windows.ps1`, never copied to a project |
 | `.opencode/instructions/ALWAYS-ON.md` | Source for the global always-on file (`~/.config/opencode/AGENTS.md`) |
 | `.opencode/plugins/graphify-auto-update.js` | Runs `graphify update .` after edits (debounced, flushed on idle) |
 | `.opencode/plugins/qa-gate-guard.js` | Prepends a one-line reminder to run `qa-gate` before claiming a UI done (same echo mechanism as graphify; silent when the gate is fresh and clean) |
 | `.opencode/mcp/` | Why these MCP servers, the config snippet, install steps |
-| `.opencode/scripts/` | `bootstrap-windows`, `check-setup`, `check-template`, `copy-to-project`, `install-skills`, `lib-jsonc`, `setup-menu`, `qa-gate`, `lib-gate-hash`, `precommit-gate`, `install-git-hooks`, `qa-perf`, `qa-api`, `eval-consistency`, `eval-score` |
+| `.opencode/scripts/` | Install (via `Setup.bat`) + quality gates (`qa-gate`, `qa-perf`, `qa-api`, `eval-*`) + hooks. List lengkap di folder. |
 | `.opencode/ci/` | `qa-gate.yml` — CI backstop that runs `qa-gate` on push/PR (no-op for UI-less repos) |
 | `eval/` | Trial results for the compliance eval (`.opencode/sops/EVAL.md`); create with `node .opencode/scripts/eval-score.mjs --init`. Per-machine, gitignored |
 
@@ -241,12 +244,26 @@ exit condition; the agent may not skip an unmet exit.
 
 ```mermaid
 flowchart LR
+    subgraph Machine[Machine layer - once per PC]
+        BP[bootstrap-windows.ps1]
+        BP --> OC[opencode + rtk + graphify]
+        BP --> PLG[context-mode plugin]
+        BP --> MCP1[chrome-devtools MCP]
+        BP --> CLI[playwright-cli]
+        BP --> GS[global skills]
+    end
+    subgraph Project[Project layer - per project]
+        CP[copy-to-project.ps1]
+        CP --> SOP[.opencode/sops + agents]
+        CP --> CMD[commands]
+        CP --> SK[skills]
+    end
     U[User request] --> D[develop PRIMARY<br/>owns phases + evidence]
     D --> P[Phase 1-3 spec plan]
     P --> B[Phase 4 build]
-    B --> CP{Checkpoint}
-    CP -- skip --> B
-    CP -- full --> M[Phase 5 mechanical]
+    B --> CP2{Checkpoint}
+    CP2 -- skip --> B
+    CP2 -- full --> M[Phase 5 mechanical]
     M --> V[Phase 6 visual class C/D]
     V --> R[Phase 7 review + handoff]
     D -.-> PL[planner subagent<br/>spec tickets readonly]
@@ -259,9 +276,11 @@ flowchart LR
 Subagents start with fresh context. They do not read the full SOP — the primary
 sends a 5-line brief (context, scope, class, checkpoint, return shape) and the
 light standard in `.opencode/sops/SUBAGENT_BRIEF.md`. They return raw evidence
-only; the primary decides `VERIFY:`. All subagents use the same context-mode
-routing as the primary (`ctx_execute`, `ctx_batch`, `ctx_search`) so large
-output is analyzed in the sandbox, never dumped into the chat.
+only; the primary decides `VERIFY:`. Primary agent always uses context-mode
+routing (`ctx_execute`, `ctx_batch`, `ctx_search`) so large output is analyzed
+in the sandbox, never dumped into the chat. Subagents try `ctx_*` first, but
+if it is unavailable in the spawn runtime they fall back to Read/Grep/Glob and
+report it in evidence (verified 2026-11-27: primary proven, subagent best-effort).
 
 ### Agents
 
@@ -433,5 +452,4 @@ its own license; see the `LICENSE`/`NOTICE` files inside the relevant
 | Playwright CLI | Microsoft | Apache-2.0 |
 | Chrome DevTools MCP | Google | Apache-2.0 |
 
-Per-project setup lives in `.opencode/scripts/copy-to-project.ps1` and the
-MCP rationale in `.opencode/mcp/README.md`.
+Install via `Setup.bat`. MCP rationale in `.opencode/mcp/README.md`.

@@ -48,9 +48,12 @@ first. Relative examples assume the project root. A relative `0 for '*'` means
 Missing `rtk` / `ctx_*`: announce once, use the fallback. Full table:
 `context/TROUBLESHOOTING.md`.
 
-## 2. context-mode: route everything through the sandbox
+## 2. context-mode: route everything through the sandbox — primary is always on, subagents best-effort
 
-Never read raw output into context when a derivation is possible.
+Never read raw output into context when a derivation is possible. This applies to
+the primary (`develop`) always. Subagents (`planner`, `explore`, `reviewer`,
+`ui-designer`) try `ctx_*` first, but fall back to Read/Grep/Glob when it is
+unavailable in the spawn runtime (verified 2026-11-27).
 
 | Situation | Wrong | Right |
 |---|---|---|
@@ -59,6 +62,23 @@ Never read raw output into context when a derivation is possible.
 | Search across many results | `Grep` then read | `ctx_execute` with a filter, print counts |
 | Fetch a web page | `Invoke-WebRequest` | `ctx_index(url: "…")` then `ctx_search` |
 | Two questions about same data | two calls | one `ctx_search(queries: ["q1","q2"])` |
+
+**Two legitimate exemptions** (no sandbox needed):
+
+1. **A file you are about to `Edit`** — `Read` it for exact bytes.
+2. **A file under ~100 lines you need in full** — `Read` with `offset`/`limit`.
+
+If `ctx_*` fails, fall back to `Read` and say so once — do not loop on the error.
+
+> **`ctx_* unavailable in runtime` in a subagent is expected on some machines.**
+> It means the context-mode plugin did not inherit into the subagent session
+> (OpenCode loads the plugin in the primary parent session).
+> Primary agent ctx_* verified (2026-11-27): `ctx_execute`
+> exists-check `true`, `ctx_batch` git/eval PASS, `ctx_search`
+> "Spawn trigger" / "Gate 9" hits = proven. Subagents fall back to
+> Read/Grep/Glob. Fix attempt: `opencode.json` -> `"plugins": ["context-mode"]`
+> plus `npm i -g context-mode`, then restart OpenCode. Script:
+> `.opencode/scripts/install-opencode-config.ps1 -Project "<project>"`.
 
 `ctx_batch` `commands` is a list of raw shell strings (there is no `label` field
 and no `concurrency` parameter — the tool runs them in one sandbox call).
@@ -69,8 +89,11 @@ returns noise, so keep them output-specific.
 Blocked constructs (`curl`, `wget`, inline HTTP): do not retry — see
 `context/TROUBLESHOOTING.md`.
 
-**Artifacts go to files.** Never return a report inline; report `path` + one
-line.
+**Artifacts go to files.** Every report that is meant to be read later (spec,
+ticket list, review, audit, plan) is written to a file; the chat gets `path` +
+one line. **Exception — subagent evidence:** evidence returned to the primary
+owner stays **inline, as raw numbers and paths.** The owner needs it in the
+handoff and cannot act on a path alone. See `.opencode/sops/SUBAGENT_BRIEF.md`.
 
 ## 3. graphify: query the graph before grepping
 
@@ -87,7 +110,9 @@ graphify update .               # after edits, AST only
 **Auto-update:** the `graphify-auto-update` plugin runs `graphify update .` after
 every edit/write, debounced 1.5 s, flushed on idle. If it did not run, run it
 manually after the last edit. Skip only when the graph file is absent. Keep the
-output quiet.
+output quiet. When `graphify-out/graph.json` is absent the plugin no-ops —
+the agent must build the first graph in Phase 1 (`.opencode/sops/DEVELOPMENT.md:58`):
+adapt `.graphifyignore`, then run `graphify update .`.
 
 Order: `graphify query` -> `graphify-out/wiki/index.md` -> `GRAPH_REPORT.md`
 (broad review only) -> `rtk grep` + 2-3 file reads. Dirty `graphify-out/` is

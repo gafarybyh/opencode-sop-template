@@ -74,7 +74,7 @@ import style, error handling, and state management.
 
 - The `planner` subagent writes the spec; its ticket shape applies when it
   should become tickets.
-- **Spawn trigger:** >1 file, new module, non-obvious data flow, or ambiguity
+- **Spawn trigger 1 — `planner`:** >1 file, new module, non-obvious data flow, or ambiguity
   >2 questions. One-file fix or single-file tweak: primary does it alone
   (brief overhead exceeds the benefit).
 - Ambiguity means ask **once**, in a short numbered list, then proceed.
@@ -87,10 +87,10 @@ import style, error handling, and state management.
 **Exit:** ordered steps, each naming a file, and the **change class** (A–E, per
 the triage in `.opencode/sops/QUALITY_GATE.md`) that says which gates apply.
 
-- The `planner` subagent for a new module or non-obvious data flow.
-- **Spawn trigger:** codebase exploration across >3 files -> the `explore`
+- **Spawn trigger 2 — `planner` (plan):** new module or non-obvious data flow -> the
+  `planner` subagent writes the ticketed plan. Otherwise 3-7 numbered steps inline.
+- **Spawn trigger 3 — `explore`:** codebase exploration across >3 files -> the `explore`
   subagent (`graphify query` first). ≤3 files: primary reads them directly.
-- Otherwise 3-7 numbered steps inline.
 
 ## Project structure (greenfield only)
 
@@ -121,12 +121,27 @@ Rules:
   for the floor and bans.
 - No comments unless asked. No dead code. No `TODO` in a handoff.
 - New behaviour gets a test when the stack has a runner (stack file **Verify**).
-  No runner: say so.
+  No runner: say so. For class B logic, write the failing test before the fix
+  (TDD) or at least before claiming done.
+- **Threat-model before auth work.** If the task touches auth, session, token
+  refresh, or permissions, run the `reviewer` agent **before Phase 4** to lock
+  the security guardrails (session binding, refresh rotation, lockout, RBAC/ABAC
+  checks, MFA). Write the guardrails down, then again at Phase 7.
+  No auth change ships without this step.
 - **Backend: create `qa-api.config.json` in the backend root as part of the build,**
   before you can verify it. It is a build output of this phase, not an optional
   extra — without it `qa-api` cannot boot the server and G3b cannot pass. Starter
   JSON + fields: `.opencode/sops/stacks/_backend.md`. Fill `start`, `readyPath`,
   `coverageMin`, and `smoke` entries that assert a 200, a 400, a 404 and a 401.
+- **API contract.** For a new endpoint (or a changed request/response shape), add the
+  contract **before** writing callers: Pydantic/DTO types, a committed
+  `openapi.json`, or a `.schema.json` — whichever the stack uses. Hand-written
+  callers do not count.
+- **DB migration.** For a schema change write the migration up **and** down (rollback).
+  Prefer expand–contract: add nullable -> backfill -> drop, so old and new code
+  overlap during rollout. A non-reversible migration needs a written rollback plan.
+- **Supply chain.** Pin dependencies in the lockfile. After every dep change run
+  the audit (Gate 2) — a new dep is a supply-chain decision, not an afterthought.
 - No new dependency without saying why and confirming it is absent.
 - Security: never log secrets, never ship secrets to the client, validate at the
   boundary, encode output.
@@ -170,6 +185,7 @@ explained and accepted. The class was fixed in Phase 3 (triage in
 | B — logic | build + typecheck + lint + tests (full list below) |
 | C — UI tweak | build + typecheck + lint; tests only if logic changed |
 | D — new screen | build + typecheck + lint + tests |
+| E — native UI | build + typecheck + lint + tests + device/emulator boot (G6b substitutes G4/G5/G6) |
 
 Take exact commands from the stack file's **Verify** section. Prefer
 `package.json` scripts. JS example, with `rtk` prefix:
@@ -190,9 +206,22 @@ gate, so a code change without a fresh PASS cannot be committed.
 Classes C and D: build and start the production/preview server (background)
 before Phase 6. Dev-server numbers are not gate evidence.
 
+**Class E — native UI:** run the stack file's Verify (Flutter `flutter analyze` /
+`flutter test`; React Native `tsc` + `eslint` + `jest`), then boot the app on a
+device or emulator for G6b. Phase 6 browser screenshots, `qa-gate --render`,
+and `qa-perf` LCP/CLS do not apply — do not force them.
+
+For class B logic and class E native work, write tests **with or before** the
+logic (TDD, or at minimum a failing regression test first) — a test written after
+green code tests what already works, not what was broken.
+
 ## Phase 6 — Verify (visual and real)
 
-**Skip this phase entirely for classes A and B** — no UI change, nothing to render.
+**Skip the browser pass entirely for classes A and B** — no UI change, nothing
+to render. **Class E skips the browser pass too** — instead run G6b: boot the
+app on a device or emulator at phone and tablet widths, screenshot it, and apply
+the `QUALITY_GATE.md` Gate 6b checklist (44pt/48dp targets, SafeArea, themes,
+zero red console errors).
 
 **Exit, by class:**
 - **C — UI tweak (G5-fast):** qa-gate PASS (0 FAIL); one screenshot at 1280; no
@@ -229,9 +258,9 @@ not an eyeball.
 
 Browser tooling missing: stop and report "UI not verified, browser tooling missing".
 Never tick a checklist without evidence. Full gate items:
-`.opencode/sops/QUALITY_GATE.md` gates 4-6.
+`.opencode/sops/QUALITY_GATE.md` gates 4-6 and, for class E, gate 6b.
 
-**Spawn trigger (UI audit):** any audit, token-consistency check, or design
+**Spawn trigger 4 — `ui-designer` (audit):** any audit, token-consistency check, or design
 review of an existing surface goes to the `ui-designer` subagent with a brief
 (token lock + scope). The primary does not audit its own UI — self-audit is
 biased. `ui-designer` returns evidence; it does not run Phase 6.
@@ -240,11 +269,10 @@ biased. `ui-designer` returns evidence; it does not run Phase 6.
 
 **Exit:** an independent review pass found nothing blocking.
 
-- The `reviewer` agent for logic, convention, and security bugs (auth, input,
-  network, or files). Required for classes B-E when the diff touches more than
-  one file; a single-file class-A change can skip it.
-- **Spawn trigger:** diff >1 file, or auth/input/network/file I/O changed.
+- **Spawn trigger 5 — `reviewer`:** diff >1 file, or auth/input/network/file I/O changed.
   Single-file logic fix with a regression test: primary self-review is enough.
+- When auth would change, run the `reviewer` **before Phase 4** (threat-model +
+  guardrails) and again at Phase 7 (implementation review).
 - Report: what now works, how to see it, what is deliberately not done, open
   risks, next action.
 

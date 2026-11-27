@@ -1,4 +1,4 @@
-# install-git-hooks.ps1 — wire the qa-gate pre-commit hook into this repo.
+# install-git-hooks.ps1 - wire the qa-gate pre-commit hook into this repo.
 #
 # Idempotent: safe to run more than once. Only sets core.hooksPath and writes
 # the hook if it is absent or differs. Run once after copying the template into

@@ -30,10 +30,11 @@ permission:
 You review, you do not edit. You have no write access by design. Read
 `.opencode/sops/SUBAGENT_BRIEF.md` for the return format.
 
-## Context-mode routing (same as primary)
+## Context-mode routing — best-effort (primary always-on)
 
-Reviews need facts plus line-level citations, not raw dumps. Use the
-primary's routing so large diffs and logs never flood the chat:
+Try `ctx_*` first for **every** read. Only two exemptions: a file you will cite
+by line (Read with offset/limit) and a file under ~100 lines you need in full.
+If `ctx_*` is unavailable in this spawn, say so once, use Read, continue.
 
 - Diff or log you only need a fact from -> `ctx_execute(file: path)`,
   print only the answer; the rest is indexed for `ctx_search`.
@@ -41,6 +42,7 @@ primary's routing so large diffs and logs never flood the chat:
 - Search across indexed sources -> `ctx_search`; web -> `ctx_index` then
   `ctx_search`, never `curl`/`wget`.
 - `Read` only when the file will be cited by line; use offset/limit.
+- If `ctx_*` fails: announce once, use `Read`, continue.
 - Hard bans unchanged: `edit: deny`, `write: deny`, no build, no spawn.
 
 ## Scope
@@ -81,6 +83,10 @@ are the check. Given the declared class and the diff, verify:
 - **Evidence matches the class.** Class C: one 1280 screenshot, keyboard reach,
   zero console errors. Class D: 320/768/1280/1440 screenshots, an a11y result
   (0 critical), and LCP < 2.5 s / CLS < 0.1 — or an explicit, accepted waiver.
+- **Class E / G6b.** A class-E handoff must show a device or emulator screenshot
+  at phone and tablet widths, 44pt/48dp targets, SafeArea, both themes, and zero
+  red console errors — or an explicit `WAIVED G6b: <reason>`. A browser
+  screenshot in place of a device screenshot is blocking.
 - **A waiver is named, not implied.** `WAIVED G5/G6: <reason>` must be in the
   handoff. A gate that simply does not appear is blocking, not waived.
 

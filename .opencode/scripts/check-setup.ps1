@@ -272,6 +272,10 @@ $bpGlobal = Join-Path $userHome ".config\opencode\skills\project-blueprint\SKILL
 if (Test-Path $bpGlobal) { Ok 'project-blueprint global skill installed' }
 else { Warn "project-blueprint global skill missing. Run bootstrap-windows.ps1 to install it from .opencode/global-skills/." }
 
+$docGlobal = Join-Path $userHome ".config\opencode\skills\doc-coauthoring\SKILL.md"
+if (Test-Path $docGlobal) { Ok 'doc-coauthoring global skill installed' }
+else { Warn "doc-coauthoring global skill missing. Run bootstrap-windows.ps1 to install it from .opencode/global-skills/." }
+
 Ok "root: $(($((Get-ChildItem $root -Force)).Name) -join ', ')"
 
 Write-Host "`n=== SOP files ===" -ForegroundColor Cyan
@@ -297,7 +301,7 @@ $required = @(
   '.opencode/skills/i-have-adhd/SKILL.md','.opencode/skills/design-md/SKILL.md',
   '.opencode/mcp/README.md','.opencode/mcp/INSTALL.md','.opencode/mcp/opencode-snippet.jsonc'
 )
-if ($isTemplate) { $required += '.opencode/global-skills/project-blueprint/SKILL.md'; $required += '.opencode/global-skills/modern-web-guidance/SKILL.md' }
+if ($isTemplate) { $required += '.opencode/global-skills/project-blueprint/SKILL.md'; $required += '.opencode/global-skills/modern-web-guidance/SKILL.md'; $required += '.opencode/global-skills/doc-coauthoring/SKILL.md' }
 foreach ($f in $required) {
   $p = Join-Path $root ($f -replace '/','\')
   if (Test-Path $p) { Ok $f } else { Bad "missing: $f" }

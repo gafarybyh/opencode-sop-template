@@ -8,6 +8,10 @@
 #   api (G2/G3):       qa-api — tests + coverage + live HTTP smoke — only when a
 #                      backend declares server/qa-api.config.json. Supports Node and
 #                      Python backends (the config's "framework" picks the runner).
+#   g2-build-and-test: build + typecheck + lint + tests + dependency audit + frozen
+#                      lockfile install — the G2 mechanical gate in CI, not only local.
+#                      Extend with more steps per stack env vars below.
+#   sbom (release):    generate an SBOM on release tags (CycloneDX).
 #
 # SPA note: if the app loads CSS/JS from absolute paths (/static/...), a plain
 # file/folder scan renders an unstyled page and reports false FAILs. Start the
@@ -87,6 +91,8 @@ jobs:
 
   api:
     runs-on: ubuntu-latest
+    env:
+      QA_API_DIR: server   # backend root containing qa-api.config.json; multiple backends -> one job each
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -97,12 +103,106 @@ jobs:
           python-version: "3.12"
       - name: Backend gate (only if a backend declares a smoke contract)
         run: |
-          if [ ! -f server/qa-api.config.json ]; then
-            echo "No server/qa-api.config.json — no backend gate configured. Skipping."
+          if [ ! -f "$QA_API_DIR/qa-api.config.json" ]; then
+            echo "No $QA_API_DIR/qa-api.config.json — no backend gate configured. Skipping."
             exit 0
           fi
           # Install Python deps when present so a pytest-based backend can run.
           if [ -f requirements.txt ]; then python -m pip install -q -r requirements.txt; fi
-          if [ -f server/requirements.txt ]; then python -m pip install -q -r server/requirements.txt; fi
+          if [ -f "$QA_API_DIR/requirements.txt" ]; then python -m pip install -q -r "$QA_API_DIR/requirements.txt"; fi
           python -m pip install -q pytest pytest-cov
-          node .opencode/scripts/qa-api.mjs --dir server --python python
+          node .opencode/scripts/qa-api.mjs --dir "$QA_API_DIR" --python python
+
+  g2-build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      # Set per project. Example (Node):
+      #   G2_BUILD: "npm run build"
+      #   G2_TYPECHECK: "npx tsc --noEmit"
+      #   G2_LINT: "npx eslint ."
+      #   G2_TEST: "npx vitest run"
+      #   G2_INSTALL: "npm ci"          # frozen lockfile only; never "npm install"
+      #   G2_AUDIT: "npm audit --audit-level=high"
+      #   G2_LOCKED: "package-lock.json" # lockfile that must be in the repo
+      G2_BUILD: ""
+      G2_TYPECHECK: ""
+      G2_LINT: ""
+      G2_TEST: ""
+      G2_INSTALL: ""
+      G2_AUDIT: ""
+      G2_LOCKED: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Detect project type
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "project=node" >> "$GITHUB_OUTPUT"
+            if [ -f package-lock.json ] || [ -f pnpm-lock.yaml ] || [ -f yarn.lock ]; then
+              echo "lockfile=present" >> "$GITHUB_OUTPUT"
+            else
+              echo "lockfile=missing" >> "$GITHUB_OUTPUT"
+            fi
+          elif [ -f pyproject.toml ] || [ -f requirements.txt ]; then
+            echo "project=python" >> "$GITHUB_OUTPUT"
+          elif [ -f go.mod ]; then
+            echo "project=go" >> "$GITHUB_OUTPUT"
+          elif [ -f Cargo.toml ]; then
+            echo "project=rust" >> "$GITHUB_OUTPUT"
+          else
+            echo "project=none" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install (frozen lockfile)
+        if: steps.detect.outputs.project != 'none' && env.G2_INSTALL != ''
+        run: ${{ env.G2_INSTALL }}
+      - name: Lockfile present
+        if: steps.detect.outputs.project != 'none' && env.G2_LOCKED != ''
+        run: |
+          if [ ! -f "$G2_LOCKED" ]; then
+            echo "ERROR: $G2_LOCKED not in repo — cannot pin dependencies."
+            exit 1
+          fi
+      - name: Loud-skip when G2 env is empty
+        if: steps.detect.outputs.project != 'none'
+        run: |
+          if [ -z "$G2_BUILD" ] && [ -z "$G2_TYPECHECK" ] && [ -z "$G2_LINT" ] && [ -z "$G2_TEST" ]; then
+            echo "::warning::G9: G2 env empty — build/typecheck/lint/test did not run. Set G2_* in job env to enforce the mechanical gate."
+          else
+            echo "G2 checks configured."
+          fi
+      - name: G2 build
+        if: env.G2_BUILD != ''
+        run: ${{ env.G2_BUILD }}
+      - name: G2 typecheck
+        if: env.G2_TYPECHECK != ''
+        run: ${{ env.G2_TYPECHECK }}
+      - name: G2 lint
+        if: env.G2_LINT != ''
+        run: ${{ env.G2_LINT }}
+      - name: G2 tests
+        if: env.G2_TEST != ''
+        run: ${{ env.G2_TEST }}
+      - name: G2 dependency audit
+        if: env.G2_AUDIT != ''
+        run: ${{ env.G2_AUDIT }}
+
+  sbom:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Generate SBOM (CycloneDX)
+        run: |
+          npm install --no-save @cyclonedx/cyclonedx-npm@latest
+          npx cyclonedx-npm --output-format JSON --output-file sbom.json
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json

@@ -230,7 +230,28 @@ function ActionSetup {
   $args = @('-Project', $target)
   if ($DryRun)  { $args += '-DryRun' }
   if ($Force)   { $args += '-Force' }
-  return (Invoke-Script $bootstrap $args)
+  $code = Invoke-Script $bootstrap $args
+  if ($code -eq 0) {
+    # plug-and-play: also patch opencode.json so ctx_* primary stays registered.
+    # Idempotent; no-op when already correct.
+    $patcher = Join-Path $scriptDir 'install-opencode-config.ps1'
+    if (Test-Path $patcher) {
+      Write-Host ''
+      Write-Host '  Patching opencode.json for context-mode plugin  (plug-and-play)' -ForegroundColor Cyan
+      $pArgs = @('-Project', $target)
+      if ($DryRun) { $pArgs += '-DryRun' }
+      $pCode = Invoke-Script $patcher $pArgs
+      if ($pCode -ne 0) {
+        Warn 'opencode.json patch reported an issue; SOP still usable via fallback.'
+        Info 'Re-run manually: powershell -File .opencode\scripts\install-opencode-config.ps1 -Project "$target"'
+      } else {
+        Ok 'opencode.json ready: context-mode plugin registered'
+      }
+    } else {
+      Info "(install-opencode-config.ps1 not found in template; skipping patch)"
+    }
+  }
+  return $code
 }
 
 function ActionStatus {

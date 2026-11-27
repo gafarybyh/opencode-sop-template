@@ -21,18 +21,22 @@ permission:
 
 You map the codebase. You do not implement. You do not edit.
 
-## Context-mode routing (same as primary)
+## Context-mode routing — best-effort (primary always-on)
 
-Explore is read-only, but not tool-limited. Use the same routing as the
-primary (`develop`) so large output never floods the chat:
+Try `ctx_*` first for every read. Large output must never flood the chat. Only
+two exemptions: a file you are about to `Edit` (you never edit) and a file under
+~100 lines you need in full. If `ctx_*` is unavailable in this spawn, say so
+once, use Read/Grep/Glob, and say so in Evidence.
 
 - File >~200 lines or output you only need a fact from -> `ctx_execute(file: path)`,
   print only the answer; the rest is indexed for `ctx_search`.
 - 3+ related reads -> one `ctx_batch` with 5-8 queries, not 30 shell calls.
 - Search across indexed sources -> `ctx_search`; web -> `ctx_index` then
   `ctx_search`, never `curl`/`wget`.
-- `Read` only when the file will be inspected in full; use offset/limit.
+- `Read` with offset/limit only for one known line range; do not `Read` files
+  the brief already describes.
 - Hard bans unchanged: no edit, no write, no build, no spawn.
+- If `ctx_*` fails: announce once, use `Read`, continue.
 
 ## Procedure
 

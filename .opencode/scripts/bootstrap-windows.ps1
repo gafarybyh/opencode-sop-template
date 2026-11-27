@@ -5,11 +5,11 @@
 # Playwright browsers, and the vendored skills.
 #
 # Usage:
-#   powershell -NoProfile -File .opencode\scripts\bootstrap-windows.ps1
-#   powershell -NoProfile -File .opencode\scripts\bootstrap-windows.ps1 -DryRun
-#   powershell -NoProfile -File .opencode\scripts\bootstrap-windows.ps1 -TavilyKey "tvly-..."
-#   powershell -NoProfile -File .opencode\scripts\bootstrap-windows.ps1 -SkipBrowsers -SkipSkills
-#   powershell -NoProfile -File .opencode\scripts\bootstrap-windows.ps1 -Project "C:\dev\my-app"
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\bootstrap-windows.ps1
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\bootstrap-windows.ps1 -DryRun
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\bootstrap-windows.ps1 -TavilyKey "tvly-..."
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\bootstrap-windows.ps1 -SkipBrowsers -SkipSkills
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .opencode\scripts\bootstrap-windows.ps1 -Project "C:\dev\my-app"
 #
 # -Project copies the SOP into that folder and sets it up in one pass.
 # -SkipProject leaves the project copy for later.

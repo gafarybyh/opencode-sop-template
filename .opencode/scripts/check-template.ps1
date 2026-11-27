@@ -59,7 +59,8 @@ $required = @(
   '.opencode/plugins/graphify-auto-update.js',
   '.opencode/plugins/qa-gate-guard.js',
   '.opencode/global-skills/project-blueprint/SKILL.md',
-  '.opencode/global-skills/modern-web-guidance/SKILL.md'
+  '.opencode/global-skills/modern-web-guidance/SKILL.md',
+  '.opencode/global-skills/doc-coauthoring/SKILL.md'
 )
 foreach ($f in $required) {
   $p = Join-Path $root ($f -replace '/','\')

@@ -13,11 +13,11 @@ passed.
 
 | Class | Trigger | Gates that apply |
 |---|---|---|
-| **A** — docs/config | only docs, comments, config, dependency bumps; no product code | G0, G2 (lint only if it lints those files), G8 |
-| **B** — logic | source code, no user-visible UI change | G0, G1, G2, G3, **G3b** (if server/schema), G7 (>1 file), G8 |
-| **C** — UI tweak | CSS/markup/copy change to an existing screen | G0, G1, G2, **G4**, G5-fast, G8 |
-| **D** — new screen | new page/screen, redesign, or layout rework | G0, G1, G2, G3 (if logic), **G3b** (if server/schema), **G4**, **G5 (full)**, **G6**, G7, G8 |
-| **E** — native UI | React Native / Expo / Flutter | G0, G1, G2, G3, **G4 (as applicable)**, **G6b**, G7, G8 |
+| **A** — docs/config | only docs, comments, config, dependency bumps; no product code | G0, G2 (lint only if it lints those files), G9 (CI), G8 |
+| **B** — logic | source code, no user-visible UI change | G0, G1, G2, G3, **G3b** (if server/schema), G7 (>1 file), G9 (CI), G8 |
+| **C** — UI tweak | CSS/markup/copy change to an existing screen | G0, G1, G2, **G4**, G5-fast, G9 (CI), G8 |
+| **D** — new screen | new page/screen, redesign, or layout rework | G0, G1, G2, G3 (if logic), **G3b** (if server/schema), **G4**, **G5 (full)**, **G6**, G7, G9 (CI), G8 |
+| **E** — native UI | React Native / Expo / Flutter | G0, G1, G2, G3, **G6b**, G7, G9 (CI), G8 |
 
 Notes:
 
@@ -68,6 +68,10 @@ passed.
       `rtk npx eslint .` / `rtk ruff check` / `rtk cargo clippy`
 - [ ] Tests: `rtk npx vitest run` / `rtk pytest` / `rtk go test ./...` / `rtk cargo test`
 - [ ] Dependency audit clean when dependencies changed: `rtk npm audit --audit-level=high` / `rtk pip-audit` / `rtk govulncheck ./...` / `rtk cargo audit`. A new dependency for a few lines of code is rejected.
+- [ ] **Lockfile pinned**: every dep change updates the lockfile (`package-lock.json` /
+      `pnpm-lock.yaml`, `uv.lock` / `poetry.lock`, `go.sum`, `Cargo.lock`). CI installs
+      with the frozen lockfile (`npm ci`, `pip install --frozen`, `go mod verify`).
+      An unpinned dependency is a supply-chain gap, not a pass.
 
 If a baseline cannot be captured, report the absolute count and list pre-existing
 warnings as `N/A pre-existing`. Capture the baseline before the change, e.g.
@@ -77,7 +81,9 @@ unrelated lint debt in the same change.
 
 ## Gate 3 — Test coverage (when logic changed)
 
-- [ ] New pure logic has at least one test.
+- [ ] New pure logic has at least one test, written **with or before** the logic
+      (TDD). A test written after green code tests behavior that already works, not
+      the broken path — it does not close G3.
 - [ ] Bug fix has a regression test that fails before the fix.
 - [ ] Tests assert behaviour, not implementation detail.
 - [ ] No test skipped or deleted to make the suite green.
@@ -103,7 +109,18 @@ mechanical gate passes — same rule as G4 for the design floor.
       a transaction.
 - [ ] Migration applies to a fresh DB in the test run; a code-vs-`docs/BACKEND_SCHEMA.md`
       mismatch is reported, not silently resolved.
-- [ ] Supply chain: dependency audit clean (see Gate 2).
+- [ ] **Rollback:** the migration ships up **and** down, or an expand–contract plan
+      (add nullable -> backfill -> drop) so old/new code overlap during rollout.
+      A non-reversible migration needs a written rollback plan.
+- [ ] **API contract first:** a new or changed endpoint ships Pydantic/DTO types,
+      a committed `openapi.json`, or a `.schema.json` — checked in before callers.
+      Hand-written callers (`fetch`) do not count as contract evidence.
+- [ ] **Threat-model (auth changes):** a `reviewer` pass before Phase 4 documented
+      session binding, refresh rotation, lockout, RBAC/ABAC checks, and MFA. Re-run
+      at Phase 7. An auth change without the early pass does not pass G3b.
+- [ ] Supply chain: dependency audit clean (see Gate 2); lockfile pinned; SBOM
+      generated on release (`npm sbom` / `pip-audit --format=cyclonedx-json` /
+      `cargo audit --format=json`).
 
 `qa-api` writes `.opencode/api-status.json`; the pre-commit hook blocks a stale
 backend gate when `qa-api.config.json` exists — so this is enforced, not
@@ -190,6 +207,9 @@ waiver). A class declared lower than the diff warrants is blocking too.
 - [ ] The `reviewer` agent run; blockers addressed.
 - [ ] Security checked when auth, input parsing, network, file I/O, or
       dependencies changed (the `reviewer` agent covers this).
+- [ ] **Early auth review:** if the change touches auth/session/token/permission,
+      `reviewer` also ran before Phase 4 (see G3b) and the guardrails are written
+      down. Late-only security review for auth is a blocking finding.
 - [ ] Diff is one concern. Unrelated refactors split out or dropped.
 
 ## Gate 8 — Handoff quality
@@ -209,6 +229,24 @@ with `VERIFY: DEFERRED` or `WAIVED` is not Done; Phase 5/6 must run before
 Phase 7, or the user must accept the waiver in writing.
 
 No "let me know if you need anything else". No recap of the plan.
+
+## Gate 9 — CI and supply chain (all classes)
+
+A change is not Done while it only passes locally. The CI workflow backstop
+(`.opencode/ci/qa-gate.yml`) must run the same gates as this file, not only G4.
+
+- [ ] CI runs **build + typecheck + lint + test** on every push and PR (G2 job).
+- [ ] CI runs **qa-api** when `qa-api.config.json` exists (a job per backend).
+- [ ] CI runs **qa-perf** when UI files exist (G6 job).
+- [ ] CI installs with the **frozen lockfile** (`npm ci`, `pip install --frozen`,
+      `go mod verify`). No `--no-save` installs in CI steps.
+- [ ] Dependency audit runs in CI on every dep change (`npm audit` / `pip-audit` /
+      `cargo audit`); a high/critical finding blocks merge.
+- [ ] Release: SBOM generated and attached to the release artifact
+      (`npm sbom` / `pip-audit --format=cyclonedx-json` / `cargo audit --format=json`).
+
+When a repo has no CI yet, that is a deliberate gap — say so in the handoff under
+"What is deliberately not done", never claim CI passed.
 
 ## Waiving a gate
 

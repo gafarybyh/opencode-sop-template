@@ -126,7 +126,7 @@ $ggDst = Join-Path $Destination '.graphifyignore'
 if (Test-Path $ggSrc) {
   if (-not (Test-Path $ggDst)) {
     Copy-Item -Path $ggSrc -Destination $ggDst -Force
-    Write-Host "  .graphifyignore (starter — agent adapts patterns per project)"
+    Write-Host "  .graphifyignore (starter - agent adapts patterns per project)"
   } else {
     Write-Host "  .graphifyignore already present (left as-is)"
   }

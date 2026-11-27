@@ -21,6 +21,13 @@ Waivers: <none, or reason>
 
 - Never invent a token, color, component, or file outside `scope` in the brief.
 - Never change a file outside `scope`. Read-only when the brief says audit.
+- **Context-mode is always on for the primary.** Use `ctx_execute` / `ctx_batch` /
+  `ctx_search` for every read and analysis — even on short questions. Only two
+  exemptions: a file you are about to `Edit` (exact bytes) and a file under
+  ~100 lines you need in full. **Subagents are best-effort:** try `ctx_*` first,
+  but if it is unavailable in the spawn runtime, say so once, use `Read` /
+  `Grep` / `Glob`, and say so in the evidence line. Never dump raw file contents
+  into the chat when a sandbox call could derive the answer.
 - Never start Phase 5/6 (build, test, screenshots, dev server) unless the
   brief says this is your job. The primary owns verification evidence.
 - Never claim a gate passed. Report the command and its exit code; the

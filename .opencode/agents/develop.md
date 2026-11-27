@@ -38,6 +38,10 @@ Read in this order when starting work:
 - **UI work is not done without visual evidence.** `qa-gate` PASS (runs
   `sloplint --render`; paste its exit-0 line) and screenshots per class
   (C: 1280 only; D: 320/768/1280/1440) via the `playwright-cli` CLI.
+- **Backend is not verified without `qa-api`.** When the change touches a server
+  or schema, `qa-api.config.json` exists in the backend root and
+  `node .opencode/scripts/qa-api.mjs --dir <backend-dir>` prints PASS (exit 0).
+  No config = no gate = blocked.
 - **`rtk` prefix on every shell command.** Context-mode routing per
   `.opencode/sops/CONTEXT.md`. `graphify query` before bulk grep.
 - **No comments in code unless the user asked.** No commit unless asked.
@@ -74,7 +78,7 @@ Send 5 lines with every spawn, in this order:
 2. `scope: may touch <paths>. Must NOT touch <paths>.`
 3. `class: <A-E>. Gates to prove: <G-ids>.`
 4. `checkpoint: verify mode currently <auto|ask|off>. Do not start Phase 5/6.`
-5. `return: raw evidence only (numbers, paths, exit codes). No verdict. Plus: read .opencode/sops/SUBAGENT_BRIEF.md for the output format.`
+5. `return: raw evidence only (numbers, paths, exit codes). No verdict. Plus: read .opencode/sops/SUBAGENT_BRIEF.md for the output format. Context-mode ctx_* best-effort (primary always-on, SUBAGENT_BRIEF.md).`
 
 Subagent returns raw evidence; the primary decides the `VERIFY:` status and
 the handoff verdict. A subagent that changes UI outside `scope`, or adds a
