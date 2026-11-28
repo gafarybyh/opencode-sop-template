@@ -323,7 +323,9 @@ function Menu {
         $target = ChooseTarget
         if (-not $target) { Write-Host '  cancelled' -ForegroundColor Yellow; return }
       }
-      ActionOpen | Out-Null
+      # Do NOT pipe to Out-Null: opencode is a TUI. Piped stdout = no TTY =
+      # opencode exits immediately. Monitor stdin/stdout directly.
+      ActionOpen
     }
     '7' {
       if (-not $target) {
